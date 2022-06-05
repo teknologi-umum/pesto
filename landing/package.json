@@ -9,5 +9,10 @@
   },
   "devDependencies": {
     "vite": "^2.9.9"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^4.5.10",
+    "@fontsource/ibm-plex-sans": "^4.5.11",
+    "@fontsource/ibm-plex-serif": "^4.5.10"
   }
 }
