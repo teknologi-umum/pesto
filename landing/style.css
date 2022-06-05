@@ -18,6 +18,7 @@ body {
 #app {
   max-width: 960px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 /*#region Utility */
@@ -58,7 +59,7 @@ body {
 
 .title {
   letter-spacing: 0.125em;
-  font-size: 6rem;
+  font-size: clamp(3rem, calc(4vw + 2rem), 6rem);
   font-family: "IBM Plex Serif", serif;
   font-weight: 700;
   color: #22331a;
@@ -87,7 +88,7 @@ svg.leaf-icon-bg {
 
 .description {
   text-align: center;
-  font-size: 2rem;
+  font-size: clamp(1.25rem, calc(2vw + 1rem), 2rem);
   line-height: 1.75em;
   font-family: "IBM Plex Serif", serif;
   font-weight: 500;
@@ -101,6 +102,12 @@ svg.leaf-icon-bg {
   width: fit-content;
   gap: 2rem;
   margin: 3rem auto 0;
+}
+
+@media only screen and (max-width: 640px) {
+  .buttons {
+    flex-direction: column;
+  }
 }
 
 .button.get-started {
@@ -125,7 +132,8 @@ svg.leaf-icon-bg {
 
 .heading {
   color: #22331a;
-  font-size: 2.25rem;
+  /* font-size: 2.25rem; */
+  font-size: clamp(1.5rem, calc(2vw + 1.5rem), 2.25rem);
   font-family: "IBM Plex Serif", serif;
   font-weight: 700;
 }
@@ -181,6 +189,12 @@ svg.leaf-icon-bg {
   gap: 1rem;
 }
 
+@media only screen and (max-width: 640px) {
+  .example {
+    flex-direction: column;
+  }
+}
+
 .example-item {
   flex: 1;
 }
@@ -222,6 +236,7 @@ svg.leaf-icon-bg {
   background-color: #22331a;
   color: #eaffef;
   box-shadow: 0.25rem 0.25rem 0 0 #22331a;
+  overflow-x: auto;
 }
 
 .code pre {
