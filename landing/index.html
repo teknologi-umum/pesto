@@ -220,10 +220,11 @@
 HTTP POST /api/execute HTTP/<span class="code-int">1.1</span>
 <span class="code-key">X-Pesto-Token</span>: &lt;token&gt;
 <span class="code-key">Content-Type</span>: application/json
+<span class="code-key">Accept</span>: application/json
 
 <span class="code-brace">{</span>
   <span class="code-key">"language"</span>: <span class="code-string">"python"</span>,
-  <span class="code-key">"version"</span>: <span class="code-string">"3.7"</span>,
+  <span class="code-key">"version"</span>: <span class="code-string">"3.10.2"</span>,
   <span class="code-key">"code"</span>: <span class="code-string">"print('Hello World')"</span>
 <span class="code-brace">}</span></pre>
                 </div>
@@ -234,7 +235,7 @@ HTTP POST /api/execute HTTP/<span class="code-int">1.1</span>
                   <pre>
 <span class="code-brace">{</span>
   <span class="code-key">"language"</span>: <span class="code-string">"python"</span>,
-  <span class="code-key">"version"</span>: <span class="code-string">"3.7"</span>,
+  <span class="code-key">"version"</span>: <span class="code-string">"3.10.2"</span>,
   <span class="code-key">"compile"</span>: {
     <span class="code-key">"stdout"</span>: <span class="code-string">""</span>,
     <span class="code-key">"stderr"</span>: <span class="code-string">""</span>
@@ -265,6 +266,7 @@ HTTP POST /api/execute HTTP/<span class="code-int">1.1</span>
             <li><strong>Javascript</strong>: Node v16.5</li>
             <li><strong>PHP</strong>: v8.1</li>
           </ul>
+          <p>More runtimes will be supported in the future.</p>
         </div>
       </section>
       <section class="section" id="request">
