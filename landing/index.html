@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <title>Pesto - Remote Code Execution Engine</title>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <div class="header">
+          <h1 class="title">PESTO</h1>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            aria-hidden="true"
+            role="img"
+            class="iconify iconify--bx leaf-icon"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="m21.88 2.15l-1.2.4a13.84 13.84 0 0 1-6.41.64a11.87 11.87 0 0 0-6.68.9A7.23 7.23 0 0 0 3.3 9.5a8.65 8.65 0 0 0 1.47 6.6c-.06.21-.12.42-.17.63A22.6 22.6 0 0 0 4 22h2a30.69 30.69 0 0 1 .59-4.32a9.25 9.25 0 0 0 4.52 1.11a11 11 0 0 0 4.28-.87C23 14.67 22 3.86 22 3.41zm-7.27 13.93c-2.61 1.11-5.73.92-7.48-.45a13.79 13.79 0 0 1 1.21-2.84A10.17 10.17 0 0 1 9.73 11a9 9 0 0 1 1.81-1.42A12 12 0 0 1 16 8V7a11.43 11.43 0 0 0-5.26 1.08a10.28 10.28 0 0 0-4.12 3.65a15.07 15.07 0 0 0-1 1.87a7 7 0 0 1-.38-3.73a5.24 5.24 0 0 1 3.14-4a8.93 8.93 0 0 1 3.82-.84c.62 0 1.23.06 1.87.11a16.2 16.2 0 0 0 6-.35C20 7.55 19.5 14 14.61 16.08z"
+            ></path>
+          </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            aria-hidden="true"
+            role="img"
+            class="iconify iconify--bx leaf-icon-bg"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M22 3.41l-.12-1.26l-1.2.4a13.84 13.84 0 0 1-6.41.64a11.87 11.87 0 0 0-6.68.9A7.23 7.23 0 0 0 3.3 9.5a9 9 0 0 0 .39 4.58a16.6 16.6 0 0 1 1.18-2.2a9.85 9.85 0 0 1 4.07-3.43a11.16 11.16 0 0 1 5.06-1A12.08 12.08 0 0 0 9.34 9.2a9.48 9.48 0 0 0-1.86 1.53a11.38 11.38 0 0 0-1.39 1.91a16.39 16.39 0 0 0-1.57 4.54A26.42 26.42 0 0 0 4 22h2a30.69 30.69 0 0 1 .59-4.32a9.25 9.25 0 0 0 4.52 1.11a11 11 0 0 0 4.28-.87C23 14.67 22 3.86 22 3.41z"
+              fill="currentColor"
+            ></path>
+          </svg>
+        </div>
+        <p class="description">
+          A Remote Code Execution Engine that lets you execute any piece of code
+          on a remote server via REST API and/or GRPC.
+        </p>
+        <div class="buttons">
+          <a class="button get-started" href="#get-started">GET STARTED</a>
+          <a class="button request" href="#request">REQUEST A KEY</a>
+        </div>
+      </header>
+      <section class="section">
+        <h1 class="heading">What is Pesto?</h1>
+        <div class="content">
+          <p>
+            Pesto is a Remote Code Execution Engine that lets you execute any
+            piece of code on a remote server via REST API and/or GRPC. It is
+            heavily inspired by [Piston]. Although, Pesto is not a fork of
+            Piston, it's an entire rewrite from scratch and therefore it's not
+            compatible with Piston but should be similar if you're already
+            familiar with Piston.
+          </p>
+        </div>
+      </section>
+      <section class="section">
+        <h1 class="heading">How is it different from Piston?</h1>
+        <div class="content">
+          <p>
+            Unlike Piston, Pesto uses TypeScript instead of JavaScript and it
+            uses GRPC as its main protocol instead of HTTP. Although you can
+            still use HTTP to interact with Pesto.
+          </p>
+          <p>
+            The way Piston works is you would install the language support
+            separately using the Piston CLI. In Pesto, however, the language is
+            bundled. You can choose which language you want to use by defining a
+            language configuration inside a
+            <code class="inline-code">.toml</code> file before you deploy your
+            Pesto instance.
+          </p>
+          <p>
+            Pesto is much simpler than Piston. It doesn't support uploading
+            files to execute, passing arguments or stdin to your program.
+          </p>
+        </div>
+      </section>
+      <div class="section">
+        <h1 class="heading">How does Pesto execute my code?</h1>
+        <div class="content">
+          <p>
+            Pesto will execute your code in an isolated docker environment from
+            a dedicated temporary user that will get removed once your code is
+            finished being executed. Your code will have no access to the
+            filesystem, internet, and it will have a very limited amount of
+            resources.
+          </p>
+        </div>
+      </div>
+      <section>
+        <h1 class="heading">What Pesto is and isn't</h1>
+        <div class="content">
+          <p>
+            Pesto is not a replacement for a serverless runtime, no. It is meant
+            to execute a short snippet of your code. This is suitable if you're
+            building a code challenge platform or similar because usually you
+            will only need to execute short snippets of code like user's
+            submission for a challenge.
+          </p>
+        </div>
+      </section>
+      <section class="section" id="get-started">
+        <h1 class="heading getting-started">How do I get started?</h1>
+        <div class="content">
+          <p>
+            There are 2 ways of using Pesto, one is via REST API and the other
+            is via GRPC.
+          </p>
+          <div class="guide">
+            <h2 class="guide-title">Usage via REST API</h2>
+            <ul class="guide-list">
+              <li>
+                Request an API token <a class="url" href="#request">here</a>
+              </li>
+              <li>
+                Send a POST request to the server with the token as the
+                <code class="inline-code">X-Pesto-Token</code> header and an
+                <code class="inline-code">application/json</code> body with the
+                following fields:
+                <ul class="field-list">
+                  <li>
+                    <strong>language</strong>: The language of the code that you
+                    want to execute.
+                  </li>
+                  <li>
+                    <strong>version</strong>: The version of the language.
+                  </li>
+                  <li>
+                    <strong>code</strong>: The code that you want to execute.
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="guide">
+            <h2 class="guide-title">Usage via self-hosted GRPC</h2>
+            <ul class="guide-list">
+              <li>Just figure it yourself innit, it ain't that difficult</li>
+            </ul>
+          </div>
+          <div class="guide">
+            <h2 class="guide-title">Example</h2>
+            <p>
+              Here's an example on how a request and response should look like.
+            </p>
+            <div class="example">
+              <div class="example-item">
+                <div class="example-label">Request</div>
+                <div class="code">
+                  <pre>
+HTTP POST /api/v1/execute HTTP/<span class="code-int">1.1</span>
+<span class="code-key">X-Pesto-Token</span>: &lt;token&gt;
+<span class="code-key">Content-Type</span>: application/json
+
+<span class="code-brace">{</span>
+  <span class="code-key">"language"</span>: <span class="code-string">"python"</span>,
+  <span class="code-key">"version"</span>: <span class="code-string">"3.7"</span>,
+  <span class="code-key">"code"</span>: <span class="code-string">"print('Hello World')"</span>
+<span class="code-brace">}</span></pre>
+                </div>
+              </div>
+              <div class="example-item">
+                <div class="example-label">Response</div>
+                <div class="code">
+                  <pre>
+<span class="code-brace">{</span>
+  <span class="code-key">"language"</span>: <span class="code-string">"python"</span>,
+  <span class="code-key">"version"</span>: <span class="code-string">"3.7"</span>,
+  <span class="code-key">"compile"</span>: {
+    <span class="code-key">"stdout"</span>: <span class="code-string">""</span>,
+    <span class="code-key">"stderr"</span>: <span class="code-string">""</span>
+    <span class="code-key">"output"</span>: <span class="code-string">""</span>
+    <span class="code-key">"exitCode"</span>: <span class="code-int">0</span>
+  <span class="code-brace">}</span>,
+  <span class="code-key">"runtime"</span>: {
+    <span class="code-key">"stdout"</span>: <span class="code-string">"Hello World"</span>,
+    <span class="code-key">"stderr"</span>: <span class="code-string">""</span>
+    <span class="code-key">"output"</span>: <span class="code-string">"Hello World"</span>
+    <span class="code-key">"exitCode"</span>: <span class="code-int">0</span>
+  <span class="code-brace">}</span>,
+<span class="code-brace">}</span></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="section" id="request">
+        <h1 class="heading">Request an API key</h1>
+        <div class="content">
+          <p>
+            You can request an API key which you can then use to execute your
+            code via a REST API call using this form.
+          </p>
+          <form class="form" action="/api/register" method="post">
+            <div class="field">
+              <label class="label">Name</label>
+              <input
+                class="input"
+                type="text"
+                name="name"
+                autocomplete="off"
+                required
+                placeholder="So we know who you are"
+              />
+            </div>
+            <div class="field">
+              <label class="label">Email</label>
+              <input
+                class="input"
+                type="email"
+                name="email"
+                autocomplete="email"
+                required
+                placeholder="We'll send your token to this email"
+              />
+            </div>
+            <div class="field">
+              <label class="label">What do you want to build</label>
+              <input
+                class="input"
+                type="text"
+                name="building"
+                autocomplete="off"
+                required
+                placeholder="We'd love to know what you'll be building using Pesto"
+              />
+            </div>
+            <div class="field">
+              <label class="label">How many requests/month</label>
+              <input
+                class="input"
+                type="number"
+                name="calls"
+                autocomplete="off"
+                required
+                placeholder="Should be a reasonable amount"
+              />
+            </div>
+            <div class="field">
+              <button class="button">Request A Key</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+    <footer class="footer">
+      <div class="footer-back-to-top">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          aria-hidden="true"
+          role="img"
+          class="iconify iconify--fluent chevron-up"
+          width="32"
+          height="32"
+          preserveAspectRatio="xMidYMid meet"
+          viewBox="0 0 16 16"
+        >
+          <path
+            fill="currentColor"
+            d="M3.2 10.26a.75.75 0 0 0 1.06.04L8 6.773l3.74 3.527a.75.75 0 1 0 1.02-1.1l-4.25-4a.75.75 0 0 0-1.02 0l-4.25 4a.75.75 0 0 0-.04 1.06Z"
+          ></path>
+        </svg>
+      </div>
+      <div class="footer-content">
+        <p>
+          Pesto is a project by
+          <a class="url" href="https://github.com/teknologi-umum">
+            Teknologi Umum
+          </a>
+        </p>
+        <p>
+          Interested on contributing? Check out the
+          <a class="url" href="https://github.com/teknologi-umum/pesto">
+            GitHub repository
+          </a>
+        </p>
+      </div>
+    </footer>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
