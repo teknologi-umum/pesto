@@ -1,0 +1,19 @@
+language = "C"
+version = "9.3.0"
+compiled = true
+extension = "c"
+build_command = [
+    "gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-O2",
+    "-std=c99",
+    "-pedantic",
+    "-o",
+    "code",
+    "{file}"
+]
+run_command = [ "./code" ]
+test_file = "test.c"
+aliases = ["c"]

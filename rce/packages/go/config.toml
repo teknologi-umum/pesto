@@ -1,0 +1,8 @@
+language = "Go"
+version = "1.18.3"
+compiled = false
+extension = "go"
+build_command = []
+run_command = [ "go", "run", "{file}" ]
+test_file = "test.go"
+aliases = [ "go", "golang" ]

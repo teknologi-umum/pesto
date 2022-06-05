@@ -1,0 +1,19 @@
+language = "C++"
+version = "9.3.0"
+compiled = true
+extension = "cpp"
+build_command = [
+    "g++",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-O2",
+    "-std=c++17",
+    "-pedantic",
+    "-o",
+    "code",
+    "{file}"
+]
+run_command = [ "./code" ]
+test_file = "test.cpp"
+aliases = ["c++", "cpp"]

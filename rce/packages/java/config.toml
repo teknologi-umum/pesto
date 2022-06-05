@@ -1,0 +1,11 @@
+language = "Java"
+version = "11"
+compiled = false
+extension = "java"
+build_command = [
+    "javac",
+    "{file}"
+]
+run_command = [ "java", "{file}" ]
+test_file = "HelloWorld.java"
+aliases = ["java"]

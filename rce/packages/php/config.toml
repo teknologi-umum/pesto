@@ -1,0 +1,8 @@
+language = "PHP"
+version = "8.1"
+compiled = false
+extension = "php"
+build_command = []
+run_command = [ "php", "{file}" ]
+test_file = "test.php"
+aliases = ["php"]
