@@ -23,7 +23,7 @@
   <body>
     <div id="app">
       <header>
-        <div class="header">
+        <div class="hero">
           <h1 class="title">PESTO</h1>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +56,7 @@
         </div>
         <p class="description">
           A Remote Code Execution Engine that lets you execute any piece of code
-          on a remote server via REST API and/or GRPC.
+          on a remote server via HTTP REST API.
         </p>
         <div class="buttons">
           <a class="button get-started" href="#get-started">GET STARTED</a>
@@ -67,12 +67,14 @@
         <h1 class="heading">What is Pesto?</h1>
         <div class="content">
           <p>
-            Pesto is a Remote Code Execution Engine that lets you execute any
-            piece of code on a remote server via REST API and/or GRPC. It is
-            heavily inspired by [Piston]. Although, Pesto is not a fork of
-            Piston, it's an entire rewrite from scratch and therefore it's not
-            compatible with Piston but should be similar if you're already
-            familiar with Piston.
+            <strong>Pesto</strong> is a Remote Code Execution Engine that lets
+            you execute any piece of code on a remote server via REST API. It is
+            heavily inspired by
+            <a class="url" href="https://github.com/engineer-man/piston">
+              Piston </a
+            >. Pesto is <strong>not</strong> a fork of Piston, it's an entire
+            rewrite from scratch and therefore it's not compatible with Piston
+            but should be similar if you're already familiar with Piston.
           </p>
         </div>
       </section>
@@ -80,21 +82,21 @@
         <h1 class="heading">How is it different from Piston?</h1>
         <div class="content">
           <p>
-            Unlike Piston, Pesto uses TypeScript instead of JavaScript and it
-            uses GRPC as its main protocol instead of HTTP. Although you can
-            still use HTTP to interact with Pesto.
+            Unlike Piston, Pesto uses TypeScript instead of JavaScript. Think of
+            it as an aggresive refactor approach to simplify the codebase and
+            its functionality.
           </p>
           <p>
             The way Piston works is you would install the language support
             separately using the Piston CLI. In Pesto, however, the language is
-            bundled. You can choose which language you want to use by defining a
-            language configuration inside a
-            <code class="inline-code">.toml</code> file before you deploy your
-            Pesto instance.
+            bundled in the docker image. You can choose which language you want
+            to use by defining a language configuration inside a
+            <code class="inline-code">.toml</code> file and an installation
+            script before you deploy your Pesto instance.
           </p>
           <p>
             Pesto is much simpler than Piston. It doesn't support uploading
-            files to execute, passing arguments or stdin to your program.
+            files to execute and passing arguments or stdin to your program.
           </p>
         </div>
       </section>
@@ -106,7 +108,7 @@
             a dedicated temporary user that will get removed once your code is
             finished being executed. Your code will have no access to the
             filesystem, internet, and it will have a very limited amount of
-            resources.
+            resources by default.
           </p>
         </div>
       </div>
@@ -153,12 +155,41 @@
                   </li>
                 </ul>
               </li>
-            </ul>
-          </div>
-          <div class="guide">
-            <h2 class="guide-title">Usage via self-hosted GRPC</h2>
-            <ul class="guide-list">
-              <li>Just figure it yourself innit, it ain't that difficult</li>
+              <li>
+                Upon sending a successful request, you will receive a response
+                with the following fields:
+                <ul class="field-list">
+                  <li>
+                    <strong>language</strong>: The language of the code that you
+                    sent.
+                  </li>
+                  <li>
+                    <strong>version</strong>: The version of the language.
+                  </li>
+                  <li>
+                    <strong>compile/runtime</strong>: The result of the
+                    compilation and execution with the following fields.
+                    <ul class="field-list">
+                      <li>
+                        <strong>stdout</strong>: The content of the stdout when
+                        the code is being compiled or executed.
+                      </li>
+                      <li>
+                        <strong>stderr</strong>: The content of the stderr when
+                        the code is being compiled or executed.
+                      </li>
+                      <li>
+                        <strong>output</strong>: The combination of stdout and
+                        stderr.
+                      </li>
+                      <li>
+                        <strong>exitCode</strong>: The exit code of the program
+                        compilation or execution.
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
             </ul>
           </div>
           <div class="guide">
@@ -206,6 +237,19 @@ HTTP POST /api/v1/execute HTTP/<span class="code-int">1.1</span>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+      <section class="section">
+        <h1 class="heading">List of available runtimes</h1>
+        <div class="content">
+          <p>The Pesto REST API currently supports the following runtimes:</p>
+          <ul class="runtime-list">
+            <li><strong>Python</strong>: v3.10</li>
+            <li><strong>Java</strong>: v11 in GraalVM Community v22.1.0</li>
+            <li><strong>C/C++</strong>: GCC v9.3.0</li>
+            <li><strong>Javascript</strong>: Node v16.5</li>
+            <li><strong>PHP</strong>: v8.1</li>
+          </ul>
         </div>
       </section>
       <section class="section" id="request">

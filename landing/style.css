@@ -49,7 +49,7 @@ body {
 /*#endregion*/
 
 /*#region Header */
-.header {
+.hero {
   position: relative;
   margin: 0 auto;
   margin-top: 4rem;
@@ -194,6 +194,17 @@ svg.leaf-icon-bg {
   color: #eaffef;
   box-shadow: 0.25rem 0.25rem 0 0 #22331a;
 }
+
+.runtime-list {
+  padding-left: 1.5rem;
+}
+
+.runtime-list li {
+  font-family: "IBM Plex Sans", sans-serif;
+  line-height: 2em;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
 /*#endregion*/
 
 /*#region Syntax Highlighting */
@@ -250,7 +261,7 @@ svg.leaf-icon-bg {
   display: block;
   margin-bottom: 0.75rem;
   font-family: "IBM Plex Sans", sans-serif;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 500;
 }
 
