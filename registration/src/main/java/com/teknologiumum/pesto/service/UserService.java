@@ -4,16 +4,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teknologiumum.pesto.database.DatabaseConn;
+import com.teknologiumum.pesto.database.DatabaseConnection;
 import com.teknologiumum.pesto.model.User;
 
 @Service
 public class UserService {
+
+    @Autowired
+    DatabaseConnection connection;
 
     public void putUserToWaitlist(User user) {
         try {
@@ -22,14 +26,14 @@ public class UserService {
 
             ObjectMapper om = new ObjectMapper();
             String waitingListInJson = om.writeValueAsString(waitingList);
-            new DatabaseConn().put(DatabaseConn.CommonKey.waitlist.toString(), waitingListInJson);
+            connection.put(DatabaseConnection.CommonKey.waitlist.toString(), waitingListInJson);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
     }
 
     public List<User> getUserInWaitlist() {
-        String content = new DatabaseConn().get(DatabaseConn.CommonKey.waitlist.toString());
+        String content = connection.get(DatabaseConnection.CommonKey.waitlist.toString());
 
         try {
             ObjectMapper om = new ObjectMapper();
