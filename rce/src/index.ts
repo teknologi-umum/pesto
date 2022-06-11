@@ -12,7 +12,7 @@ const registeredRuntimes = await acquireRuntime();
 const users = new SystemUsers(64101 + 0, 64101 + 49, 64101);
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN ?? "",
+  dsn: process.env.SENTRY_DSN ?? ""
 });
 
 const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
@@ -20,7 +20,7 @@ const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
 const server = polka({
   // TODO: implement correct error handler and no match handler
   onError: (err, req, res, next) => { },
-  onNoMatch: (req, res, next) => { },
+  onNoMatch: (req, res, next) => { }
 });
 
 server.use(async (req, res, next) => {
@@ -61,7 +61,7 @@ server.use(async (req, res, next) => {
         );
     }
   }
-})
+});
 
 server.get("/api/ping", (req, res) => {
   const response = rceServiceImpl.ping();
@@ -69,13 +69,13 @@ server.get("/api/ping", (req, res) => {
   switch (req.headers["content-type"]) {
     case "application/x-www-form-urlencoded": {
       res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
-        .end(new URLSearchParams(response).toString())
+        .end(new URLSearchParams(response).toString());
       break;
     }
     case "application/json":
     default:
       res.writeHead(200, { "Content-Type": "application/json" })
-        .end(JSON.stringify(response))
+        .end(JSON.stringify(response));
   }
 });
 
@@ -85,13 +85,13 @@ server.get("/api/list-runtiems", (req, res) => {
   switch (req.headers["content-type"]) {
     case "application/x-www-form-urlencoded": {
       res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
-        .end(new URLSearchParams(response).toString())
+        .end(new URLSearchParams(response).toString());
       break;
     }
     case "application/json":
     default:
       res.writeHead(200, { "Content-Type": "application/json" })
-        .end(JSON.stringify(response))
+        .end(JSON.stringify(response));
   }
 });
 
@@ -128,30 +128,30 @@ server.post("/api/execute", async (req, res) => {
     compileTimeout: req.body?.compileTimeout ?? 5_000,
     runTimeout: req.body?.runTimeout ?? 5_000,
     memoryLimit: req.body?.memoryLimit ?? 1024 * 1024 * 128
-  }
+  };
 
   const response = await rceServiceImpl.execute(codeRequest);
 
   switch (req.headers["content-type"]) {
     case "application/x-www-form-urlencoded": {
       res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
-        .end(new URLSearchParams(response).toString())
+        .end(new URLSearchParams(response).toString());
       break;
     }
     case "application/json":
     default:
       res.writeHead(200, { "Content-Type": "application/json" })
-        .end(JSON.stringify(response))
+        .end(JSON.stringify(response));
   }
 });
 
 server.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`)
+  console.log(`Server started on port ${PORT}`);
 });
 
 process.on("SIGINT", () => {
   console.log("Server shutting down..");
   server.server.close(err => {
-    console.log(`Error closing server: ${err}`)
-  })
+    console.log(`Error closing server: ${err}`);
+  });
 });
