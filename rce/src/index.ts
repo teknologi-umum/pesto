@@ -5,6 +5,7 @@ import { acquireRuntime } from "@/runtime/acquire";
 import { SystemUsers } from "@/user/user";
 import polka from "polka";
 import { CodeRequest } from "./stub/rce";
+import { ClientError, ServerError } from "./Error";
 
 const PORT = process.env?.PORT || "50051";
 
@@ -130,18 +131,62 @@ server.post("/api/execute", async (req, res) => {
     memoryLimit: req.body?.memoryLimit ?? 1024 * 1024 * 128
   };
 
-  const response = await rceServiceImpl.execute(codeRequest);
+  try {
+    const response = await rceServiceImpl.execute(codeRequest);
 
-  switch (req.headers["content-type"]) {
-    case "application/x-www-form-urlencoded": {
-      res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
-        .end(new URLSearchParams(response).toString());
-      break;
+    switch (req.headers["content-type"]) {
+      case "application/x-www-form-urlencoded": {
+        res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
+          .end(new URLSearchParams(response).toString());
+        break;
+      }
+      case "application/json":
+      default:
+        res.writeHead(200, { "Content-Type": "application/json" })
+          .end(JSON.stringify(response));
     }
-    case "application/json":
-    default:
-      res.writeHead(200, { "Content-Type": "application/json" })
-        .end(JSON.stringify(response));
+  } catch (err: unknown) {
+    if (err instanceof ClientError) {
+      switch (req.headers["content-type"]) {
+        case "application/x-www-form-urlencoded": {
+          res.writeHead(err.code, { "Content-Type": "application/x-www-form-urlencoded" })
+            .end(err.message);
+          break;
+        }
+        case "application/json":
+        default:
+          res.writeHead(err.code, { "Content-Type": "application/json" })
+            .end(JSON.stringify({ message: err.message }));
+      }
+      return;
+    }
+
+    if (err instanceof ServerError) {
+      Sentry.withScope((scope) => {
+        scope.setExtra("language", codeRequest.language);
+        scope.setExtra("version", codeRequest.version);
+        scope.setExtra("code", codeRequest.code);
+        scope.setExtra("compile_timeout", codeRequest.compileTimeout);
+        scope.setExtra("run_timeout", codeRequest.runTimeout);
+        scope.setExtra("memory_limit", codeRequest.memoryLimit);
+
+        Sentry.captureException(err);
+      });
+
+      switch (req.headers["content-type"]) {
+        case "application/x-www-form-urlencoded": {
+          res.writeHead(500, { "Content-Type": "application/x-www-form-urlencoded" })
+            .end("Something's wrong on our end");
+          break;
+        }
+        case "application/json":
+        default:
+          res.writeHead(500, { "Content-Type": "application/json" })
+            .end(JSON.stringify({ message: "Something's wrong on our end" }));
+      }
+    }
+
+    throw err;
   }
 });
 
