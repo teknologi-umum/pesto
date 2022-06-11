@@ -6,6 +6,7 @@ build_command = [
     "javac",
     "{file}"
 ]
-run_command = [ "java", "{file}" ]
+run_command = [ "/opt/java/bin/java", "-Xms64m", "-Xmx256m", "{file}" ]
+environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin", "JAVA_HOME=/opt/java" ]
 test_file = "HelloWorld.java"
 aliases = ["java"]

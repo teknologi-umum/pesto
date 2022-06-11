@@ -2,6 +2,7 @@ language = "PHP"
 version = "8.1"
 compiled = false
 extension = "php"
+environment = []
 build_command = []
 run_command = [ "php", "{file}" ]
 test_file = "test.php"
