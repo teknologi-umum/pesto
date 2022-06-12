@@ -6,7 +6,7 @@ export class ServerError extends Error {
 }
 
 export class ClientError extends Error {
-  public code: number;
+  public readonly code: number;
 
   constructor(reason: string, code?: number) {
     super();
