@@ -46,7 +46,7 @@ public class ApiController {
     @PutMapping("/approve")
     public ResponseEntity approve(@Valid @RequestBody(required = true) UserToken user) {
         boolean isDeleted = userService.removeUserFromWaitlist(user.getEmail());
-        if (isDeleted == false) {
+        if (!isDeleted) {
             return ResponseEntity.notFound().build();
         }
         userService.approveUser(user);
