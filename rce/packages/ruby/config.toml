@@ -1,0 +1,9 @@
+language = "Ruby"
+version = "3.1.2"
+compiled = false
+extension = "rb"
+environment = []
+build_command = []
+run_command = [ "ruby", "{file}" ]
+test_file = "test.rb"
+aliases = ["ruby", "rb"]

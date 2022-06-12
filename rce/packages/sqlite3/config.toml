@@ -1,0 +1,9 @@
+language = "SQLite3"
+version = "3.34.1"
+compiled = false
+extension = "sql"
+environment = []
+build_command = []
+run_command = [ "sqlite3", "<", "{file}" ]
+test_file = "test.sql"
+aliases = [ "sqlite3", "sql" ]

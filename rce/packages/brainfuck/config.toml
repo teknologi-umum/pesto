@@ -1,0 +1,9 @@
+language = "Brainfuck"
+version = "2.7.3"
+compiled = false
+extension = "bf"
+build_command = []
+environment = []
+run_command = [ "brainfuck", "{file}" ]
+test_file = "test.bf"
+aliases = ["brainfuck", "bf"]
