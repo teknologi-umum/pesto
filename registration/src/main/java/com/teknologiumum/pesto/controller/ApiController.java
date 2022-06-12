@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.teknologiumum.pesto.model.User;
+import com.teknologiumum.pesto.model.UserToken;
 import com.teknologiumum.pesto.service.UserService;
 
 @RestController
@@ -38,8 +39,23 @@ public class ApiController {
     }
 
     @PutMapping("/approve")
-    public ResponseEntity approve(@RequestBody String email, @RequestBody String token) {
-
+    public ResponseEntity approve(@Valid @RequestBody(required = true) UserToken user) {
+        boolean isDeleted = userService.removeUserFromWaitlist(user.getEmail());
+        if (isDeleted == false) {
+            return ResponseEntity.notFound().build();
+        }
+        userService.approveUser(user);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/revoke")
+    public ResponseEntity revoke(@Valid @RequestBody(required = true) UserToken token) {
+        boolean isFound = userService.findUserInApprovalList(token.getToken());
+        if (isFound == false) {
+            return ResponseEntity.notFound().build();
+        }
+        userService.revokeUser(token.getToken());
+        return ResponseEntity.ok().build();
+    }
+
 }
