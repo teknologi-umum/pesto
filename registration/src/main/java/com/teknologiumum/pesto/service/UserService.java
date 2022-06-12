@@ -52,9 +52,9 @@ public class UserService {
 
     public boolean removeUserFromWaitlist(String email) {
         List<User> waitingList = getUserInWaitlist();
-        boolean result = waitingList.removeIf(user -> (user.getEmail().equalsIgnoreCase(email)));
+        boolean isRemoved = waitingList.removeIf(user -> (user.getEmail().equalsIgnoreCase(email)));
 
-        if (result == true) {
+        if (isRemoved) {
             try {
                 String waitingListInJson = toJson.writeValueAsString(waitingList);
                 connection.put(DatabaseConnection.CommonKey.waitlist.toString(), waitingListInJson);
@@ -63,11 +63,11 @@ public class UserService {
             }
         }
 
-        return result;
+        return isRemoved;
     }
 
     public void approveUser(UserToken user) {
-        ApprovedUser approved = new ApprovedUser(user.getEmail(), false);
+        ApprovedUser approved = new ApprovedUser(user.getEmail());
 
         try {
             String dbKey = user.getToken();
