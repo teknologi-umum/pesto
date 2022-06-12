@@ -1,9 +1,25 @@
 language = ".NET"
-version = "6.0.100"
+version = "6.0.300"
 compiled = true
 extension = "cs"
-build_command = []
-environment = []
-run_command = []
+environment = [ "DOTNET_ROOT=/opt/dotnet", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/dotnet" ]
+build_command = [
+  """bash -c 'cat <<EOF > Application.csproj
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>
+EOF'""",
+  "&&",
+  "dotnet",
+  "build",
+  "--configuration",
+  "Release"
+]
+run_command = [ "dotnet", "run", "--configuration", "Release" ]
 test_file = "test.cs"
 aliases = ["dotnet", "c#", "csharp"]
