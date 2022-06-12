@@ -18,13 +18,15 @@ public class UserService {
     @Autowired
     DatabaseConnection connection;
 
+    @Autowired
+    ObjectMapper toJson;
+
     public void putUserToWaitlist(User user) {
         try {
             List<User> waitingList = getUserInWaitlist();
             waitingList.add(user);
 
-            ObjectMapper om = new ObjectMapper();
-            String waitingListInJson = om.writeValueAsString(waitingList);
+            String waitingListInJson = toJson.writeValueAsString(waitingList);
             connection.put(DatabaseConnection.CommonKey.waitlist.toString(), waitingListInJson);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -35,8 +37,7 @@ public class UserService {
         String content = connection.get(DatabaseConnection.CommonKey.waitlist.toString());
 
         try {
-            ObjectMapper om = new ObjectMapper();
-            List<User> listOfUser = om.readValue(content, new TypeReference<List<User>>() {
+            List<User> listOfUser = toJson.readValue(content, new TypeReference<List<User>>() {
             });
             return listOfUser;
         } catch (JsonProcessingException e) {
