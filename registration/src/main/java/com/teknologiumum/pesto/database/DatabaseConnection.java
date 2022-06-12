@@ -49,6 +49,8 @@ public class DatabaseConnection {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            return "";
         }
         return "";
     }
