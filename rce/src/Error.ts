@@ -8,13 +8,8 @@ export class ServerError extends Error {
 export class ClientError extends Error {
   public readonly code: number;
 
-  constructor(reason: string, code?: number) {
-    super();
-    this.message = reason;
-    if (code !== undefined && code !== null) {
-      this.code = code;
-    } else {
-      this.code = 400;
-    }
+  constructor(reason: string, code = 400) {
+    super(reason);
+    this.code = code;
   }
 }
