@@ -8,3 +8,5 @@ cd brainfuck-2.7.3/build
 cmake ..
 make
 make install
+cd ..
+rm -rf 2.7.3.tar.gz brainfuck-2.7.3

@@ -9,3 +9,5 @@ cd ruby-${VERSION}
 ./configure
 make
 make install
+cd ..
+rm -rf ruby-${VERSION}.tar.gz ruby-${VERSION}
