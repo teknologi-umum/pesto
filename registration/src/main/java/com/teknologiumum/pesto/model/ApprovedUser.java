@@ -1,24 +1,27 @@
 package com.teknologiumum.pesto.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ApprovedUser {
 
-    private String user_email;
+    @JsonProperty("user_email")
+    private String userEmail;
     private Boolean revoked;
+
+    public ApprovedUser(String userEmail) {
+        this.userEmail = userEmail;
+        this.revoked = false;
+    }
 
     public ApprovedUser() {
     }
 
-    public ApprovedUser(String user_email, Boolean revoked) {
-        this.user_email = user_email;
-        this.revoked = revoked;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public String getUser_email() {
-        return user_email;
-    }
-
-    public void setUser_email(String user_email) {
-        this.user_email = user_email;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public Boolean getRevoked() {
