@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.teknologiumum.pesto.model.PendingList;
 import com.teknologiumum.pesto.model.User;
 import com.teknologiumum.pesto.model.UserToken;
 import com.teknologiumum.pesto.service.UserService;
@@ -35,6 +36,10 @@ public class ApiController {
     @GetMapping("/pending")
     public ResponseEntity getPending() {
         List<User> waitlist = userService.getUserInWaitlist();
+        if (waitlist.size() != 0) {
+            PendingList pendingList = new PendingList(waitlist);
+            return ResponseEntity.ok(pendingList);
+        }
         return ResponseEntity.ok(waitlist);
     }
 
