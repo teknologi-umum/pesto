@@ -1,7 +1,6 @@
 export class ServerError extends Error {
   constructor(reason: string) {
-    super();
-    this.message = reason;
+    super(reason);
   }
 }
 
