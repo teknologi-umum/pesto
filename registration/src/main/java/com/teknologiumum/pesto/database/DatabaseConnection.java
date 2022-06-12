@@ -10,7 +10,9 @@ import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
+import io.etcd.jetcd.Maintenance;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.maintenance.StatusResponse;
 
 @Component
 public class DatabaseConnection {
@@ -53,5 +55,18 @@ public class DatabaseConnection {
             return "";
         }
         return "";
+    }
+
+    public StatusResponse getStatus() {
+        Maintenance maintenance = client.getMaintenanceClient();
+        try {
+            StatusResponse status = maintenance.statusMember(ETCD_ENDPOINT).get();
+            return status;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
