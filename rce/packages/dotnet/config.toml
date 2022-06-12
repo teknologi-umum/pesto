@@ -17,9 +17,10 @@ EOF'""",
   "&&",
   "dotnet",
   "build",
+  "--nologo",
   "--configuration",
   "Release"
 ]
-run_command = [ "dotnet", "run", "--configuration", "Release" ]
+run_command = [ "dotnet", "run", "--no-build", "--configuration", "Release" ]
 test_file = "test.cs"
 aliases = ["dotnet", "c#", "csharp"]
