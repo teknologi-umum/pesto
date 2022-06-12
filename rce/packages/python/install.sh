@@ -12,7 +12,7 @@ cd Python-${VERSION}
   --enable-shared \
   LDFLAGS=-Wl,-rpath=/opt/python/${VERSION}/lib,--disable-new-dtags
 make -j $(nproc)
-make install
+make install -j $(nproc)
 
 cd /tmp
 rm Python-${VERSION}.tgz

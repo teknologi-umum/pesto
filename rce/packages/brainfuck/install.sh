@@ -6,7 +6,7 @@ tar -zxf 2.7.3.tar.gz
 mkdir -p brainfuck-2.7.3/build
 cd brainfuck-2.7.3/build
 cmake ..
-make
-make install
+make -j $(nproc)
+make install -j $(nproc)
 cd ..
 rm -rf 2.7.3.tar.gz brainfuck-2.7.3

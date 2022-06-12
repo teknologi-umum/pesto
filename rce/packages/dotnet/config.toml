@@ -1,0 +1,9 @@
+language = ".NET"
+version = "6.0.100"
+compiled = true
+extension = "cs"
+build_command = []
+environment = []
+run_command = []
+test_file = "test.cs"
+aliases = ["dotnet", "c#", "csharp"]
