@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teknologiumum.pesto.database.DatabaseConnection;
-import com.teknologiumum.pesto.model.ApprovedUser;
+import com.teknologiumum.pesto.model.RegisteredUser;
 import com.teknologiumum.pesto.model.User;
 import com.teknologiumum.pesto.model.UserToken;
 
@@ -74,7 +74,7 @@ public class UserService {
     }
 
     public void approveUser(UserToken user) {
-        ApprovedUser approved = new ApprovedUser(user.getEmail());
+        RegisteredUser approved = new RegisteredUser(user.getEmail());
 
         try {
             String dbKey = user.getToken();
@@ -89,7 +89,7 @@ public class UserService {
         String content = connection.get(token);
 
         try {
-            ApprovedUser revokedUser = toJson.readValue(content, new TypeReference<ApprovedUser>() {
+            RegisteredUser revokedUser = toJson.readValue(content, new TypeReference<RegisteredUser>() {
             });
             revokedUser.revoke();
 

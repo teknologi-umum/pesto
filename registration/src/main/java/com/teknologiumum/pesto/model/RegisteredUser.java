@@ -1,19 +1,22 @@
 package com.teknologiumum.pesto.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
-public class ApprovedUser {
+@JsonAutoDetect(setterVisibility = Visibility.ANY)
+public class RegisteredUser {
 
     @JsonProperty("user_email")
     private String userEmail;
     private Boolean revoked;
 
-    public ApprovedUser(String userEmail) {
+    public RegisteredUser(String userEmail) {
         this.userEmail = userEmail;
         this.revoked = false;
     }
 
-    public ApprovedUser() {
+    public RegisteredUser() {
     }
 
     public String getUserEmail() {
@@ -28,7 +31,11 @@ public class ApprovedUser {
         return revoked;
     }
 
-    public void setRevoked(Boolean revoked) {
+    private void setRevoked(Boolean revoked) {
         this.revoked = revoked;
+    }
+
+    public void revoke() {
+        setRevoked(true);
     }
 }
