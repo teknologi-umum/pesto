@@ -1,13 +1,18 @@
 package com.teknologiumum.pesto.model;
 
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 
-public class User implements Validator {
+public class User {
 
+    @NotNull
     private String name;
+    @NotNull
+    @Email
     private String email;
+    @NotNull
     private String building;
+    @NotNull
     private Integer calls;
 
     public User() {
@@ -18,18 +23,6 @@ public class User implements Validator {
         this.email = email;
         this.building = building;
         this.calls = calls;
-    }
-
-    @Override
-    public boolean supports(Class<?> clazz) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void validate(Object target, Errors errors) {
-        // TODO Auto-generated method stub
-
     }
 
     public String getName() {
@@ -62,6 +55,17 @@ public class User implements Validator {
 
     public void setCalls(Integer calls) {
         this.calls = calls;
+    }
+
+    @Override
+    public boolean equals(Object arg0) {
+        if (arg0 instanceof User) {
+            User instance = (User) arg0;
+            if (instance.getEmail().equals(this.email)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
