@@ -91,7 +91,7 @@ public class UserService {
         try {
             ApprovedUser revokedUser = toJson.readValue(content, new TypeReference<ApprovedUser>() {
             });
-            revokedUser.setRevoked(true);
+            revokedUser.revoke();
 
             String revokedUserJson = toJson.writeValueAsString(revokedUser);
             connection.put(token, revokedUserJson);
