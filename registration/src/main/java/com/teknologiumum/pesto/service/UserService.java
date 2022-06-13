@@ -25,15 +25,22 @@ public class UserService {
     @Autowired
     ObjectMapper toJson;
 
-    public void putUserToWaitlist(User user) {
+    public boolean putUserToWaitlist(User user) {
         try {
             List<User> waitingList = getUserInWaitlist();
-            waitingList.add(user);
 
+            for (User iterator : waitingList) {
+                if (iterator.equals(user)) {
+                    return false;
+                }
+            }
+            waitingList.add(user);
             String waitingListInJson = toJson.writeValueAsString(waitingList);
             connection.put(DatabaseConnection.CommonKey.waitlist.toString(), waitingListInJson);
+            return true;
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            return false;
         }
     }
 

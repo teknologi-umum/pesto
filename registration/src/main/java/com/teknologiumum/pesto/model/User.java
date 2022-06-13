@@ -57,4 +57,15 @@ public class User {
         this.calls = calls;
     }
 
+    @Override
+    public boolean equals(Object arg0) {
+        if (arg0 instanceof User) {
+            User instance = (User) arg0;
+            if (instance.getEmail().equals(this.email)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
