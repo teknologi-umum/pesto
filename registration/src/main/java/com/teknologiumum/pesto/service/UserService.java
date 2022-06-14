@@ -74,7 +74,7 @@ public class UserService {
     }
 
     public void approveUser(UserToken user) {
-        RegisteredUser approved = new RegisteredUser(user.getEmail());
+        RegisteredUser approved = new RegisteredUser(user.getEmail(), user.getLimit());
 
         try {
             String dbKey = user.getToken();
