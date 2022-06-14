@@ -7,5 +7,7 @@ curl -LO https://cache.ruby-lang.org/pub/ruby/${MINOR}/ruby-${VERSION}.tar.gz
 tar -zxf ruby-${VERSION}.tar.gz
 cd ruby-${VERSION}
 ./configure
-make
-make install
+make -j $(nproc)
+make install -j $(nproc)
+cd ..
+rm -rf ruby-${VERSION}.tar.gz ruby-${VERSION}

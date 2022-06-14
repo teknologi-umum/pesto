@@ -1,8 +1,9 @@
 language = "Go"
 version = "1.18.3"
-compiled = false
+compiled = true
 extension = "go"
-build_command = []
-run_command = [ "go", "run", "{file}" ]
+build_command = [ "go", "build", "-o", "code", "{file}"]
+run_command = [ "./code" ]
 test_file = "test.go"
+environment = []
 aliases = [ "go", "golang" ]

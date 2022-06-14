@@ -5,7 +5,7 @@
     "target": "ES2019",
     "module": "ESNext",
     "declaration": false,
-    "types": ["node"],
+    "types": [],
     "preserveSymlinks": true,
     "isolatedModules": true,
     "esModuleInterop": true,
