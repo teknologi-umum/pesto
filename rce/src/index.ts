@@ -35,7 +35,7 @@ const server = polka({
   },
   onNoMatch: (_req, res) => {
     res.writeHead(404, { "Content-Type": "application/json" })
-    .write(JSON.stringify({ message: "Not found" }));
+      .write(JSON.stringify({ message: "Not found" }));
   }
 });
 
@@ -49,7 +49,7 @@ server.use(async (req, res, next) => {
 
     switch (req.headers["content-type"]) {
       case "application/toml": {
-        req.body = toml.parse(body);
+        req.body = toml.parse(body, { joiner: "\n", bigint: false });
         break;
       }
       case "application/yaml": {
