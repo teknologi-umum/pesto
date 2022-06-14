@@ -1,9 +1,11 @@
 import console from "console";
 import * as Sentry from "@sentry/node";
+import polka from "polka";
+import toml from "@ltd/j-toml";
+import yaml from "yaml";
 import { RceServiceImpl } from "@/RceService";
 import { acquireRuntime } from "@/runtime/acquire";
 import { SystemUsers } from "@/user/user";
-import polka from "polka";
 import { CodeRequest } from "./stub/rce";
 import { ClientError, ServerError } from "./Error";
 
@@ -20,8 +22,21 @@ const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
 
 const server = polka({
   // TODO: implement correct error handler and no match handler
-  onError: (err, req, res, next) => { },
-  onNoMatch: (req, res, next) => { }
+  onError: (err, req, res) => {
+    Sentry.withScope((scope) => {
+      scope.setExtra("method", req.method);
+      scope.setExtra("endpoint", req.url);
+      scope.setExtra("body", req.body);
+      Sentry.captureException(err);
+    });
+
+    res.writeHead(500, { "Content-Type": "application/json" })
+      .write(JSON.stringify({ error: err }));
+  },
+  onNoMatch: (_req, res) => {
+    res.writeHead(404, { "Content-Type": "application/json" })
+    .write(JSON.stringify({ message: "Not found" }));
+  }
 });
 
 server.use(async (req, res, next) => {
@@ -33,9 +48,12 @@ server.use(async (req, res, next) => {
     }
 
     switch (req.headers["content-type"]) {
-      case "application/x-www-form-urlencoded": {
-        const url = new URLSearchParams(body);
-        req.body = Object.fromEntries(url.entries());
+      case "application/toml": {
+        req.body = toml.parse(body);
+        break;
+      }
+      case "application/yaml": {
+        req.body = yaml.parse(body);
         break;
       }
       case "application/json":
@@ -44,12 +62,20 @@ server.use(async (req, res, next) => {
     }
     next();
   } catch (error) {
-    switch (req.headers["content-type"]) {
-      case "application/x-www-form-urlencoded": {
-        res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
-          new URLSearchParams({
+    switch (req.headers["accept"]) {
+      case "application/yaml": {
+        res.writeHead(400, { "Content-Type": "application/yaml" }).end(
+          yaml.stringify({
             msg: "Invalid body content with the Content-Type header specification"
-          }).toString()
+          })
+        );
+        break;
+      }
+      case "application/toml": {
+        res.writeHead(400, { "Content-Type": "application/toml" }).end(
+          toml.stringify({
+            msg: "Invalid body content with the Content-Type header specification"
+          })
         );
         break;
       }
@@ -67,10 +93,15 @@ server.use(async (req, res, next) => {
 server.get("/api/ping", (req, res) => {
   const response = rceServiceImpl.ping();
 
-  switch (req.headers["content-type"]) {
-    case "application/x-www-form-urlencoded": {
-      res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
-        .end(new URLSearchParams(response).toString());
+  switch (req.headers["accept"]) {
+    case "application/yaml": {
+      res.writeHead(200, { "Content-Type": "application/yaml" })
+        .end(yaml.stringify(response));
+      break;
+    }
+    case "application/toml": {
+      res.writeHead(200, { "Content-Type": "application/toml" })
+        .end(toml.stringify(response));
       break;
     }
     case "application/json":
@@ -83,10 +114,15 @@ server.get("/api/ping", (req, res) => {
 server.get("/api/list-runtiems", (req, res) => {
   const response = rceServiceImpl.listRuntimes();
 
-  switch (req.headers["content-type"]) {
-    case "application/x-www-form-urlencoded": {
-      res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
-        .end(new URLSearchParams(response).toString());
+  switch (req.headers["accept"]) {
+    case "application/yaml": {
+      res.writeHead(200, { "Content-Type": "application/yaml" })
+        .end(yaml.stringify(response));
+      break;
+    }
+    case "application/toml": {
+      res.writeHead(200, { "Content-Type": "application/toml" })
+        .end(toml.stringify(response));
       break;
     }
     case "application/json":
@@ -122,6 +158,36 @@ server.post("/api/execute", async (req, res) => {
     missingParameters.push("memoryLimit");
   }
 
+  if (missingParameters.length > 0) {
+    switch (req.headers.accept) {
+      case "application/yaml": {
+        res.writeHead(400, { "Content-Type": "application/yaml" }).end(
+          yaml.stringify({
+            message: `Missing parameters: ${missingParameters.join(", ")}`
+          })
+        );
+        break;
+      }
+      case "application/toml": {
+        res.writeHead(400, { "Content-Type": "application/toml" }).end(
+          toml.stringify({
+            message: `Missing parameters: ${missingParameters.join(", ")}`
+          })
+        );
+        break;
+      }
+      case "application/json":
+      default:
+        res.writeHead(400, { "Content-Type": "application/json" }).end(
+          JSON.stringify({
+            message: `Missing parameters: ${missingParameters.join(", ")}`
+          })
+        );
+    }
+
+    return;
+  }
+
   const codeRequest: CodeRequest = {
     language: req.body.language,
     version: req.body.version,
@@ -134,10 +200,15 @@ server.post("/api/execute", async (req, res) => {
   try {
     const response = await rceServiceImpl.execute(codeRequest);
 
-    switch (req.headers["content-type"]) {
-      case "application/x-www-form-urlencoded": {
-        res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
-          .end(new URLSearchParams(response).toString());
+    switch (req.headers["accept"]) {
+      case "application/yaml": {
+        res.writeHead(200, { "Content-Type": "application/yaml" })
+          .end(yaml.stringify(response));
+        break;
+      }
+      case "application/toml": {
+        res.writeHead(200, { "Content-Type": "application/toml" })
+          .end(toml.stringify(response));
         break;
       }
       case "application/json":
@@ -148,9 +219,14 @@ server.post("/api/execute", async (req, res) => {
   } catch (err: unknown) {
     if (err instanceof ClientError) {
       switch (req.headers["content-type"]) {
-        case "application/x-www-form-urlencoded": {
-          res.writeHead(err.code, { "Content-Type": "application/x-www-form-urlencoded" })
-            .end(err.message);
+        case "application/yaml": {
+          res.writeHead(err.code, { "Content-Type": "application/yaml" })
+            .end(yaml.stringify({ message: err.message }));
+          break;
+        }
+        case "application/toml": {
+          res.writeHead(err.code, { "Content-Type": "application/toml" })
+            .end(toml.stringify({ message: err.message }));
           break;
         }
         case "application/json":
@@ -173,10 +249,15 @@ server.post("/api/execute", async (req, res) => {
         Sentry.captureException(err);
       });
 
-      switch (req.headers["content-type"]) {
-        case "application/x-www-form-urlencoded": {
-          res.writeHead(500, { "Content-Type": "application/x-www-form-urlencoded" })
-            .end("Something's wrong on our end");
+      switch (req.headers["accept"]) {
+        case "application/yaml": {
+          res.writeHead(500, { "Content-Type": "application/yaml" })
+            .end(yaml.stringify({ message: "Something's wrong on our end" }));
+          break;
+        }
+        case "application/toml": {
+          res.writeHead(500, { "Content-Type": "application/toml" })
+            .end(toml.stringify({ message: "Something's wrong on our end" }));
           break;
         }
         case "application/json":

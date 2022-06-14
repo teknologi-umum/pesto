@@ -1,21 +1,8 @@
-/**
- * @generated from protobuf message rce.EmptyRequest
- */
-export interface EmptyRequest {
-}
-/**
- * @generated from protobuf message rce.Runtimes
- */
-export interface Runtimes {
-  /**
-   * @generated from protobuf field: repeated rce.Runtime runtime = 1;
-   */
-  runtime: Runtime[];
-}
+
 /**
  * @generated from protobuf message rce.Runtime
  */
-export interface Runtime {
+export type Runtime = {
   /**
    * @generated from protobuf field: string language = 1;
    */
@@ -33,10 +20,21 @@ export interface Runtime {
    */
   compiled: boolean;
 }
+
+/**
+ * @generated from protobuf message rce.Runtimes
+ */
+ export type Runtimes = {
+  /**
+   * @generated from protobuf field: repeated rce.Runtime runtime = 1;
+   */
+  runtime: Runtime[];
+}
+
 /**
  * @generated from protobuf message rce.PingResponse
  */
-export interface PingResponse {
+export type PingResponse = {
   /**
    * @generated from protobuf field: string message = 1;
    */
@@ -45,7 +43,7 @@ export interface PingResponse {
 /**
  * @generated from protobuf message rce.CodeRequest
  */
-export interface CodeRequest {
+export type CodeRequest = {
   /**
    * @generated from protobuf field: string language = 1;
    */
@@ -71,31 +69,11 @@ export interface CodeRequest {
    */
   memoryLimit: number;
 }
-/**
- * @generated from protobuf message rce.CodeResponse
- */
-export interface CodeResponse {
-  /**
-   * @generated from protobuf field: string language = 1;
-   */
-  language: string;
-  /**
-   * @generated from protobuf field: string version = 2;
-   */
-  version: string;
-  /**
-   * @generated from protobuf field: rce.CodeResponse.Output compile = 3;
-   */
-  compile?: CodeResponse_Output;
-  /**
-   * @generated from protobuf field: rce.CodeResponse.Output runtime = 4;
-   */
-  runtime?: CodeResponse_Output;
-}
+
 /**
  * @generated from protobuf message rce.CodeResponse.Output
  */
-export interface CodeResponse_Output {
+ export type CodeResponse_Output = {
   /**
    * @generated from protobuf field: string stdout = 1;
    */
@@ -114,6 +92,28 @@ export interface CodeResponse_Output {
   exitCode: number;
 }
 
+/**
+ * @generated from protobuf message rce.CodeResponse
+ */
+export type CodeResponse = {
+  /**
+   * @generated from protobuf field: string language = 1;
+   */
+  language: string;
+  /**
+   * @generated from protobuf field: string version = 2;
+   */
+  version: string;
+  /**
+   * @generated from protobuf field: rce.CodeResponse.Output compile = 3;
+   */
+  compile?: CodeResponse_Output;
+  /**
+   * @generated from protobuf field: rce.CodeResponse.Output runtime = 4;
+   */
+  runtime?: CodeResponse_Output;
+}
+
 export interface ICodeExecutionEngineService {
   /**
    * @generated from protobuf rpc: ListRuntimes(rce.EmptyRequest) returns (rce.Runtimes);
@@ -122,7 +122,7 @@ export interface ICodeExecutionEngineService {
   /**
    * @generated from protobuf rpc: Execute(rce.CodeRequest) returns (rce.CodeResponse);
    */
-  execute(call: CodeRequest): Promise<CodeResponse>;
+  execute(req: CodeRequest): Promise<CodeResponse>;
   /**
    * @generated from protobuf rpc: Ping(rce.EmptyRequest) returns (rce.PingResponse);
    */

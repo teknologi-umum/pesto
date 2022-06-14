@@ -3,7 +3,6 @@ import {
   Runtimes,
   CodeRequest,
   CodeResponse,
-  EmptyRequest,
   ICodeExecutionEngineService
 } from "@/stub/rce";
 import { Runtime as RceRuntime } from "@/runtime/runtime";
@@ -13,8 +12,6 @@ import { ClientError, ServerError } from "./Error";
 
 
 export class RceServiceImpl implements ICodeExecutionEngineService {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment, no-unused-vars, no-empty-function
-  // @ts-ignore
   constructor(
     private _registeredRuntimes: RceRuntime[],
     private _users: SystemUsers

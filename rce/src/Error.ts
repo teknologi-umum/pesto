@@ -1,13 +1,11 @@
 export class ServerError extends Error {
-  constructor(reason: string) {
+  constructor(public readonly reason: string) {
     super(reason);
   }
 }
 
 export class ClientError extends Error {
-  public readonly code: number;
-
-  constructor(reason: string, code = 400) {
+  constructor(public readonly reason: string, public readonly code = 400) {
     super(reason);
     this.code = code;
   }
