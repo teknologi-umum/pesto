@@ -15,12 +15,12 @@ build_command = [
 </Project>
 EOF'""",
   "&&",
-  "dotnet",
+  "/opt/dotnet/dotnet",
   "build",
   "--nologo",
   "--configuration",
   "Release"
 ]
-run_command = [ "dotnet", "run", "--no-build", "--configuration", "Release" ]
+run_command = [ "/opt/dotnet/dotnet", "run", "--no-build", "--configuration", "Release" ]
 test_file = "test.cs"
 aliases = ["dotnet", "c#", "csharp"]

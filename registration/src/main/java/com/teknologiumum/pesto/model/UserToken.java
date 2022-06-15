@@ -9,6 +9,8 @@ public class UserToken {
     private String email;
     @NotNull
     private String token;
+    @NotNull
+    private Integer limit;
 
     public UserToken() {
     }
@@ -27,6 +29,14 @@ public class UserToken {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
     }
 
 }

@@ -9,10 +9,13 @@ public class RegisteredUser {
 
     @JsonProperty("user_email")
     private String userEmail;
+    @JsonProperty("monthly_limit")
+    private Integer monthlyLimit;
     private Boolean revoked;
 
-    public RegisteredUser(String userEmail) {
+    public RegisteredUser(String userEmail, Integer monthlyLimit) {
         this.userEmail = userEmail;
+        this.monthlyLimit = monthlyLimit;
         this.revoked = false;
     }
 
@@ -33,6 +36,14 @@ public class RegisteredUser {
 
     private void setRevoked(Boolean revoked) {
         this.revoked = revoked;
+    }
+
+    public Integer getMonthlyLimit() {
+        return monthlyLimit;
+    }
+
+    public void setMonthlyLimit(Integer monthlyLimit) {
+        this.monthlyLimit = monthlyLimit;
     }
 
     public void revoke() {

@@ -4,6 +4,6 @@ compiled = false
 extension = "bf"
 build_command = []
 environment = []
-run_command = [ "brainfuck", "{file}" ]
+run_command = [ "/usr/local/bin/brainfuck", "{file}" ]
 test_file = "test.bf"
 aliases = ["brainfuck", "bf"]

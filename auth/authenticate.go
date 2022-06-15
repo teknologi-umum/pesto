@@ -4,15 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/getsentry/sentry-go"
 )
 
 type TokenValue struct {
-	UserEmail string `json:"user_email"`
-	Revoked   bool   `json:"revoked"`
+	UserEmail    string `json:"user_email"`
+	MonthlyLimit int64  `json:"monthly_limit"`
+	Revoked      bool   `json:"revoked"`
 }
 
 func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
@@ -47,8 +50,8 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var tokenValue TokenValue
 	for _, kv := range resp.Kvs {
-		var tokenValue TokenValue
 		err := json.Unmarshal(kv.Value, &tokenValue)
 		if err != nil {
 			d.Logger.CaptureException(fmt.Errorf("unmarshal token value: %w", err), &sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()}, nil)
@@ -64,6 +67,46 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	// Acquire monthly counter limit
+	formattedDate := time.Now().UTC().Format("2006-01")
+	limitResp, err := d.Client.KV.Get(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	var counterLimit int64
+	for _, kv := range limitResp.Kvs {
+		v, err := strconv.ParseInt(string(kv.Value), 10, 64)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		counterLimit += v
+	}
+
+	if counterLimit > tokenValue.MonthlyLimit {
+		w.WriteHeader(http.StatusTooManyRequests)
+		w.Write([]byte("Monthly limit exceeded"))
+		return
+	}
+
+	// Increment monthly counter
+	go func(tokenValue TokenValue) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+
+		formattedDate := time.Now().UTC().Format("2006-01")
+
+		_, err := d.Client.KV.Put(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10))
+		if err != nil {
+			log.Printf("error incrementing monthly counter: %v", err)
+		}
+	}(tokenValue)
 
 	w.WriteHeader(http.StatusOK)
 }
