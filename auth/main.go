@@ -96,7 +96,7 @@ func main() {
 
 	<-sig
 
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), time.Second*10)
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer shutdownCancel()
 
 	if err := server.Shutdown(shutdownCtx); err != nil {
