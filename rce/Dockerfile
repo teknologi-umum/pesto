@@ -5,7 +5,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils
+  apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils
 
 COPY ./nosocket ./nosocket
 
@@ -32,9 +32,11 @@ COPY build.js .
 RUN npm run build
 
 RUN rm -rf node_modules \
-    && npm install --production
+  && npm install --production
 
 ENV PORT=50051
+
+ENV NODE_ENV=production
 
 EXPOSE ${PORT}
 

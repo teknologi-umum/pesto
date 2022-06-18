@@ -26,7 +26,7 @@ export class RceServiceImpl implements ICodeExecutionEngineService {
   }
 
   public listRuntimes(): Runtimes {
-    return { runtime: this._registeredRuntimes };
+    return { runtime: this._registeredRuntimes.map(v => ({ language: v.language, version: v.version, aliases: v.aliases, compiled: v.compiled })) };
   }
 
   public ping(): PingResponse {

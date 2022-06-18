@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "target": "ES2021",
-    "module": "ESNext",
+    "module": "ES2015",
     "declaration": false,
     "types": [
       "node"
@@ -16,14 +16,14 @@
     "noImplicitAny": false,
     "noUnusedParameters": true,
     "preserveConstEnums": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": true,
     "strict": true,
     "listEmittedFiles": true,
-    "allowJs": true,
+    "allowJs": false,
     "baseUrl": ".",
     "paths": {
       "@/*": [
