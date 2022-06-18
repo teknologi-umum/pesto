@@ -2,10 +2,12 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-    "target": "ES2019",
+    "target": "ES2021",
     "module": "ESNext",
     "declaration": false,
-    "types": [],
+    "types": [
+      "node"
+    ],
     "preserveSymlinks": true,
     "isolatedModules": true,
     "esModuleInterop": true,
@@ -24,8 +26,13 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src/**/*", "stubs/**/*"]
+  "include": [
+    "src/**/*",
+    "stubs/**/*"
+  ]
 }

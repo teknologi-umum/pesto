@@ -1,8 +1,20 @@
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
-import toml from "toml";
+import toml from "@ltd/j-toml";
 import { Runtime } from "./runtime";
+
+type ConfigurationFile = {
+  language: string;
+  version: string;
+  compiled: boolean;
+  extension: string;
+  build_command: string[];
+  environment: string[];
+  run_command: string[];
+  test_file: string;
+  aliases: string[];
+}
 
 export async function acquireRuntime() {
   const runtimes: Runtime[] = [];
@@ -20,7 +32,7 @@ export async function acquireRuntime() {
       );
       const configFilePath = path.resolve(packageDirPath, "config.toml");
       const configFile = await fs.readFile(configFilePath, "utf8");
-      const configObject = toml.parse(configFile);
+      const configObject = toml.parse(configFile, { joiner: "\n", bigint: false }) as ConfigurationFile;
       const runtime = new Runtime(
         configObject.language,
         configObject.version,
