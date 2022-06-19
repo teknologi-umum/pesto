@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import path from "path";
-import { fileURLToPath } from "url";
 import toml from "@ltd/j-toml";
 import { Runtime } from "./runtime";
 
@@ -17,17 +16,17 @@ type ConfigurationFile = {
 }
 
 export async function acquireRuntime() {
+  const packagesPath = process.env?.NODE_ENV === "production" ? path.resolve(__dirname, "../packages") : path.resolve(__dirname, "../../packages");
   const runtimes: Runtime[] = [];
   const packagesDir = await fs.readdir(
-    path.resolve(fileURLToPath(import.meta.url), "../../packages"),
+    packagesPath,
     { withFileTypes: true }
   );
 
   for await (const packageDir of packagesDir) {
     if (packageDir.isDirectory()) {
       const packageDirPath = path.resolve(
-        fileURLToPath(import.meta.url),
-        "../../packages",
+        packagesPath,
         packageDir.name
       );
       const configFilePath = path.resolve(packageDirPath, "config.toml");

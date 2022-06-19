@@ -1,12 +1,12 @@
-import esbuild from "esbuild";
+const esbuild = require("esbuild");
 
 esbuild
   .build({
     entryPoints: ["src/index.ts"],
     bundle: true,
-    format: "esm",
+    format: "cjs",
     platform: "node",
-    external: ["toml"],
+    external: ["@ltd/j-toml", "@sentry/node", "polka", "yaml"],
     outdir: "./dist",
     target: ["esnext", "node16.14"],
     tsconfig: "tsconfig.json",
