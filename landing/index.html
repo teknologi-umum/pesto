@@ -201,6 +201,24 @@
                         <strong>exitCode</strong>: The exit code of the program
                         compilation or execution.
                       </li>
+                      <li>
+                        <strong>compileTimeout</strong>: (Optional) The maximum
+                        duration that the code is allowed to compile in millisecond.
+                        Maximum value is 30 seconds (30000 milliseconds).
+                        If not provided, the default value of 5 seconds will be set.
+                      </li>
+                      <li>
+                        <strong>runTimeout</strong>: (Optional) The maximum duration
+                        that the code is allowed to run in millisecond. Maximum
+                        value is 30 seconds (30000 milliseconds).
+                        If not provided, the default value of 5 seconds will be set.
+                      </li>
+                      <li>
+                        <strong>memoryLimit</strong>: (Optional) The maximum amount
+                        of memory that the code is allowed to use in bytes.
+                        Maximum value is 512MB (1024 * 1024 * 512). If not provided,
+                        the default value of 128MB will be set.
+                      </li>
                     </ul>
                   </li>
                 </ul>
@@ -223,7 +241,7 @@ HTTP POST /api/execute HTTP/<span class="code-int">1.1</span>
 <span class="code-key">Accept</span>: application/json
 
 <span class="code-brace">{</span>
-  <span class="code-key">"language"</span>: <span class="code-string">"python"</span>,
+  <span class="code-key">"language"</span>: <span class="code-string">"Python"</span>,
   <span class="code-key">"version"</span>: <span class="code-string">"3.10.2"</span>,
   <span class="code-key">"code"</span>: <span class="code-string">"print('Hello World')"</span>
 <span class="code-brace">}</span></pre>
@@ -234,7 +252,7 @@ HTTP POST /api/execute HTTP/<span class="code-int">1.1</span>
                 <div class="code">
                   <pre>
 <span class="code-brace">{</span>
-  <span class="code-key">"language"</span>: <span class="code-string">"python"</span>,
+  <span class="code-key">"language"</span>: <span class="code-string">"Python"</span>,
   <span class="code-key">"version"</span>: <span class="code-string">"3.10.2"</span>,
   <span class="code-key">"compile"</span>: {
     <span class="code-key">"stdout"</span>: <span class="code-string">""</span>,
@@ -260,11 +278,13 @@ HTTP POST /api/execute HTTP/<span class="code-int">1.1</span>
         <div class="content">
           <p>The Pesto REST API currently supports the following runtimes:</p>
           <ul class="runtime-list">
-            <li><strong>Python</strong>: v3.10</li>
+            <li><strong>Python</strong>: v3.10.2</li>
             <li><strong>Java</strong>: v11 in GraalVM Community v22.1.0</li>
             <li><strong>C/C++</strong>: GCC v9.3.0</li>
-            <li><strong>Javascript</strong>: Node v16.5</li>
+            <li><strong>Javascript</strong>: Node v16.15.0</li>
             <li><strong>PHP</strong>: v8.1</li>
+            <li><strong>Brainfuck</strong>: v2.7.3</li>
+            <li><strong>Ruby</strong>: v3.1.2</li>
           </ul>
           <p>More runtimes will be supported in the future.</p>
         </div>

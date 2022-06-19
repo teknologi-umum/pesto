@@ -2,10 +2,6 @@ x-defaults:
   &defaults
   ENVIRONMENT: development
   ETCD_URL: db:2379
-  AUTH_SENTRY_DSN: ""
-  RCE_SENTRY_DSN: ""
-  LANDING_SENTRY_DSN: ""
-  REGISTRATION_SENTRY_DSN: ""
 
 services:
   traefik:
@@ -49,7 +45,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.landing.entrypoints=web,websecure"
-      - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`) && (Path(`/`) || Path(`/signup`))"
+      - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`) && Path(`/`)"
       - "traefik.http.routers.landing.tls.certresolver=tlsresolver"
       - "traefik.http.routers.landing.middlewares=landing-error,landing-header,landing-rate,landing-redirectscheme"
       - "traefik.http.services.landing.loadbalancer.server.port=3000"
@@ -145,6 +141,7 @@ services:
     environment:
       <<: [ *defaults ]
       PORT: 3000
+      SENTRY_DSN: ${AUTH_SENTRY_DSN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=web,websecure"
@@ -190,6 +187,7 @@ services:
     environment:
       <<: [ *defaults ]
       PORT: 50051
+      SENTRY_DSN: ${RCE_SENTRY_DSN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rce.entrypoints=web,websecure"
@@ -243,6 +241,7 @@ services:
     environment:
       <<: [ *defaults ]
       PORT: 8080
+      SENTRY_DSN: ${REGISTRATION_SENTRY_DSN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.registration.entrypoints=web,websecure"
