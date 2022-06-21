@@ -1,0 +1,76 @@
+name: Master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  auth:
+    name: Auth
+    runs-on: ubuntu-latest
+    container: golang:1.18
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: ./auth
+    services:
+      db:
+        image: gcr.io/etcd-development/etcd:v3.5.4
+        env:
+          ETCD_NAME: s1
+          ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+          ETCD_ADVERTISE_CLIENT_URLS: http://0.0.0.0:2379
+          ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+          ETCD_INITIAL_ADVERTISE_PEER_URLS: http://0.0.0.0:2380
+          ETCD_INITIAL_CLUSTER: s1=http://0.0.0.0:2380
+          ETCD_INITIAL_CLUSTER_TOKEN: 2d8edff944592668ef483cac8ff45f195cfc5f0463e32027e0d59bc8bb020df7
+          ETCD_INITIAL_CLUSTER_STATE: new
+        ports:
+          - 2379:2379
+          - 2380:2380
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Secrets scan
+        uses: trufflesecurity/trufflehog@v3.4.3
+        with:
+          path: ./
+          base: ${{ github.sha }}
+      - name: Build test
+        run: go build .
+      - name: Run test
+        run: go test -v -coverprofile=coverage.out -covermode=atomic ./...
+        env:
+          ENVIRONMENT: github-actions
+          SENTRY_DSN: ""
+          ETCD_URL: db:2379
+  rce:
+    name: RCE
+    runs-on: ubuntu-latest
+    container: node:16.14.0-bullseye
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: ./rce
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Secrets scan
+        uses: trufflesecurity/trufflehog@v3.4.3
+        with:
+          path: ./
+          base: ${{ github.sha }}
+      - name: Setup packages && nosocket
+        run: >
+          apt-get update &&
+          apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils &&
+          make -C ./nosocket/ all && make -C ./nosocket/ install
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npx eslint --ext .ts,.js,.cjs .
+      - name: Build
+        run: npm run build
+      - name: Test & coverage
+        run: npm run test

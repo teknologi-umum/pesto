@@ -8,7 +8,7 @@
     "lint": "eslint --fix --ext .ts,.js,.cjs .",
     "protoc:rce": "npx protoc --ts_out src/stub --ts_opt server_grpc1,client_none,generate_dependencies,optimize_code_size,add_pb_suffix --proto_path ../proto rce.proto",
     "protoc:logger": "npx protoc --ts_out src/stub --ts_opt server_none,client_grpc1,generate_dependencies,optimize_code_size,add_pb_suffix --proto_path ../proto logger.proto",
-    "test": "c8 ava"
+    "test": "c8 uvu -r ts-node/register tests"
   },
   "author": "",
   "license": "MIT",
@@ -17,12 +17,12 @@
     "@types/node": "^17.0.21",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
-    "ava": "^4.1.0",
     "c8": "^7.11.0",
     "dotenv": "^16.0.0",
     "esbuild": "^0.14.23",
     "eslint": "^8.10.0",
     "eslint-plugin-ava": "^13.2.0",
+    "uvu": "^0.5.3",
     "ts-node": "^10.7.0",
     "typescript": "^4.5.5"
   },
