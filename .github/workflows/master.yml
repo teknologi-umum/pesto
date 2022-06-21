@@ -27,7 +27,7 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.4.3
         with:
           path: ./
-          base: ${{ github.ref }}
+          base: ${{ github.sha }}
       - name: Build test
         run: go build .
       - name: Run test
@@ -51,7 +51,7 @@ jobs:
         uses: trufflesecurity/trufflehog@v3.4.3
         with:
           path: ./
-          base: ${{ github.ref }}
+          base: ${{ github.sha }}
       - name: Setup packages && nosocket
         run: >
           apt-get update &&
