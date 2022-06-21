@@ -1,4 +1,4 @@
-import { eta, http } from "../deps.ts";
+import { eta, http, HttpStatus } from "../deps.ts";
 import * as log from "./logger.ts";
 import { HttpError } from "./error.ts";
 
@@ -54,10 +54,10 @@ export class App {
       status = err.status;
     } else if (err instanceof Error) {
       message = err.message;
-      status = 500;
+      status = HttpStatus.InternalServerError;
     } else {
       message = "Unknown error.";
-      status = 500;
+      status = HttpStatus.InternalServerError;
     }
 
     log.error(`${message}`);
@@ -67,7 +67,7 @@ export class App {
     });
     if (page === undefined) {
       return new Response("Failed to render the page.", {
-        status: 500,
+        status: HttpStatus.InternalServerError,
         headers: { "Content-Type": this.MIME_TYPES["txt"] },
       });
     }
@@ -85,11 +85,14 @@ export class App {
   private async _homepageHandler() {
     const page = await this._compile("pages/index.hbs");
     if (page === undefined) {
-      throw new HttpError(500, "Failed to render the homepage.");
+      throw new HttpError(
+        HttpStatus.InternalServerError,
+        "Failed to render the homepage."
+      );
     }
 
     return new Response(page, {
-      status: 200,
+      status: HttpStatus.OK,
       headers: { "Content-Type": this.MIME_TYPES["html"] },
     });
   }
@@ -108,11 +111,11 @@ export class App {
         `${this._config.publicPath}/${url.pathname}`
       );
       return new Response(file, {
-        status: 200,
+        status: HttpStatus.OK,
         headers: { "content-type": mimetype },
       });
     } catch {
-      throw new HttpError(404, "Page not found.");
+      throw new HttpError(HttpStatus.NotFound, "Page not found.");
     }
   }
 }
