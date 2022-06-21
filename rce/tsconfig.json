@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "target": "ES2021",
-    "module": "ES2015",
+    "module": "CommonJS",
     "declaration": false,
     "types": [
       "node"
@@ -33,6 +33,6 @@
   },
   "include": [
     "src/**/*",
-    "stubs/**/*"
+    "tests/**/*"
   ]
 }
