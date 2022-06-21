@@ -2,7 +2,7 @@ import { eta, http, HttpStatus } from "../deps.ts";
 import * as log from "./logger.ts";
 import { HttpError } from "./error.ts";
 
-interface AppConfig {
+export interface AppConfig {
   port: number;
   eta: Partial<typeof eta.config>;
   publicPath: string;
@@ -39,6 +39,11 @@ export class App {
   public async run() {
     log.info(`Server listening on http://localhost:${this._config.port}`);
     await this._server.listenAndServe();
+  }
+
+  public close() {
+    log.info("Closing server...");
+    this._server.close();
   }
 
   private _handleConnection(req: Request) {
