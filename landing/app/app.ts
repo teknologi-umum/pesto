@@ -41,7 +41,7 @@ export class App {
       return this._staticFileHandler(req);
     }
 
-    throw new HttpError(400, "Bad Request. Method is not supported.");
+    throw new HttpError(405, "Method not allowed.");
   }
 
   private async _handleErrors(err: unknown) {
