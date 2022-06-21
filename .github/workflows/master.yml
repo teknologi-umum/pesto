@@ -74,3 +74,32 @@ jobs:
         run: npm run build
       - name: Test & coverage
         run: npm run test
+
+  landing:
+    name: Landing
+    runs-on: ubuntu-latest
+    container: denoland/deno:debian-1.23.0
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: ./landing
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Secrets scan
+        uses: trufflesecurity/trufflehog@v3.4.3
+        with:
+          path: ./
+          base: ${{ github.sha }}
+      - name: Install dependencies
+        run: deno cache deps.ts
+      - name: Compile the app
+        run: deno cache main.ts
+      - name: Format check
+        run: deno fmt --check
+      - name: Lint check
+        run: deno lint
+      - name: Test and coverage
+        run: >
+          deno test --allow-read --allow-net  --coverage=coverage && \
+          deno coverage coverage --lcov --output=coverage.lcov
