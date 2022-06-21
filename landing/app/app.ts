@@ -1,4 +1,4 @@
-import { eta, http } from "../mod.ts";
+import { eta, http } from "../deps.ts";
 import * as log from "./logger.ts";
 import { HttpError } from "./error.ts";
 
