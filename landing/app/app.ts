@@ -21,16 +21,24 @@ export class App {
   });
 
   private readonly _config: AppConfig;
+  private readonly _server: http.Server;
 
   constructor(config: AppConfig) {
     this._config = config;
-  }
-
-  public run() {
-    return http.serve(this._handleConnection.bind(this), {
+    this._server = new http.Server({
       port: this._config.port,
+      handler: this._handleConnection.bind(this),
       onError: this._handleErrors.bind(this),
     });
+  }
+
+  public get server() {
+    return this._server;
+  }
+
+  public async run() {
+    log.info(`Server listening on http://localhost:${this._config.port}`);
+    await this._server.listenAndServe();
   }
 
   private _handleConnection(req: Request) {
