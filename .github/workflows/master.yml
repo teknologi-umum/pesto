@@ -102,7 +102,7 @@ jobs:
         run: deno fmt --check
       - name: Lint check
         run: deno lint
-      - name: Test and coverage
-        run: >
-          deno test --allow-read --allow-net  --coverage=coverage && \
-          deno coverage coverage --lcov --output=coverage.lcov
+      - name: Test
+        run: deno test --allow-read --allow-net  --coverage=coverage
+      - name: Coverage
+        run: deno coverage coverage --lcov --output=coverage.lcov
