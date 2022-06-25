@@ -1,12 +1,21 @@
-FROM node:16.15-alpine
-
-WORKDIR /home/node/app
-
-COPY . .
-
-RUN npm ci && \
-    npm run build
+FROM denoland/deno:alpine-1.23.0
 
 EXPOSE 3000
 
-CMD [ "node", "./node_modules/sirv-cli/bin.js", "--port", "3000", "./dist" ]
+WORKDIR /app
+
+# don't run as root
+USER deno
+
+# cache the dependencies
+COPY deps.ts .
+RUN deno cache deps.ts
+
+# copy everything
+ADD . .
+
+# compile the app
+RUN deno cache main.ts
+
+# run the app with fs read and network permissions
+CMD [ "run", "--allow-net", "--allow-read", "main.ts" ]
