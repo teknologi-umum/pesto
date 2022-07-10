@@ -29,10 +29,11 @@ public class ApiController {
 
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity register(@Valid @RequestBody(required = true) User user) {
+    public ResponseEntity<Object> register(@Valid @RequestBody(required = true) User user) {
         boolean isSuccess = userService.putUserToWaitlist(user);
         if (isSuccess) {
-            return ResponseEntity.ok(user).status(HttpStatus.CREATED).build();
+            ResponseEntity.ok(user);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
             return ResponseEntity.accepted().build();
         }
@@ -40,7 +41,7 @@ public class ApiController {
     }
 
     @GetMapping("/pending")
-    public ResponseEntity getPending() {
+    public ResponseEntity<Object> getPending() {
         List<User> waitlist = userService.getUserInWaitlist();
         if (waitlist.size() != 0) {
             PendingList pendingList = new PendingList(waitlist);
@@ -50,7 +51,7 @@ public class ApiController {
     }
 
     @PutMapping("/approve")
-    public ResponseEntity approve(@Valid @RequestBody(required = true) UserToken user) {
+    public ResponseEntity<Object> approve(@Valid @RequestBody(required = true) UserToken user) {
         boolean isDeleted = userService.removeUserFromWaitlist(user.getEmail());
         if (!isDeleted) {
             return ResponseEntity.notFound().build();
@@ -60,7 +61,7 @@ public class ApiController {
     }
 
     @PutMapping("/revoke")
-    public ResponseEntity revoke(@Valid @RequestBody(required = true) UserToken token) {
+    public ResponseEntity<Object> revoke(@Valid @RequestBody(required = true) UserToken token) {
         boolean isFound = userService.findUserInApprovalList(token.getToken());
         if (isFound == false) {
             return ResponseEntity.notFound().build();
