@@ -17,16 +17,11 @@ import io.etcd.jetcd.maintenance.StatusResponse;
 
 @Component
 public class DatabaseConnection {
+    @Value("${environment.ETCD_URL:#{'http://localhost:2379'}}")
     private String ETCD_ENDPOINT;
     private Client client;
 
-    public DatabaseConnection(@Value("#{environment.ETCD_URL}") String etcdEndpoint) {
-        if (etcdEndpoint != null && etcdEndpoint != "") {
-            ETCD_ENDPOINT = etcdEndpoint;
-        } else {
-            ETCD_ENDPOINT = "http://localhost:2379";
-        }
-
+    public DatabaseConnection() {
         client = Client.builder().endpoints(ETCD_ENDPOINT).build();
     }
 
