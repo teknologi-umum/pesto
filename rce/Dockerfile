@@ -17,7 +17,7 @@ COPY ./scripts ./scripts
 
 COPY package*.json .
 
-RUN npm install
+RUN npm ci
 
 RUN node ./scripts/install.cjs
 
@@ -31,8 +31,7 @@ COPY build.js .
 
 RUN npm run build
 
-RUN rm -rf node_modules \
-  && npm install --production
+RUN rm -rf node_modules && npm ci --omit=dev
 
 ENV PORT=50051
 
