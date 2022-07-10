@@ -4,6 +4,8 @@ EXPOSE 3000
 
 WORKDIR /app
 
+RUN apk add curl
+
 # don't run as root
 USER deno
 

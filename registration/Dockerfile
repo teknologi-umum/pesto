@@ -23,6 +23,8 @@ RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && mvn -B clean package -P native 
 
 FROM oraclelinux:7-slim
 
+RUN yum update -y && yum install -y curl
+
 # Add Spring Boot Native app pesto to Container
 COPY --from=builder "/build/target/pesto" pesto
 
