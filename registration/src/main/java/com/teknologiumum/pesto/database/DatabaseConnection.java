@@ -17,12 +17,12 @@ import io.etcd.jetcd.maintenance.StatusResponse;
 
 @Component
 public class DatabaseConnection {
-    @Value("${environment.ETCD_URL:#{'http://localhost:2379'}}")
-    private String ETCD_ENDPOINT;
+    private String etcdEndpoint;
     private Client client;
 
-    public DatabaseConnection() {
-        client = Client.builder().endpoints(ETCD_ENDPOINT).build();
+    public DatabaseConnection(@Value("${environment.ETCD_URL:#{'http://localhost:2379'}}") String etcdEndpoint) {
+        this.etcdEndpoint = etcdEndpoint;
+        client = Client.builder().endpoints(etcdEndpoint).build();
     }
 
     public enum CommonKey {
@@ -65,7 +65,7 @@ public class DatabaseConnection {
     public StatusResponse getStatus() {
         Maintenance maintenance = client.getMaintenanceClient();
         try {
-            StatusResponse status = maintenance.statusMember(ETCD_ENDPOINT).get();
+            StatusResponse status = maintenance.statusMember(etcdEndpoint).get();
             return status;
         } catch (InterruptedException e) {
             e.printStackTrace();
