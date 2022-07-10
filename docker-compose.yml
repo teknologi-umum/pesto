@@ -141,8 +141,8 @@ services:
         "stderr"
       ]
     ports:
-      - 2379:2379
-      - 2380:2380
+      - 127.0.0.1:2379:2379
+      - 127.0.0.1:2380:2380
     platform: linux/amd64
     healthcheck:
       test: /usr/local/bin/etcdctl endpoint health
