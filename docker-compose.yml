@@ -45,7 +45,7 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 1GB
+          memory: 2GB
           cpus: '1'
         reservations:
           memory: 100MB
@@ -277,8 +277,8 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 3GB
-          cpus: '2'
+          memory: 4GB
+          cpus: '3'
         reservations:
           memory: 100MB
           cpus: '0.10'
@@ -326,6 +326,9 @@ services:
       interval: 15s
       timeout: 10s
       retries: 5
+    depends_on:
+      db:
+        condition: service_healthy
     deploy:
       mode: replicated
       replicas: 1
