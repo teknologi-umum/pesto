@@ -275,6 +275,11 @@ const PORT = process.env?.PORT || "50051";
     }
   });
 
+  server.get("/healthz", (_req, res) => {
+    res.writeHead(200, { "Content-Type": "application/json" })
+      .end(JSON.stringify({ status: "ok" }));
+  });
+
   server.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
   });

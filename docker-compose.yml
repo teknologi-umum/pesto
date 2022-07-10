@@ -89,7 +89,7 @@ services:
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.permanent=true"
     platform: linux/amd64
     healthcheck:
-      test: curl -f http://localhost:3000/healthz || exit 1
+      test: curl -f http://localhost:3000/ || exit 1
       interval: 15s
       timeout: 10s
       retries: 5
