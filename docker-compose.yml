@@ -35,6 +35,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 10
+        window: 120s
+      resources:
+        limits:
+          memory: 1GB
+          cpus: '1'
+        reservations:
+          memory: 100MB
+          cpus: '0.10'
     networks:
       - pesto
       - default
@@ -79,13 +94,20 @@ services:
       timeout: 10s
       retries: 5
     deploy:
-      mode: replicated # global, replicated
+      mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 10
         window: 120s
+      resources:
+        limits:
+          memory: 1GB
+          cpus: '0.75'
+        reservations:
+          memory: 100MB
+          cpus: '0.10'
     networks:
       - pesto
   db:
@@ -135,6 +157,13 @@ services:
         delay: 30s
         max_attempts: 20
         window: 60s
+      resources:
+        limits:
+          memory: 2GB
+          cpus: '1'
+        reservations:
+          memory: 100MB
+          cpus: '0.25'
     networks:
       - pesto
     volumes:
@@ -174,13 +203,20 @@ services:
       timeout: 10s
       retries: 5
     deploy:
-      mode: replicated # global, replicated
+      mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 10
         window: 120s
+      resources:
+        limits:
+          memory: 500MB
+          cpus: '0.75'
+        reservations:
+          memory: 50MB
+          cpus: '0.10'
     depends_on:
       db:
         condition: service_healthy
@@ -232,13 +268,20 @@ services:
       timeout: 5s
       retries: 5
     deploy:
-      mode: replicated # global, replicated
+      mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 10
         window: 120s
+      resources:
+        limits:
+          memory: 3GB
+          cpus: '2'
+        reservations:
+          memory: 100MB
+          cpus: '0.10'
     networks:
       - pesto
   registration:
@@ -284,13 +327,20 @@ services:
       timeout: 10s
       retries: 5
     deploy:
-      mode: replicated # global, replicated
+      mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 10
         window: 120s
+      resources:
+        limits:
+          memory: 2GB
+          cpus: '1'
+        reservations:
+          memory: 100MB
+          cpus: '0.10'
     networks:
       - pesto
 
