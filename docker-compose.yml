@@ -24,7 +24,7 @@ services:
       - "80:80"
       - "443:443"
       # The Web UI (enabled by --api.insecure=true)
-      - "8081:8080"
+      - "127.0.0.1:8081:8080"
     platform: linux/amd64
     volumes:
       # So that Traefik can listen to the Docker events
@@ -61,13 +61,13 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.landing.entrypoints=web,websecure"
-      - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`) && Path(`/`)"
+      - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`) && (Path(`/`) || PathPrefix(`/fonts`) || PathPrefix(`/meta`) || PathPrefix(`/styles`))"
       - "traefik.http.routers.landing.tls.certresolver=tlsresolver"
       - "traefik.http.routers.landing.middlewares=landing-error,landing-header,landing-rate,landing-redirectscheme"
       - "traefik.http.services.landing.loadbalancer.server.port=3000"
       - "traefik.http.services.landing.loadbalancer.server.scheme=http"
       - "traefik.http.services.landing.loadbalancer.healthcheck.interval=30s"
-      - "traefik.http.services.landing.loadbalancer.healthcheck.path=/healthz"
+      - "traefik.http.services.landing.loadbalancer.healthcheck.path=/"
       - "traefik.http.middlewares.landing-error.errors.status=500-599"
       - "traefik.http.middlewares.landing-error.errors.service=landing@docker"
       - "traefik.http.middlewares.landing-error.errors.query=/error"
@@ -95,7 +95,7 @@ services:
       retries: 5
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       restart_policy:
         condition: on-failure
         delay: 30s
@@ -103,7 +103,7 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 1GB
+          memory: 500MB
           cpus: '0.75'
         reservations:
           memory: 100MB
@@ -204,7 +204,7 @@ services:
       retries: 5
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
       restart_policy:
         condition: on-failure
         delay: 30s
@@ -277,7 +277,7 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 4GB
+          memory: 5GB
           cpus: '3'
         reservations:
           memory: 100MB
