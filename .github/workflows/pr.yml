@@ -67,7 +67,7 @@ jobs:
           apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils &&
           make -C ./nosocket/ all && make -C ./nosocket/ install
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Lint
         run: npx eslint --ext .ts,.js,.cjs .
       - name: Build
