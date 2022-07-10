@@ -25,6 +25,7 @@ services:
       - "443:443"
       # The Web UI (enabled by --api.insecure=true)
       - "8081:8080"
+    platform: linux/amd64
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
@@ -32,8 +33,23 @@ services:
     healthcheck:
       test: traefik healthcheck --ping
       interval: 10s
-      timeout: 30s
+      timeout: 5s
       retries: 5
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 10
+        window: 120s
+      resources:
+        limits:
+          memory: 2GB
+          cpus: '1'
+        reservations:
+          memory: 100MB
+          cpus: '0.10'
     networks:
       - pesto
       - default
@@ -71,19 +87,27 @@ services:
       - "traefik.http.middlewares.landing-header.headers.customResponseHeaders.server=Teknologi Umum"
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.permanent=true"
+    platform: linux/amd64
     healthcheck:
       test: curl -f http://localhost:3000/healthz || exit 1
-      interval: 30s
+      interval: 15s
       timeout: 10s
       retries: 5
     deploy:
-      mode: replicated # global, replicated
+      mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 10
         window: 120s
+      resources:
+        limits:
+          memory: 1GB
+          cpus: '0.75'
+        reservations:
+          memory: 100MB
+          cpus: '0.10'
     networks:
       - pesto
   db:
@@ -117,12 +141,13 @@ services:
         "stderr"
       ]
     ports:
-      - 2379:2379
-      - 2380:2380
+      - 127.0.0.1:2379:2379
+      - 127.0.0.1:2380:2380
+    platform: linux/amd64
     healthcheck:
       test: /usr/local/bin/etcdctl endpoint health
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
     deploy:
       mode: replicated
@@ -132,6 +157,13 @@ services:
         delay: 30s
         max_attempts: 20
         window: 60s
+      resources:
+        limits:
+          memory: 2GB
+          cpus: '1'
+        reservations:
+          memory: 100MB
+          cpus: '0.25'
     networks:
       - pesto
     volumes:
@@ -164,19 +196,27 @@ services:
       - "traefik.http.middlewares.auth-header.headers.browserXssFilter=true"
       - "traefik.http.middlewares.auth-header.headers.contentTypeNosniff=true"
       - "traefik.http.middlewares.auth-header.headers.customResponseHeaders.server=Teknologi Umum"
+    platform: linux/amd64
     healthcheck:
       test: curl -f http://localhost:3000/healthz || exit 1
-      interval: 30s
+      interval: 15s
       timeout: 10s
       retries: 5
     deploy:
-      mode: replicated # global, replicated
+      mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 10
         window: 120s
+      resources:
+        limits:
+          memory: 500MB
+          cpus: '0.75'
+        reservations:
+          memory: 50MB
+          cpus: '0.10'
     depends_on:
       db:
         condition: service_healthy
@@ -221,19 +261,27 @@ services:
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.permanent=true"
       - "traefik.http.middlewares.rce-inflightreq.inflightreq.amount=50"
+    platform: linux/amd64
     healthcheck:
       test: curl -f http://localhost:50051/healthz || exit 1
-      interval: 30s
-      timeout: 10s
+      interval: 15s
+      timeout: 5s
       retries: 5
     deploy:
-      mode: replicated # global, replicated
+      mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 10
         window: 120s
+      resources:
+        limits:
+          memory: 4GB
+          cpus: '3'
+        reservations:
+          memory: 100MB
+          cpus: '0.10'
     networks:
       - pesto
   registration:
@@ -248,7 +296,7 @@ services:
       - "traefik.http.routers.registration.rule=Host(`pesto.teknologiumum.com`) && Path(`/api/register`)"
       - "traefik.http.routers.registration.tls.certresolver=tlsresolver"
       - "traefik.http.routers.registration.middlewares=registration-error,registration-header,registration-rate,registration-redirectscheme,registration-inflightreq"
-      - "traefik.http.services.registration.loadbalancer.server.port=50051"
+      - "traefik.http.services.registration.loadbalancer.server.port=8080"
       - "traefik.http.services.registration.loadbalancer.server.scheme=http"
       - "traefik.http.services.registration.loadbalancer.healthcheck.interval=30s"
       - "traefik.http.services.registration.loadbalancer.healthcheck.path=/healthz"
@@ -272,19 +320,30 @@ services:
       - "traefik.http.middlewares.registration-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.registration-redirectscheme.redirectscheme.permanent=true"
       - "traefik.http.middlewares.registration-inflightreq.inflightreq.amount=50"
+    platform: linux/amd64
     healthcheck:
       test: curl -f http://localhost:8080/healthz || exit 1
-      interval: 30s
+      interval: 15s
       timeout: 10s
       retries: 5
+    depends_on:
+      db:
+        condition: service_healthy
     deploy:
-      mode: replicated # global, replicated
+      mode: replicated
       replicas: 1
       restart_policy:
         condition: on-failure
         delay: 30s
         max_attempts: 10
         window: 120s
+      resources:
+        limits:
+          memory: 2GB
+          cpus: '1'
+        reservations:
+          memory: 100MB
+          cpus: '0.10'
     networks:
       - pesto
 

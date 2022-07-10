@@ -31,11 +31,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Secrets scan
-        uses: trufflesecurity/trufflehog@v3.4.3
-        with:
-          path: ./
-          base: ${{ github.sha }}
+        run: >
+          apt update && apt install -y curl tar gzip &&
+          curl -LO https://github.com/trufflesecurity/trufflehog/releases/download/v3.6.7/trufflehog_3.6.7_linux_amd64.tar.gz &&
+          tar -zxf trufflehog_3.6.7_linux_amd64.tar.gz &&
+          mv -v trufflehog /usr/bin/trufflehog &&
+          rm -rf README.md LICENSE trufflehog_3.6.7_linux_amd64.tar.gz &&
+          trufflehog git --concurrency=$(nproc) --no-update --since-commit=$(echo $BASE_COMMIT) file://./
         continue-on-error: true
+        env:
+          BASE_COMMIT: ${{ github.sha }}
       - name: Build test
         run: go build .
       - name: Run test
@@ -56,18 +61,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Secrets scan
-        uses: trufflesecurity/trufflehog@v3.4.3
-        with:
-          path: ./
-          base: ${{ github.sha }}
+        run: >
+          apt update && apt install -y curl tar gzip &&
+          curl -LO https://github.com/trufflesecurity/trufflehog/releases/download/v3.6.7/trufflehog_3.6.7_linux_amd64.tar.gz &&
+          tar -zxf trufflehog_3.6.7_linux_amd64.tar.gz &&
+          mv -v trufflehog /usr/bin/trufflehog &&
+          rm -rf README.md LICENSE trufflehog_3.6.7_linux_amd64.tar.gz &&
+          trufflehog git --concurrency=$(nproc) --no-update --since-commit=$(echo $BASE_COMMIT) file://./
         continue-on-error: true
+        env:
+          BASE_COMMIT: ${{ github.sha }}
       - name: Setup packages && nosocket
         run: >
           apt-get update &&
           apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils &&
           make -C ./nosocket/ all && make -C ./nosocket/ install
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Lint
         run: npx eslint --ext .ts,.js,.cjs .
       - name: Build
@@ -87,11 +97,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Secrets scan
-        uses: trufflesecurity/trufflehog@v3.4.3
-        with:
-          path: ./
-          base: ${{ github.sha }}
+        run: >
+          apt update && apt install -y curl tar gzip &&
+          curl -LO https://github.com/trufflesecurity/trufflehog/releases/download/v3.6.7/trufflehog_3.6.7_linux_amd64.tar.gz &&
+          tar -zxf trufflehog_3.6.7_linux_amd64.tar.gz &&
+          mv -v trufflehog /usr/bin/trufflehog &&
+          rm -rf README.md LICENSE trufflehog_3.6.7_linux_amd64.tar.gz &&
+          trufflehog git --concurrency=$(nproc) --no-update --since-commit=$(echo $BASE_COMMIT) file://./
         continue-on-error: true
+        env:
+          BASE_COMMIT: ${{ github.sha }}
       - name: Install dependencies
         run: deno cache deps.ts
       - name: Compile the app

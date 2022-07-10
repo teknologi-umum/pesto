@@ -21,7 +21,6 @@ const PORT = process.env?.PORT || "50051";
   const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
 
   const server = polka({
-    // TODO: implement correct error handler and no match handler
     onError: (err, req, res) => {
       Sentry.withScope((scope) => {
         scope.setExtra("method", req.method);

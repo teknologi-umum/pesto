@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.teknologiumum.pesto.service.StatusService;
-import com.teknologiumum.pesto.service.UserService;
 
 @RestController
 public class StatusController {
@@ -15,7 +14,7 @@ public class StatusController {
     StatusService statusService;
 
     @GetMapping("/healthz")
-    public ResponseEntity getPending() {
+    public ResponseEntity<Object> getPending() {
 
         Object status = statusService.getStatus();
         return ResponseEntity.ok(status);

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.etcd.jetcd.ByteSequence;
@@ -16,9 +17,18 @@ import io.etcd.jetcd.maintenance.StatusResponse;
 
 @Component
 public class DatabaseConnection {
+    private String ETCD_ENDPOINT;
+    private Client client;
 
-    private final static String ETCD_ENDPOINT = "http://localhost:2379";
-    private static Client client = Client.builder().endpoints(ETCD_ENDPOINT).build();
+    public DatabaseConnection(@Value("#{environment.ETCD_URL}") String etcdEndpoint) {
+        if (etcdEndpoint != null && etcdEndpoint != "") {
+            ETCD_ENDPOINT = etcdEndpoint;
+        } else {
+            ETCD_ENDPOINT = "http://localhost:2379";
+        }
+
+        client = Client.builder().endpoints(ETCD_ENDPOINT).build();
+    }
 
     public enum CommonKey {
         waitlist
