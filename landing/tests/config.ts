@@ -1,4 +1,4 @@
-import type { AppConfig } from "../app/app.ts";
+import type { AppConfig } from "~/app/app.ts";
 
 export const config: AppConfig = {
   port: 4200,

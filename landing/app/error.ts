@@ -1,4 +1,4 @@
-import type { Status as HttpStatus } from "http/http_status.ts";
+import type { HttpStatus } from "~/deps.ts";
 
 export class HttpError extends Error {
   constructor(public readonly status: HttpStatus, message: string) {

@@ -1,7 +1,9 @@
 {
   "tasks": {
-    "dev": "deno run --allow-env --allow-read --allow-net --watch main.ts",
-    "start": "deno run --allow-env --allow-read --allow-net main.ts"
+    "dev": "deno run --allow-read --allow-net --watch main.ts",
+    "start": "deno run --allow-read --allow-net main.ts",
+    "test": "deno test --allow-read --allow-net",
+    "coverage": "deno test --allow-read --allow-net  --coverage=coverage && deno coverage coverage --lcov --output=coverage.lcov"
   },
   "importMap": "./import_map.json"
 }

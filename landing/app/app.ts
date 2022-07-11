@@ -1,6 +1,4 @@
-import * as eta from "eta";
-import { Server } from "http/server.ts";
-import { Status as HttpStatus } from "http/http_status.ts";
+import { eta, Server, HttpStatus } from "~/deps.ts";
 import * as log from "~/app/logger.ts";
 import { HttpError } from "~/app/error.ts";
 
