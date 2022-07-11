@@ -1,3 +1,17 @@
+:root {
+  --color-white: #f9fffa;
+  --color-black: #1b2417;
+  --color-tinted-black: #22331a;
+  --color-soft-black: #384930;
+  --color-background: #eaffef;
+  --color-yellow-green: #c2e996;
+  --color-soft-green: #6cd48f;
+  --color-dark-green: #1c722c;
+  --color-blue: #5aebe3;
+  --color-red: #f57868;
+  --color-pale-red: #e9b596;
+}
+
 * {
   padding: 0;
   margin: 0;
@@ -6,24 +20,34 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
 html {
   scroll-behavior: smooth;
-  height: 100%;
 }
 
 body {
   display: flex;
-  height: 100%;
   flex-direction: column;
-  background-color: #eaffef;
+  background-color: var(--color-background);
   background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 0h2v20H9V0zm25.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm-20 20l1.732 1-10 17.32-1.732-1 10-17.32zM58.16 4.134l1 1.732-17.32 10-1-1.732 17.32-10zm-40 40l1 1.732-17.32 10-1-1.732 17.32-10zM80 9v2H60V9h20zM20 69v2H0v-2h20zm79.32-55l-1 1.732-17.32-10L82 4l17.32 10zm-80 80l-1 1.732-17.32-10L2 84l17.32 10zm96.546-75.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32zM38.16 24.134l1 1.732-17.32 10-1-1.732 17.32-10zM60 29v2H40v-2h20zm19.32 5l-1 1.732-17.32-10L62 24l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM111 40h-2V20h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zM40 49v2H20v-2h20zm19.32 5l-1 1.732-17.32-10L42 44l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM91 60h-2V40h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM39.32 74l-1 1.732-17.32-10L22 64l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM71 80h-2V60h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM120 89v2h-20v-2h20zm-84.134 9.16l-1.732 1-10-17.32 1.732-1 10 17.32zM51 100h-2V80h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM100 109v2H80v-2h20zm19.32 5l-1 1.732-17.32-10 1-1.732 17.32 10zM31 120h-2v-20h2v20z' fill='%23c2e996' fill-opacity='0.16' fill-rule='evenodd'/%3E%3C/svg%3E");
 }
 
 #app {
   flex: 1;
   max-width: 960px;
-  margin: 0 auto;
   padding: 0 1rem;
+  box-sizing: content-box;
+}
+
+@media only screen and (min-width: 960px) {
+  #app {
+    margin: 0 auto;
+  }
 }
 
 /*#region Utility */
@@ -46,7 +70,7 @@ body {
 .url {
   font-family: "IBM Plex Sans", sans-serif;
   text-decoration-style: dashed;
-  color: #1c722c;
+  color: var(--color-dark-green);
 }
 
 .url:hover {
@@ -67,7 +91,7 @@ body {
   font-size: clamp(3rem, calc(4vw + 2rem), 6rem);
   font-family: "IBM Plex Serif", serif;
   font-weight: 700;
-  color: #22331a;
+  color: var(--color-tinted-black);
   z-index: 10;
   margin-left: -4rem;
 }
@@ -78,7 +102,7 @@ svg.leaf-icon {
   position: absolute;
   width: 7rem;
   height: 7rem;
-  color: #22331a;
+  color: var(--color-tinted-black);
   z-index: 5;
 }
 
@@ -88,7 +112,7 @@ svg.leaf-icon-bg {
   position: absolute;
   width: 6.5rem;
   height: 6.5rem;
-  color: #6cd48f;
+  color: var(--color-soft-green);
 }
 
 .description {
@@ -99,7 +123,7 @@ svg.leaf-icon-bg {
   font-weight: 500;
   max-width: 60ch;
   margin: 1.25rem auto 0;
-  color: #384930;
+  color: var(--color-soft-black);
 }
 
 .buttons {
@@ -116,17 +140,17 @@ svg.leaf-icon-bg {
 }
 
 .button.get-started {
-  background-color: #6cd48f;
-  color: #22331a;
-  border: 2px #22331a solid;
-  box-shadow: 0.25rem 0.25rem 0 0 #22331a;
+  background-color: var(--color-soft-green);
+  color: var(--color-tinted-black);
+  border: 2px var(--color-tinted-black) solid;
+  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
 }
 
 .button.request {
-  background-color: #c2e996;
-  color: #22331a;
-  border: 2px #22331a solid;
-  box-shadow: 0.25rem 0.25rem 0 0 #22331a;
+  background-color: var(--color-yellow-green);
+  color: var(--color-tinted-black);
+  border: 2px var(--color-tinted-black) solid;
+  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
 }
 /*#endregion*/
 
@@ -136,7 +160,7 @@ svg.leaf-icon-bg {
 }
 
 .heading {
-  color: #22331a;
+  color: var(--color-tinted-black);
   /* font-size: 2.25rem; */
   font-size: clamp(1.5rem, calc(2vw + 1.5rem), 2.25rem);
   font-family: "IBM Plex Serif", serif;
@@ -147,8 +171,8 @@ svg.leaf-icon-bg {
   padding: 0 2rem;
   margin-top: 0.5rem;
   margin-left: 0.5rem;
-  border-left: 2px #22331a solid;
-  color: #22331a;
+  border-left: 2px var(--color-tinted-black) solid;
+  color: var(--color-soft-black);
 }
 
 .content p {
@@ -169,7 +193,7 @@ svg.leaf-icon-bg {
   font-size: 1.5rem;
   font-family: "IBM Plex Sans", sans-serif;
   font-weight: 600;
-  color: #22331a;
+  color: var(--color-tinted-black);
 }
 
 .guide-list {
@@ -210,9 +234,9 @@ svg.leaf-icon-bg {
   font-weight: 500;
   padding: 0.5rem 1rem;
   width: min-content;
-  background-color: #22331a;
-  color: #eaffef;
-  box-shadow: 0.25rem 0.25rem 0 0 #22331a;
+  background-color: var(--color-tinted-black);
+  color: var(--color-background);
+  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
 }
 
 .runtime-list {
@@ -238,9 +262,9 @@ svg.leaf-icon-bg {
 
 .code {
   padding: 1rem;
-  background-color: #22331a;
-  color: #eaffef;
-  box-shadow: 0.25rem 0.25rem 0 0 #22331a;
+  background-color: var(--color-tinted-black);
+  color: var(--color-background);
+  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
   overflow-x: auto;
 }
 
@@ -251,19 +275,19 @@ svg.leaf-icon-bg {
 }
 
 .code-brace {
-  color: #eaffef;
+  color: var(--color-background);
 }
 
 .code-key {
-  color: #5aebe3;
+  color: var(--color-blue);
 }
 
 .code-string {
-  color: #6cd48f;
+  color: var(--color-soft-green);
 }
 
 .code-int {
-  color: #f57868;
+  color: var(--color-red);
 }
 /*#endregion */
 
@@ -291,18 +315,18 @@ svg.leaf-icon-bg {
   font-weight: 400;
   font-size: 1.125rem;
   padding: 0.5rem 1rem;
-  border: 2px #22331a solid;
+  border: 2px var(--color-tinted-black) solid;
   outline: none;
-  background-color: #f9fffa;
-  box-shadow: 0.25rem 0.25rem 0 0 #22331a;
+  background-color: var(--color-white);
+  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
   width: 100%;
 }
 
 .field .button {
-  background-color: #e9b596;
-  color: #22331a;
-  border: 2px #22331a solid;
-  box-shadow: 0.25rem 0.25rem 0 0 #22331a;
+  background-color: var(--color-pale-red);
+  color: var(--color-tinted-black);
+  border: 2px var(--color-tinted-black) solid;
+  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
   margin: 0 auto;
 }
 /*#endregion*/
@@ -310,9 +334,11 @@ svg.leaf-icon-bg {
 /*#region Footer */
 .footer {
   position: relative;
-  background-color: #1b2417;
+  background-color: var(--color-black);
   padding: 4rem 2rem;
-  box-shadow: 0 -0.25rem 0 0 #eaffef, 0 -0.5rem 0 0 #22331a;
+  box-shadow: 0 -0.25rem 0 0 var(--color-background),
+    0 -0.5rem 0 0 var(--color-tinted-black);
+  width: 100%;
 }
 
 .footer-back-to-top {
@@ -324,9 +350,9 @@ svg.leaf-icon-bg {
   justify-content: center;
   width: 3.5rem;
   height: 3.5rem;
-  background-color: #F9FFFA;
-  border: 2px #22331a solid;
-  box-shadow: 0.25rem 0.25rem 0 0 #22331a;
+  background-color: var(--color-white);
+  border: 2px var(--color-tinted-black) solid;
+  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
   transition: transform 0.2s ease-out;
 }
 
@@ -338,7 +364,7 @@ svg.leaf-icon-bg {
 .footer-back-to-top .chevron-up {
   width: 2rem;
   height: 2rem;
-  color: #22331a;
+  color: var(--color-tinted-black);
 }
 
 .footer-content {
@@ -351,11 +377,11 @@ svg.leaf-icon-bg {
   line-height: 1.75em;
   font-weight: 400;
   font-family: "IBM Plex Sans", sans-serif;
-  color: #eaffef;
+  color: var(--color-background);
   text-align: center;
 }
 
 .footer-content .url {
-  color: #6cd48f;
+  color: var(--color-soft-green);
 }
 /*#endregion*/

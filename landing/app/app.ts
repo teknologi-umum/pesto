@@ -1,6 +1,6 @@
-import { eta, http, HttpStatus } from "../deps.ts";
-import * as log from "./logger.ts";
-import { HttpError } from "./error.ts";
+import { eta, HttpStatus, Server } from "~/deps.ts";
+import * as log from "~/app/logger.ts";
+import { HttpError } from "~/app/error.ts";
 
 export interface AppConfig {
   port: number;
@@ -21,11 +21,11 @@ export class App {
   });
 
   private readonly _config: AppConfig;
-  private readonly _server: http.Server;
+  private readonly _server: Server;
 
   constructor(config: AppConfig) {
     this._config = config;
-    this._server = new http.Server({
+    this._server = new Server({
       port: this._config.port,
       handler: this._handleConnection.bind(this),
       onError: this._handleErrors.bind(this),

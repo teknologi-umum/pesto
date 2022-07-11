@@ -1,5 +1,5 @@
-import { HttpStatus, superdeno } from "../deps.ts";
-import { App } from "../app/app.ts";
+import { HttpStatus, superdeno } from "~/deps.ts";
+import { App } from "~/app/app.ts";
 import { config } from "./config.ts";
 
 Deno.test("can access homepage", async () => {

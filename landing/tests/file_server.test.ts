@@ -1,6 +1,6 @@
-import { HttpStatus, superdeno } from "../deps.ts";
+import { HttpStatus, superdeno } from "~/deps.ts";
 import { config } from "./config.ts";
-import { App } from "../app/app.ts";
+import { App } from "~/app/app.ts";
 
 Deno.test("file server", async (t) => {
   await t.step(
