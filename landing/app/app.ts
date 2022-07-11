@@ -1,6 +1,8 @@
-import { eta, http, HttpStatus } from "../deps.ts";
-import * as log from "./logger.ts";
-import { HttpError } from "./error.ts";
+import * as eta from "eta";
+import { Server } from "http/server.ts";
+import { Status as HttpStatus } from "http/http_status.ts";
+import * as log from "~/app/logger.ts";
+import { HttpError } from "~/app/error.ts";
 
 export interface AppConfig {
   port: number;
@@ -21,11 +23,11 @@ export class App {
   });
 
   private readonly _config: AppConfig;
-  private readonly _server: http.Server;
+  private readonly _server: Server;
 
   constructor(config: AppConfig) {
     this._config = config;
-    this._server = new http.Server({
+    this._server = new Server({
       port: this._config.port,
       handler: this._handleConnection.bind(this),
       onError: this._handleErrors.bind(this),
@@ -100,7 +102,7 @@ export class App {
     if (page === undefined) {
       throw new HttpError(
         HttpStatus.InternalServerError,
-        "Failed to render the homepage.",
+        "Failed to render the homepage."
       );
     }
 
@@ -115,13 +117,13 @@ export class App {
     const extension = url.pathname.split(".").pop();
     const mimetype =
       this.MIME_TYPES[extension as keyof typeof this.MIME_TYPES] ??
-        "text/plain";
+      "text/plain";
 
     log.info(`Serving ${url.pathname}`);
 
     try {
       const file = await Deno.readFile(
-        `${this._config.publicPath}/${url.pathname}`,
+        `${this._config.publicPath}/${url.pathname}`
       );
       return new Response(file, {
         status: HttpStatus.OK,

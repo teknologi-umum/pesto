@@ -313,6 +313,7 @@ svg.leaf-icon-bg {
   background-color: #1b2417;
   padding: 4rem 2rem;
   box-shadow: 0 -0.25rem 0 0 #eaffef, 0 -0.5rem 0 0 #22331a;
+  width: 100%;
 }
 
 .footer-back-to-top {

@@ -1,4 +1,4 @@
-import { App } from "./app/app.ts";
+import { App } from "~/app/app.ts";
 
 const app = new App({
   port: 3000,

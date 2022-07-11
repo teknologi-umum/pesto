@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "~/": "./",
+    "eta": "https://deno.land/x/eta@v1.12.3/mod.ts",
+    "http/": "https://deno.land/std@0.144.0/http/",
+    "superdeno": "https://deno.land/x/superdeno@4.8.0/mod.ts"
+  }
+}
