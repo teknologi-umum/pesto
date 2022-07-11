@@ -1,4 +1,4 @@
-import { superdeno, HttpStatus } from "~/deps.ts";
+import { HttpStatus, superdeno } from "~/deps.ts";
 import { config } from "./config.ts";
 import { App } from "~/app/app.ts";
 
@@ -11,7 +11,7 @@ Deno.test("file server", async (t) => {
         .get("/fonts/ibm-plex-mono-all-400-normal.woff")
         .expect(HttpStatus.OK)
         .expect("Content-Type", "font/woff");
-    }
+    },
   );
 
   await t.step(
@@ -22,7 +22,7 @@ Deno.test("file server", async (t) => {
         .get("/styles/style.css")
         .expect(HttpStatus.OK)
         .expect("Content-Type", "text/css");
-    }
+    },
   );
 
   await t.step(
@@ -33,6 +33,6 @@ Deno.test("file server", async (t) => {
         .get("/meta/favicon.ico")
         .expect(HttpStatus.OK)
         .expect("Content-Type", "image/x-icon");
-    }
+    },
   );
 });

@@ -1,4 +1,4 @@
-import { eta, Server, HttpStatus } from "~/deps.ts";
+import { eta, HttpStatus, Server } from "~/deps.ts";
 import * as log from "~/app/logger.ts";
 import { HttpError } from "~/app/error.ts";
 
@@ -100,7 +100,7 @@ export class App {
     if (page === undefined) {
       throw new HttpError(
         HttpStatus.InternalServerError,
-        "Failed to render the homepage."
+        "Failed to render the homepage.",
       );
     }
 
@@ -115,13 +115,13 @@ export class App {
     const extension = url.pathname.split(".").pop();
     const mimetype =
       this.MIME_TYPES[extension as keyof typeof this.MIME_TYPES] ??
-      "text/plain";
+        "text/plain";
 
     log.info(`Serving ${url.pathname}`);
 
     try {
       const file = await Deno.readFile(
-        `${this._config.publicPath}/${url.pathname}`
+        `${this._config.publicPath}/${url.pathname}`,
       );
       return new Response(file, {
         status: HttpStatus.OK,
