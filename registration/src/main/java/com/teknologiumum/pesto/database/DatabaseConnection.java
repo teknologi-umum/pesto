@@ -20,7 +20,7 @@ public class DatabaseConnection {
     private String etcdEndpoint;
     private Client client;
 
-    public DatabaseConnection(@Value("${ETCD_URL:http://localhost:2379}") String etcdEndpoint) {
+    public DatabaseConnection(@Value("${ETCD_URL:localhost:2379}") String etcdEndpoint) {
         this.etcdEndpoint = "http://"+etcdEndpoint;
         client = Client.builder().endpoints(this.etcdEndpoint).build();
     }
