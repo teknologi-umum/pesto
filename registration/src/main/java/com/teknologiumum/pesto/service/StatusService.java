@@ -3,6 +3,7 @@ package com.teknologiumum.pesto.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teknologiumum.pesto.database.DatabaseConnection;
 
@@ -15,6 +16,11 @@ public class StatusService {
     ObjectMapper toJson;
 
     public Object getStatus() {
-        return connection.getStatus();
+        try {
+            return toJson.writeValueAsString(connection.getStatus());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
