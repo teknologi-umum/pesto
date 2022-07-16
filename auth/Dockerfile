@@ -14,6 +14,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y curl
 
 COPY --from=builder /app/pesto_auth .
 
+ENV PORT=3000
+
 EXPOSE ${PORT}
 
 CMD [ "./pesto_auth" ]
