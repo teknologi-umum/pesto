@@ -10,6 +10,7 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/traefik.yml"
       - "--ping=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
@@ -39,6 +40,7 @@ services:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
       - "../letsencrypt:/letsencrypt"
+      - "../traefik.yml:/traefik.yml"
     healthcheck:
       test: traefik healthcheck --ping
       interval: 10s
@@ -241,6 +243,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.rce.entrypoints=web,websecure"
       - "traefik.http.routers.rce.rule=Host(`pesto.teknologiumum.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.rce.priority=1"
       - "traefik.http.routers.rce.tls.certresolver=tlsresolver"
       - "traefik.http.routers.rce.middlewares=rce-auth,rce-error,rce-header,rce-rate,rce-redirectscheme,rce-inflightreq"
       - "traefik.http.services.rce.loadbalancer.server.port=50051"
@@ -303,6 +306,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.registration.entrypoints=web,websecure"
       - "traefik.http.routers.registration.rule=Host(`pesto.teknologiumum.com`) && Path(`/api/register`)"
+      - "traefik.http.routers.registration.priority=2"
       - "traefik.http.routers.registration.tls.certresolver=tlsresolver"
       - "traefik.http.routers.registration.middlewares=registration-error,registration-header,registration-rate,registration-redirectscheme,registration-inflightreq"
       - "traefik.http.services.registration.loadbalancer.server.port=8080"
