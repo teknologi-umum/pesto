@@ -25,11 +25,11 @@ export default function Form() {
       email: "",
       building: "",
       calls: 0,
-    }
+    },
   );
 
   async function handleSubmit(
-    event: h.JSX.TargetedEvent<HTMLFormElement, Event>
+    event: h.JSX.TargetedEvent<HTMLFormElement, Event>,
   ) {
     event.preventDefault();
     setLoading(true);
@@ -45,22 +45,22 @@ export default function Form() {
       if (!response.ok) {
         if (response.status === 500) {
           throw new Error(
-            "Internal Server Error This shouldn't be happening. Please report to our Github Issue page"
+            "Internal Server Error This shouldn't be happening. Please report to our Github Issue page",
           );
         }
         if (response.status === 400) {
           throw new Error(
-            "Invalid request payload. Please double check your form before submitting"
+            "Invalid request payload. Please double check your form before submitting",
           );
         }
         if (response.status === 404) {
           throw new Error(
-            "Invalid registration endpoint. This shouldn't be happening. Please report to our Github Issue page"
+            "Invalid registration endpoint. This shouldn't be happening. Please report to our Github Issue page",
           );
         }
         if (response.status === 409) {
           throw new Error(
-            "User with this email is already registered. Try again with another email"
+            "User with this email is already registered. Try again with another email",
           );
         }
         throw new Error("Unknown error");
@@ -68,7 +68,7 @@ export default function Form() {
 
       setError(false);
       setMessage(
-        "Successfully requested an API key. Please wait for a response from us."
+        "Successfully requested an API key. Please wait for a response from us.",
       );
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -143,12 +143,8 @@ function FormField(props: FormFieldProps) {
         onChange={(e) =>
           props.onChange({
             name: props.name,
-            value:
-              props.type === "number"
-                ? e.currentTarget.valueAsNumber
-                : e.currentTarget.value,
-          })
-        }
+            value: props.type === "number" ? e.currentTarget.valueAsNumber : e.currentTarget.value,
+          })}
       />
     </div>
   );
