@@ -1,5 +1,4 @@
 /** @jsx h */
-/** @jsxFrag Fragment */
 import { Fragment, h } from "preact";
 import { Head } from "$fresh/runtime.ts";
 import { AppProps } from "$fresh/server.ts";
@@ -7,7 +6,7 @@ import { Seo } from "../components/Seo.tsx";
 
 export default function App(props: AppProps) {
   return (
-    <>
+    <Fragment>
       <Head>
         <Seo
           title="Pesto"
@@ -30,6 +29,6 @@ export default function App(props: AppProps) {
         <link rel="stylesheet" href="/styles/style.css" />
       </Head>
       <props.Component />
-    </>
+    </Fragment>
   );
 }
