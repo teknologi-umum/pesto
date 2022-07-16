@@ -10,7 +10,7 @@ export function GuideSection(props: GuideSectionProps) {
   return (
     <div class="guide">
       <h2 class="guide-title">{props.title}</h2>
-      <ul class="guide-list">{props.children}</ul>
+      {props.children}
     </div>
   );
 }

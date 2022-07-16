@@ -75,85 +75,87 @@ export default function Home() {
           requests.
         </p>
         <GuideSection title="Usage via REST API">
-          <li>
-            Request an API token{" "}
-            <a class="url" href="#request">
-              here
-            </a>
-          </li>
-          <li>
-            Send a POST request to the server with the token as the
-            <code class="inline-code">X-Pesto-Token</code> header and an
-            <code class="inline-code">application/json</code> body with the following fields:
-            <FieldList
-              items={[
-                {
-                  key: "language",
-                  value: "The language of the code that you want to execute.",
-                },
-                {
-                  key: "version",
-                  value: "The version of the language.",
-                },
-                {
-                  key: "code",
-                  value: "The code that you want to execute.",
-                },
-              ]}
-            />
-          </li>
-          <li>
-            Upon sending a successful request, you will receive a response with the following fields:
-            <FieldList
-              items={[
-                {
-                  key: "language",
-                  value: "The language of the code that you sent.",
-                },
-                {
-                  key: "version",
-                  value: "The version of the language.",
-                },
-                {
-                  key: "compile/runtime",
-                  value: "The result of the compilation and execution with the following fields.",
-                  nestedItems: [
-                    {
-                      key: "stdout",
-                      value: "The content of the stdout when the code is being compiled or executed.",
-                    },
-                    {
-                      key: "stderr",
-                      value: "The content of the stderr when the code is being compiled or executed.",
-                    },
-                    {
-                      key: "output",
-                      value: "The combination of stdout and stderr.",
-                    },
-                    {
-                      key: "exitCode",
-                      value: "The exit code of the program compilation or execution.",
-                    },
-                    {
-                      key: "compileTimeout",
-                      value:
-                        "(Optional) The maximum duration that the code is allowed to compile in millisecond. Maximum value is 30 seconds (30000 milliseconds). If not provided, the default value of 5 seconds will be set.",
-                    },
-                    {
-                      key: "runTimeout",
-                      value:
-                        "(Optional) The maximum duration that the code is allowed to run in millisecond. Maximum value is 30 seconds (30000 milliseconds). If not provided, the default value of 5 seconds will be set.",
-                    },
-                    {
-                      key: "memoryLimit",
-                      value:
-                        "(Optional) The maximum amount of memory that the code is allowed to use in bytes. Maximum value is 512MB (1024 * 1024 * 512). If not provided, the default value of 128MB will be set.",
-                    },
-                  ],
-                },
-              ]}
-            />
-          </li>
+          <ul class="guide-list">
+            <li>
+              Request an API token{" "}
+              <a class="url" href="#request">
+                here
+              </a>
+            </li>
+            <li>
+              Send a POST request to the server with the token as the
+              <code class="inline-code">X-Pesto-Token</code> header and an
+              <code class="inline-code">application/json</code> body with the following fields:
+              <FieldList
+                items={[
+                  {
+                    key: "language",
+                    value: "The language of the code that you want to execute.",
+                  },
+                  {
+                    key: "version",
+                    value: "The version of the language.",
+                  },
+                  {
+                    key: "code",
+                    value: "The code that you want to execute.",
+                  },
+                ]}
+              />
+            </li>
+            <li>
+              Upon sending a successful request, you will receive a response with the following fields:
+              <FieldList
+                items={[
+                  {
+                    key: "language",
+                    value: "The language of the code that you sent.",
+                  },
+                  {
+                    key: "version",
+                    value: "The version of the language.",
+                  },
+                  {
+                    key: "compile/runtime",
+                    value: "The result of the compilation and execution with the following fields.",
+                    nestedItems: [
+                      {
+                        key: "stdout",
+                        value: "The content of the stdout when the code is being compiled or executed.",
+                      },
+                      {
+                        key: "stderr",
+                        value: "The content of the stderr when the code is being compiled or executed.",
+                      },
+                      {
+                        key: "output",
+                        value: "The combination of stdout and stderr.",
+                      },
+                      {
+                        key: "exitCode",
+                        value: "The exit code of the program compilation or execution.",
+                      },
+                      {
+                        key: "compileTimeout",
+                        value:
+                          "(Optional) The maximum duration that the code is allowed to compile in millisecond. Maximum value is 30 seconds (30000 milliseconds). If not provided, the default value of 5 seconds will be set.",
+                      },
+                      {
+                        key: "runTimeout",
+                        value:
+                          "(Optional) The maximum duration that the code is allowed to run in millisecond. Maximum value is 30 seconds (30000 milliseconds). If not provided, the default value of 5 seconds will be set.",
+                      },
+                      {
+                        key: "memoryLimit",
+                        value:
+                          "(Optional) The maximum amount of memory that the code is allowed to use in bytes. Maximum value is 512MB (1024 * 1024 * 512). If not provided, the default value of 128MB will be set.",
+                      },
+                    ],
+                  },
+                ]}
+              />
+            </li>
+          </ul>
         </GuideSection>
         <GuideSection title="Example">
           <p>
