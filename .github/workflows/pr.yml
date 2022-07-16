@@ -108,14 +108,8 @@ jobs:
         env:
           BASE_COMMIT: ${{ github.sha }}
       - name: Install dependencies
-        run: deno cache deps.ts
-      - name: Compile the app
-        run: deno cache main.ts
+        run: deno cache ./main.ts
       - name: Format check
         run: deno fmt --check
       - name: Lint check
         run: deno lint
-      - name: Test
-        run: deno test --allow-read --allow-net  --coverage=coverage
-      - name: Coverage
-        run: deno coverage coverage --lcov --output=coverage.lcov

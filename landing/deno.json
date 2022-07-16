@@ -1,9 +1,18 @@
 {
   "tasks": {
-    "dev": "deno run --allow-read --allow-net --watch main.ts",
-    "start": "deno run --allow-read --allow-net main.ts",
-    "test": "deno test --allow-read --allow-net",
-    "coverage": "deno test --allow-read --allow-net  --coverage=coverage && deno coverage coverage --lcov --output=coverage.lcov"
+    "start": "deno run -A --watch=static/,routes/ dev.ts"
   },
-  "importMap": "./import_map.json"
+  "importMap": "./import_map.json",
+  "lint": {
+    "rules": {
+      "tags": [
+        "recommended"
+      ]
+    }
+  },
+  "fmt": {
+    "options": {
+      "lineWidth": 120
+    }
+  }
 }

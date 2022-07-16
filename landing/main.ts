@@ -1,13 +1,11 @@
-import { App } from "~/app/app.ts";
+/// <reference no-default-lib="true" />
+/// <reference lib="dom" />
+/// <reference lib="dom.asynciterable" />
+/// <reference lib="deno.ns" />
+/// <reference lib="deno.unstable" />
 
-const app = new App({
-  port: 3000,
-  publicPath: `${Deno.cwd()}/public`,
-  eta: {
-    cache: true,
-    tags: ["{{", "}}"],
-    views: `${Deno.cwd()}/views`,
-  },
-});
+const port = parseInt(Deno.env.get("PORT") || "") || 8000;
 
-await app.run();
+import { start } from "$fresh/server.ts";
+import manifest from "./fresh.gen.ts";
+await start(manifest, { port });
