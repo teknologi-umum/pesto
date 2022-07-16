@@ -1,6 +1,6 @@
 /** @jsx h */
 import { Fragment, h } from "preact";
-import { Head } from "$fresh/runtime.ts";
+import { Head, asset } from "$fresh/runtime.ts";
 import { AppProps } from "$fresh/server.ts";
 import { Seo } from "../components/Seo.tsx";
 
@@ -25,8 +25,8 @@ export default function App(props: AppProps) {
           ]}
         />
 
-        <link rel="stylesheet" href="/styles/font.css" />
-        <link rel="stylesheet" href="/styles/style.css" />
+        <link rel="stylesheet" href={asset("/styles/font.css")} />
+        <link rel="stylesheet" href={asset("/styles/style.css")} />
       </Head>
       <props.Component />
     </Fragment>

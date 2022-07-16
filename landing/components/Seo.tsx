@@ -1,5 +1,6 @@
 /** @jsx h */
 import { Fragment, h } from "preact";
+import { asset } from "$fresh/runtime.ts";
 
 type SeoProps = {
   title: string;
@@ -29,32 +30,30 @@ export function Seo(props: SeoProps) {
       <link
         rel="apple-touch-icon"
         sizes="180x180"
-        href="/meta/apple-touch-icon.png"
+        href={asset("/meta/apple-touch-icon.png")}
       />
-      <link rel="icon" type="image/x-icon" href="/meta/favicon.ico" />
+      <link rel="icon" type="image/x-icon" href={asset("/meta/favicon.ico")} />
       <link
         rel="icon"
         type="image/png"
         sizes="32x32"
-        href="/meta/favicon-32x32.png"
+        href={asset("/meta/favicon-32x32.png")}
       />
       <link
         rel="icon"
         type="image/png"
         sizes="16x16"
-        href="/meta/favicon-16x16.png"
+        href={asset("/meta/favicon-16x16.png")}
       />
-      <link rel="manifest" href="/meta/site.webmanifest" />
-      <link rel="stylesheet" href="/styles/font.css" />
-      <link rel="stylesheet" href="/styles/style.css" />
+      <link rel="manifest" href={asset("/meta/site.webmanifest")} />
 
       <meta property="og:title" content={props.title} />
       <meta property="og:type" content="website" />
       <meta property="og:url" content={props.url} />
-      <meta property="og:image" content={`${props.url}/thumbnail.png`} />
+      <meta property="og:image" content={asset("/assets/thumbnail.png")} />
       <meta
         property="og:image:secure:url"
-        content={`${props.url}/thumbnail.png`}
+        content={asset("/assets/thumbnail.png")}
       />
 
       <meta name="twitter:card" content="summary_large_image" />
@@ -62,7 +61,7 @@ export function Seo(props: SeoProps) {
       <meta name="twitter:creator" content={props.owner} />
       <meta name="twitter:title" content={props.title} />
       <meta name="twitter:description" content={props.description} />
-      <meta name="twitter:image" content={`${props.url}/thumbnail.png`} />
+      <meta name="twitter:image" content={asset("/assets/thumbnail.png")} />
 
       <title>{props.title}</title>
     </Fragment>
