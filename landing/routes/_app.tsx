@@ -1,6 +1,6 @@
 /** @jsx h */
 import { Fragment, h } from "preact";
-import { Head, asset } from "$fresh/runtime.ts";
+import { asset, Head } from "$fresh/runtime.ts";
 import { AppProps } from "$fresh/server.ts";
 import { Seo } from "../components/Seo.tsx";
 
