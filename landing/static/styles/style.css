@@ -60,9 +60,16 @@ body {
   text-decoration: none;
   font-size: 1.25rem;
   transition: transform ease-out 0.2s;
+  border: 2px var(--color-tinted-black) solid;
+  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
 }
 
-.button:hover {
+.button:disabled {
+  cursor: not-allowed;
+  filter: opacity(0.5);
+}
+
+.button:not(:disabled):hover {
   cursor: pointer;
   transform: translate3d(0, -0.25rem, 0);
 }
@@ -139,18 +146,16 @@ svg.leaf-icon-bg {
   }
 }
 
-.button.get-started {
+.button.green {
   background-color: var(--color-soft-green);
   color: var(--color-tinted-black);
   border: 2px var(--color-tinted-black) solid;
-  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
 }
 
-.button.request {
+.button.yellow-green {
   background-color: var(--color-yellow-green);
   color: var(--color-tinted-black);
   border: 2px var(--color-tinted-black) solid;
-  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
 }
 /*#endregion*/
 
@@ -196,19 +201,13 @@ svg.leaf-icon-bg {
   color: var(--color-tinted-black);
 }
 
-.guide-list {
+.guide-list,
+.field-list {
   padding-left: 1.5rem;
-}
-
-.guide-list li {
   font-family: "IBM Plex Sans", sans-serif;
   font-weight: 400;
   line-height: 2em;
   font-size: 1.25rem;
-}
-
-.field-list {
-  padding-left: 1.5rem;
 }
 /*#endregion*/
 
@@ -325,9 +324,23 @@ svg.leaf-icon-bg {
 .field .button {
   background-color: var(--color-pale-red);
   color: var(--color-tinted-black);
-  border: 2px var(--color-tinted-black) solid;
-  box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
   margin: 0 auto;
+}
+
+.field .message {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.field .message.success {
+  filter: brightness(0.7);
+  color: var(--color-soft-green);
+}
+
+.field .message.error {
+  filter: brightness(0.9);
+  color: var(--color-red);
 }
 /*#endregion*/
 
