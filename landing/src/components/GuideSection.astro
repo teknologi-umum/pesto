@@ -1,0 +1,25 @@
+---
+export type Props = {
+	title: string;
+};
+
+const props = Astro.props as Props;
+---
+
+<div class="guide">
+	<h2 class="guide-title">{props.title}</h2>
+	<slot></slot>
+</div>
+
+<style lang="scss">
+	.guide {
+		margin: 1rem 0 0;
+	}
+
+	.guide-title {
+		font-size: 1.5rem;
+		font-family: "IBM Plex Sans", sans-serif;
+		font-weight: 600;
+		color: var(--color-tinted-black);
+	}
+</style>

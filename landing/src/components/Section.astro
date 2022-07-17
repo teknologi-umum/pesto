@@ -1,0 +1,44 @@
+---
+export type Props = {
+	title: string;
+	id?: string;
+};
+
+const props = Astro.props as Props;
+---
+
+<div class="section" id={props.id ?? ""}>
+	<h1 class="heading">{props.title}</h1>
+	<div class="content">
+		<slot></slot>
+	</div>
+</div>
+
+<style lang="scss">
+	.section {
+		margin: 6rem 0;
+	}
+
+	.heading {
+		color: var(--color-tinted-black);
+		font-size: clamp(1.5rem, calc(2vw + 1.5rem), 2.25rem);
+		font-family: "IBM Plex Serif", serif;
+		font-weight: 700;
+	}
+
+	.content {
+		padding: 0 2rem;
+		margin-top: 0.5rem;
+		margin-left: 0.5rem;
+		border-left: 2px var(--color-tinted-black) solid;
+		color: var(--color-soft-black);
+
+		:global(p) {
+			font-size: 1.25rem;
+			line-height: 1.75em;
+			font-family: "IBM Plex Sans", sans-serif;
+			font-weight: 400;
+			margin: 1rem 0;
+		}
+	}
+</style>

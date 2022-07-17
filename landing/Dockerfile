@@ -1,21 +1,21 @@
-FROM denoland/deno:alpine-1.23.0
+FROM node:18.6.0-alpine3.16
 
-ENV PORT=3000
-
-EXPOSE 3000
-
-WORKDIR /app
+WORKDIR /home/app
 
 RUN apk add curl
 
-# don't run as root
-USER deno
+RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 
-# copy everything
-ADD . .
+# Files required by pnpm install
+COPY pnpm-lock.yaml ./
 
-# cache the dependencies
-RUN deno cache main.ts
+RUN pnpm fetch
 
-# run the app with all permissions, see deno.json for detail
-CMD [ "run", "-A", "main.ts" ]
+ADD . ./
+
+RUN pnpm install -r --offline
+
+RUN pnpm build
+
+EXPOSE 3000
+CMD [ "node", "server.mjs" ]

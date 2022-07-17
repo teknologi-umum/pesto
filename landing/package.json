@@ -1,0 +1,29 @@
+{
+	"name": "pesto-landing",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "astro dev",
+		"start": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"fmt:write": "prettier --ignore-path .gitignore --write ./**/*.{astro,ts,tsx,mjs}",
+		"fmt:check": "prettier --ignore-path .gitignore --check ./**/*.{astro,ts,tsx,mjs}"
+	},
+	"devDependencies": {
+		"@astrojs/solid-js": "^0.4.0",
+		"@babel/core": "^7",
+		"astro": "^1.0.0-beta.72",
+		"polka": "^0.5.2",
+		"prettier": "^2.7.1",
+		"prettier-plugin-astro": "^0.1.1",
+		"sass": "^1.53.0",
+		"sirv": "^2.0.2",
+		"solid-js": "^1.4.3"
+	},
+	"dependencies": {
+		"@fontsource/ibm-plex-mono": "^4.5.10",
+		"@fontsource/ibm-plex-sans": "^4.5.11",
+		"@fontsource/ibm-plex-serif": "^4.5.10"
+	}
+}
