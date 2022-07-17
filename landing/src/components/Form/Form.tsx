@@ -47,7 +47,7 @@ export function Form() {
 					);
 				}
 				if (response.status === 409) {
-					throw new Error("User with this email is already registered. Try again with another email");
+					throw new Error("User with this email is already registered. If this is you, please kindly wait and check your email periodically. If not, try again with another email");
 				}
 				throw new Error("Unknown error");
 			}
