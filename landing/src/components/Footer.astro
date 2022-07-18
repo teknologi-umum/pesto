@@ -1,0 +1,71 @@
+---
+import { BackToTop } from "./BackToTop";
+---
+
+<footer class="footer">
+	<BackToTop client:visible />
+	<div class="footer-content">
+		<p>
+			Pesto is a project by{" "}
+			<a class="url" href="https://github.com/teknologi-umum"> Teknologi Umum</a>
+		</p>
+		<p>
+			Interested on contributing? Check out the{" "}
+			<a class="url" href="https://github.com/teknologi-umum/pesto"> GitHub repository</a>
+		</p>
+	</div>
+</footer>
+
+<style lang="scss">
+	.footer {
+		position: relative;
+		background-color: var(--color-black);
+		padding: 4rem 2rem;
+		box-shadow: 0 -0.25rem 0 0 var(--color-background), 0 -0.5rem 0 0 var(--color-tinted-black);
+		width: 100%;
+
+		&-content {
+			max-width: 800px;
+			margin: 0 auto;
+
+			p {
+				font-size: 1.25rem;
+				line-height: 1.75em;
+				font-weight: 400;
+				font-family: "IBM Plex Sans", sans-serif;
+				color: var(--color-background);
+				text-align: center;
+			}
+
+			.url {
+				color: var(--color-soft-green);
+			}
+		}
+	}
+
+	:global(.back-to-top) {
+		position: absolute;
+		right: 1rem;
+		top: -6rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 3.5rem;
+		height: 3.5rem;
+		background-color: var(--color-white);
+		border: 2px var(--color-tinted-black) solid;
+		box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
+		transition: transform 0.2s ease-out;
+
+		&:hover {
+			cursor: pointer;
+			transform: translate3d(0, -0.25rem, 0);
+		}
+
+		& .chevron-up {
+			width: 2rem;
+			height: 2rem;
+			color: var(--color-tinted-black);
+		}
+	}
+</style>

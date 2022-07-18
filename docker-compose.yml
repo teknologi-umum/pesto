@@ -72,7 +72,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.landing.entrypoints=web,websecure"
-      - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`) && (Path(`/`) || PathPrefix(`/fonts`) || PathPrefix(`/meta`) || PathPrefix(`/styles`) || PathPrefix(`/_frsh`))"
+      - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`) && (Path(`/`) || PathPrefix(`/assets`) || PathPrefix(`/meta`) || PathPrefix(`/chunks`))"
       - "traefik.http.routers.landing.tls.certresolver=tlsresolver"
       - "traefik.http.routers.landing.middlewares=landing-error,landing-header,landing-rate,landing-redirectscheme"
       - "traefik.http.services.landing.loadbalancer.server.port=3000"

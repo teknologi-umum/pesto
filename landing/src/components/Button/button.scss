@@ -1,0 +1,36 @@
+.button {
+	padding: 1rem 2rem;
+	font-family: "IBM Plex Sans", sans-serif;
+	font-weight: 700;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	font-size: 1.25rem;
+	transition: transform ease-out 0.2s;
+	border: 2px var(--color-tinted-black) solid;
+	box-shadow: 0.25rem 0.25rem 0 0 var(--color-tinted-black);
+	color: var(--color-tinted-black);
+
+	&:disabled {
+		cursor: not-allowed;
+		filter: opacity(0.5);
+	}
+
+	&:not(:disabled):hover {
+		cursor: pointer;
+		transform: translate3d(0, -0.25rem, 0);
+	}
+
+	&.green {
+		background-color: var(--color-soft-green);
+		border: 2px var(--color-tinted-black) solid;
+	}
+
+	&.yellow-green {
+		background-color: var(--color-yellow-green);
+		border: 2px var(--color-tinted-black) solid;
+	}
+	&.pale-red {
+		background-color: var(--color-pale-red);
+	}
+}
