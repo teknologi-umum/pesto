@@ -20,7 +20,8 @@ ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 ADD . /build
 WORKDIR /build
 
-CMD ["mvn", "clean", "package"]
+RUN mvn clean package
+CMD [ "java", "-jar", "/target/pesto-0.0.1-SNAPSHOT.jar" ]
 # FROM oraclelinux:7-slim
 
 # RUN yum update -y && yum install -y curl
