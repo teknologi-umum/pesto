@@ -19,7 +19,7 @@ public class StatusService {
         try {
             return toJson.writeValueAsString(connection.getStatus());
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
             return null;
         }
     }

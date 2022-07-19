@@ -53,9 +53,9 @@ public class DatabaseConnection {
 
             return value.toString();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         } catch (IndexOutOfBoundsException e) {
             return "";
         }
@@ -68,9 +68,9 @@ public class DatabaseConnection {
             StatusResponse status = maintenance.statusMember(etcdEndpoint).get();
             return status;
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         return null;
     }
