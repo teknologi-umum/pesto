@@ -97,6 +97,7 @@
 				</executions>
 			</plugin>
 		</plugins>
+		<finalName>pesto-registration</finalName>
 	</build>
 
 	<repositories>
