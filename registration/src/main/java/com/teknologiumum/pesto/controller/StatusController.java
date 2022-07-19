@@ -14,7 +14,7 @@ public class StatusController {
     @Autowired
     StatusService statusService;
 
-    @GetMapping(path="/healthz", consumes = MediaType.ALL_VALUE, produces = MediaType.TEXT_PLAIN_VALUE )
+    @GetMapping(path="/healthz")
     public ResponseEntity<Object> getPending() {
 
         Object status = statusService.getStatus();
