@@ -1,5 +1,9 @@
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM maven:3.8.6-eclipse-temurin-11 as BUILD
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml clean package
 
-ADD target/pesto-registration.jar pesto-registration.jar
-ENTRYPOINT [ "java", "-jar", "-Dserver.port=8080", "pesto-registration.jar"]
+FROM eclipse-temurin:11 as RUN
+COPY --from=build /home/app/target/pesto-registration.jar /usr/local/lib/app.jar
 EXPOSE 8080
+ENTRYPOINT ["java","-jar","/usr/local/lib/app.jar"]

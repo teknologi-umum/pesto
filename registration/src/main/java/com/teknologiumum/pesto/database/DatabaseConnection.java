@@ -22,6 +22,7 @@ public class DatabaseConnection {
 
     public DatabaseConnection(@Value("${ETCD_URL:localhost:2379}") String etcdEndpoint) {
         this.etcdEndpoint = "http://"+etcdEndpoint;
+        System.out.println("ETCHD ENDPOND: " + this.etcdEndpoint);
         client = Client.builder().endpoints(this.etcdEndpoint).build();
     }
 
