@@ -22,6 +22,7 @@ public class DatabaseConnection {
 
     public DatabaseConnection(@Value("${ETCD_URL:localhost:2379}") String etcdEndpoint) {
         this.etcdEndpoint = "http://"+etcdEndpoint;
+        System.out.println("ETCHD ENDPOND: " + this.etcdEndpoint);
         client = Client.builder().endpoints(this.etcdEndpoint).build();
     }
 
@@ -53,9 +54,9 @@ public class DatabaseConnection {
 
             return value.toString();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         } catch (IndexOutOfBoundsException e) {
             return "";
         }
@@ -68,9 +69,9 @@ public class DatabaseConnection {
             StatusResponse status = maintenance.statusMember(etcdEndpoint).get();
             return status;
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         return null;
     }

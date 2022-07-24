@@ -39,7 +39,7 @@ public class UserService {
             connection.put(DatabaseConnection.CommonKey.waitlist.toString(), waitingListInJson);
             return true;
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
             return false;
         }
     }
@@ -52,7 +52,7 @@ public class UserService {
             });
             return listOfUser;
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
             return new ArrayList<User>();
         }
     }
@@ -66,7 +66,7 @@ public class UserService {
                 String waitingListInJson = toJson.writeValueAsString(waitingList);
                 connection.put(DatabaseConnection.CommonKey.waitlist.toString(), waitingListInJson);
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                System.err.println(e.getMessage());
             }
         }
 
@@ -81,7 +81,7 @@ public class UserService {
             String dbValue = toJson.writeValueAsString(approved);
             connection.put(dbKey, dbValue);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 
@@ -96,7 +96,7 @@ public class UserService {
             String revokedUserJson = toJson.writeValueAsString(revokedUser);
             connection.put(token, revokedUserJson);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 

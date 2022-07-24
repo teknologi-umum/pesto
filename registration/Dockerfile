@@ -1,32 +1,9 @@
-FROM ghcr.io/graalvm/graalvm-ce:ol7-java17-22.1.0 AS builder
+FROM maven:3.8.6-eclipse-temurin-11 as BUILD
+COPY src /home/app/src
+COPY pom.xml /home/app
+RUN mvn -f /home/app/pom.xml clean package
 
-ADD . /build
-WORKDIR /build
-
-# For SDKMAN to work we need unzip & zip
-RUN yum install -y unzip zip
-
-RUN \
-    # Install SDKMAN
-    curl -s "https://get.sdkman.io" | bash; \
-    source "$HOME/.sdkman/bin/sdkman-init.sh"; \
-    sdk install maven; \
-    # Install GraalVM Native Image
-    gu install native-image;
-
-RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && mvn --version
-
-RUN native-image --version
-
-RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && mvn -B clean package -P native --no-transfer-progress
-
-
-FROM oraclelinux:7-slim
-
-RUN yum update -y && yum install -y curl
-
-# Add Spring Boot Native app pesto to Container
-COPY --from=builder "/build/target/pesto" pesto
-
-# Fire up our Spring Boot Native app by default
-CMD [ "sh", "-c", "./pesto -Dserver.port=$PORT" ]
+FROM eclipse-temurin:11 as RUN
+COPY --from=build /home/app/target/pesto-registration.jar /usr/local/lib/app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/usr/local/lib/app.jar"]
