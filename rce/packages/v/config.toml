@@ -4,7 +4,7 @@ compiled = false
 extension = "v"
 environment = [ "PATH=/opt/v:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
 build_command = []
-run_command = [ "v", "run", "{file}" ]
+run_command = [ "/opt/v/v", "run", "{file}" ]
 test_file = "test.v"
 aliases = ["Vlang", "v"]
 should_limit_memory = false
