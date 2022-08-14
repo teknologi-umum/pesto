@@ -5,7 +5,7 @@ const fs = require("fs/promises");
 const cp = require("child_process");
 const path = require("path");
 const console = require("console");
-const toml = require("@ltd/j-toml");
+const toml = require("toml");
 
 // This file should be in CommonJS as it will be called directly.
 
