@@ -1,8 +1,6 @@
 import console from "console";
 import * as Sentry from "@sentry/node";
 import polka from "polka";
-import toml from "@ltd/j-toml";
-import yaml from "yaml";
 import { RceServiceImpl } from "@/RceService";
 import { acquireRuntime } from "@/runtime/acquire";
 import { SystemUsers } from "@/user/user";
@@ -51,15 +49,16 @@ const PORT = process.env?.PORT || "50051";
         body += chunk;
       }
 
+      const paramBody = {};
+
       switch (req.headers["content-type"]) {
-        case "application/toml": {
-          req.body = toml.parse(body, { joiner: "\n", bigint: false });
+        case "application/x-www-form-urlencoded":
+          for (const [key, value] of new URLSearchParams(body)) {
+            paramBody[key] = value;
+          }
+
+          req.body = paramBody;
           break;
-        }
-        case "application/yaml": {
-          req.body = yaml.parse(body);
-          break;
-        }
         case "application/json":
         default:
           req.body = JSON.parse(body);
@@ -67,22 +66,15 @@ const PORT = process.env?.PORT || "50051";
       next();
     } catch (error) {
       switch (req.headers["accept"]) {
-        case "application/yaml": {
-          res.writeHead(400, { "Content-Type": "application/yaml" }).end(
-            yaml.stringify({
+        case "application/x-www-form-urlencoded": {
+          res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
+            new URLSearchParams({
               msg: "Invalid body content with the Content-Type header specification"
-            })
+            }).toString()
           );
           break;
         }
-        case "application/toml": {
-          res.writeHead(400, { "Content-Type": "application/toml" }).end(
-            toml.stringify({
-              msg: "Invalid body content with the Content-Type header specification"
-            })
-          );
-          break;
-        }
+
         case "application/json":
         default:
           res.writeHead(400, { "Content-Type": "application/json" }).end(
@@ -98,14 +90,9 @@ const PORT = process.env?.PORT || "50051";
     const response = rceServiceImpl.ping();
 
     switch (req.headers["accept"]) {
-      case "application/yaml": {
-        res.writeHead(200, { "Content-Type": "application/yaml" })
-          .end(yaml.stringify(response));
-        break;
-      }
-      case "application/toml": {
-        res.writeHead(200, { "Content-Type": "application/toml" })
-          .end(toml.stringify(response));
+      case "application/x-www-form-urlencoded": {
+        res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
+          .end(new URLSearchParams(response).toString());
         break;
       }
       case "application/json":
@@ -119,14 +106,34 @@ const PORT = process.env?.PORT || "50051";
     const response = rceServiceImpl.listRuntimes();
 
     switch (req.headers["accept"]) {
-      case "application/yaml": {
-        res.writeHead(200, { "Content-Type": "application/yaml" })
-          .end(yaml.stringify(response));
-        break;
-      }
-      case "application/toml": {
-        res.writeHead(200, { "Content-Type": "application/toml" })
-          .end(toml.stringify(response));
+      case "application/x-www-form-urlencoded": {
+        const searchParams = new URLSearchParams();
+        for (const runtime of response.runtime) {
+          const childSearchParams = new URLSearchParams();
+          for (const [key, value] of Object.entries(runtime)) {
+            if (typeof value === "string") {
+              childSearchParams.append(key, value);
+              continue;
+            }
+
+            if (typeof value === "boolean") {
+              childSearchParams.append(key, value.toString());
+              continue;
+            }
+
+            if (typeof value === "object" && Array.isArray(value)) {
+              for (const item of value) {
+                childSearchParams.append(key, item);
+                continue;
+              }
+            }
+          }
+
+          searchParams.append("runtimes", childSearchParams.toString());
+        }
+
+        res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
+          .end(searchParams.toString());
         break;
       }
       case "application/json":
@@ -164,19 +171,11 @@ const PORT = process.env?.PORT || "50051";
 
     if (missingParameters.length > 0) {
       switch (req.headers.accept) {
-        case "application/yaml": {
-          res.writeHead(400, { "Content-Type": "application/yaml" }).end(
-            yaml.stringify({
+        case "application/x-www-form-urlencoded": {
+          res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
+            new URLSearchParams({
               message: `Missing parameters: ${missingParameters.join(", ")}`
-            })
-          );
-          break;
-        }
-        case "application/toml": {
-          res.writeHead(400, { "Content-Type": "application/toml" }).end(
-            toml.stringify({
-              message: `Missing parameters: ${missingParameters.join(", ")}`
-            })
+            }).toString()
           );
           break;
         }
@@ -205,14 +204,46 @@ const PORT = process.env?.PORT || "50051";
       const response = await rceServiceImpl.execute(codeRequest);
 
       switch (req.headers["accept"]) {
-        case "application/yaml": {
-          res.writeHead(200, { "Content-Type": "application/yaml" })
-            .end(yaml.stringify(response));
-          break;
-        }
-        case "application/toml": {
-          res.writeHead(200, { "Content-Type": "application/toml" })
-            .end(toml.stringify(response));
+        case "application/x-www-form-urlencoded": {
+          const searchParams = new URLSearchParams();
+
+          searchParams.append("language", response.language);
+          searchParams.append("version", response.version);
+
+          if (response?.compile !== undefined) {
+            const childSearchParams = new URLSearchParams();
+            for (const [key, value] of Object.entries(response.compile)) {
+              if (typeof value === "string") {
+                childSearchParams.append(key, value);
+                continue;
+              }
+
+              if (typeof value === "number") {
+                childSearchParams.append(key, value.toString());
+              }
+            }
+
+            searchParams.append("compile", childSearchParams.toString());
+          }
+
+          if (response?.runtime !== undefined) {
+            const childSearchParams = new URLSearchParams();
+            for (const [key, value] of Object.entries(response.runtime)) {
+              if (typeof value === "string") {
+                childSearchParams.append(key, value);
+                continue;
+              }
+
+              if (typeof value === "number") {
+                childSearchParams.append(key, value.toString());
+              }
+            }
+
+            searchParams.append("compile", childSearchParams.toString());
+          }
+
+          res.writeHead(200, { "Content-Type": "application/x-www-form-urlencoded" })
+            .end(searchParams.toString());
           break;
         }
         case "application/json":
@@ -223,14 +254,9 @@ const PORT = process.env?.PORT || "50051";
     } catch (err: unknown) {
       if (err instanceof ClientError) {
         switch (req.headers["content-type"]) {
-          case "application/yaml": {
-            res.writeHead(err.code, { "Content-Type": "application/yaml" })
-              .end(yaml.stringify({ message: err.message }));
-            break;
-          }
-          case "application/toml": {
-            res.writeHead(err.code, { "Content-Type": "application/toml" })
-              .end(toml.stringify({ message: err.message }));
+          case "application/x-www-form-urlencoded": {
+            res.writeHead(err.code, { "Content-Type": "application/x-www-form-urlencoded" })
+              .end(new URLSearchParams({ message: err.message }).toString());
             break;
           }
           case "application/json":
@@ -254,14 +280,9 @@ const PORT = process.env?.PORT || "50051";
         });
 
         switch (req.headers["accept"]) {
-          case "application/yaml": {
-            res.writeHead(500, { "Content-Type": "application/yaml" })
-              .end(yaml.stringify({ message: "Something's wrong on our end" }));
-            break;
-          }
-          case "application/toml": {
-            res.writeHead(500, { "Content-Type": "application/toml" })
-              .end(toml.stringify({ message: "Something's wrong on our end" }));
+          case "application/x-www-form-urlencoded": {
+            res.writeHead(500, { "Content-Type": "application/x-www-form-urlencoded" })
+              .end(new URLSearchParams({ message: "Something's wrong on our end" }).toString());
             break;
           }
           case "application/json":
