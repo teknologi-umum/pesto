@@ -156,7 +156,7 @@ jobs:
           if_key_exists: replace
 
       - name: SSH Keyscan
-        run: ssh-keyscan -H ${{ secrets.SSH_IP }} >> /root/.ssh/known_hosts
+        run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_IP }} >> /root/.ssh/known_hosts
 
       - name: Pull latest code
         run: ssh -i /root/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT }} -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 'cd ~/pesto && git pull'
