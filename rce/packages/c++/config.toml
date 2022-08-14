@@ -1,5 +1,5 @@
 language = "C++"
-version = "9.3.0"
+version = "10.2.1"
 compiled = true
 extension = "cpp"
 build_command = [
@@ -18,3 +18,6 @@ environment = []
 run_command = [ "./code" ]
 test_file = "test.cpp"
 aliases = ["c++", "cpp"]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 256

@@ -24,3 +24,6 @@ EOF'""",
 run_command = [ "/opt/dotnet/dotnet", "run", "--no-build", "--configuration", "Release" ]
 test_file = "test.cs"
 aliases = ["dotnet", "c#", "csharp"]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 1024

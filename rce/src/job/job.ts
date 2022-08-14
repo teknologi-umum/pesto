@@ -65,7 +65,7 @@ export class Job implements JobPrerequisites {
     ) {
       this.memoryLimit = memoryLimit;
     } else {
-      this.memoryLimit = 128 * 1024 * 1024;
+      this.memoryLimit = this.runtime.memoryLimit;
     }
 
     this._sourceFilePath = "";
@@ -101,7 +101,7 @@ export class Job implements JobPrerequisites {
       const buildCommand: string[] = [
         "/usr/bin/nice",
         "prlimit",
-        "--nproc=256",
+        "--nproc=" + this.runtime.processLimit.toString(),
         "--nofile=2048",
         "--fsize=10000000", // 10MB
         "--rttime=" + this.compileTimeout.toString(),
@@ -132,20 +132,17 @@ export class Job implements JobPrerequisites {
         finalFileName = this._builtFilePath.replace(`.${this.runtime.extension}`, "");
       }
 
-      // HACK: skip memory limit if it's Java, because... you know.
-      const memoryLimit: string = this.runtime.language === "Java" ? "" : "--as=" + this.memoryLimit.toString();
-
       const runCommand: string[] = [
         "/usr/bin/nice",
         "prlimit",
-        "--nproc=256",
+        "--nproc=" + this.runtime.processLimit.toString(),
         "--nofile=2048",
         "--fsize=30000000", // 30MB
         "--rttime=" + this.runTimeout.toString()
       ];
 
-      if (memoryLimit !== "") {
-        runCommand.push(memoryLimit);
+      if (this.runtime.shouldLimitMemory) {
+        runCommand.push("--as=" + this.memoryLimit.toString());
       }
 
       runCommand.push(

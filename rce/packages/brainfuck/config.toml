@@ -7,3 +7,6 @@ environment = []
 run_command = [ "/usr/local/bin/brainfuck", "{file}" ]
 test_file = "test.bf"
 aliases = ["brainfuck", "bf"]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 256

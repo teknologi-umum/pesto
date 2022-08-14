@@ -6,7 +6,7 @@ import { Job } from "../src/job/job.js";
 import { Runtime } from "../src/runtime/runtime.js";
 
 test("should throw error on invalid job parameters", (t) => {
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {});
+  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256);
 
   t.throws(
     () => {
@@ -20,7 +20,7 @@ test("should throw error on invalid job parameters", (t) => {
 });
 
 test("should give a default value for timeouts and memoryLimit", (t) => {
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {});
+  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256);
   const job = new Job(
     { uid: 1, gid: 1, free: false, username: "code_executor_1" },
     runtime,
@@ -31,11 +31,11 @@ test("should give a default value for timeouts and memoryLimit", (t) => {
 
   t.assert(job.runTimeout === 10_000, `Default value for runTimeout must be 10_000, instead got ${job.runTimeout}`);
 
-  t.assert(job.memoryLimit === 128 * 1024 * 1024, `Default value for memoryLimit must be 128MB, instead got ${job.memoryLimit}`);
+  t.assert(job.memoryLimit === 512 * 1024 * 1024, `Default value for memoryLimit must be 512MB, instead got ${job.memoryLimit}`);
 });
 
 test("should not use default value for timeouts and memoryLimit", (t) => {
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {});
+  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256);
   const job = new Job(
     { uid: 1, gid: 1, free: false, username: "code_executor_1" },
     runtime,
@@ -59,7 +59,7 @@ test.serial("should be able to create a file", async (t) => {
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {});
+  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
@@ -86,7 +86,7 @@ test.serial("should be able to run a file - NodeJS", async (t) => {
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {});
+  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
@@ -122,13 +122,16 @@ test.serial("should be able to compile and run a file - C", async (t) => {
   const currentUser = os.userInfo();
   const runtime = new Runtime(
     "C",
-    "9.3.0",
+    "10.2.1",
     "c",
     true,
     ["gcc", "-Wall", "-Wextra", "-Werror", "-O2", "-std=c99", "-pedantic", "-o", "code", "{file}"],
     ["./code"],
     ["c"],
-    {}
+    {},
+    true,
+    256 * 1024 * 1024,
+    256
   );
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },

@@ -29,7 +29,10 @@ export async function acquireRuntime() {
         configObject.build_command,
         configObject.run_command,
         configObject.aliases,
-        Object.fromEntries(configObject.environment.map((o: string) => o.split("=")))
+        Object.fromEntries(configObject.environment.map((o: string) => o.split("="))),
+        configObject.should_limit_memory,
+        configObject.memory_limit * 1024 * 1024,
+        configObject.process_limit
       );
       runtimes.push(runtime);
     }

@@ -7,3 +7,6 @@ build_command = []
 run_command = [ "/opt/python/3.10.2/bin/python3", "{file}" ]
 test_file = "test.py"
 aliases = ["python", "py"]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 256
