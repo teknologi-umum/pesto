@@ -1,0 +1,12 @@
+language = "Lua"
+version = "5.4.4"
+compiled = false
+extension = "lua"
+environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+build_command = []
+run_command = [ "lua", "{file}" ]
+test_file = "test.lua"
+aliases = ["lua"]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 256
