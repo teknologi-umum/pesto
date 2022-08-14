@@ -1,12 +1,12 @@
 language = "Java"
-version = "11"
+version = "17"
 compiled = false
 extension = "java"
 build_command = [
     "javac",
     "{file}"
 ]
-run_command = [ "/opt/java/bin/java", "-Xms64m", "-Xmx256m", "{file}" ]
-environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/java/bin", "JAVA_HOME=/opt/java" ]
+run_command = [ "java", "-Xms64m", "-Xmx256m", "{file}" ]
+environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"]
 test_file = "HelloWorld.java"
 aliases = ["java"]
