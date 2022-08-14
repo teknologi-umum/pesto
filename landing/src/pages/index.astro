@@ -109,18 +109,9 @@ const responseExample = `
 					<code class="inline-code">application/json</code> body with the following fields:
 					<FieldList
 						items={[
-							{
-								key: "language",
-								value: "The language of the code that you want to execute.",
-							},
-							{
-								key: "version",
-								value: "The version of the language.",
-							},
-							{
-								key: "code",
-								value: "The code that you want to execute.",
-							},
+							{ key: "language", value: "The language of the code that you want to execute." },
+							{ key: "version", value: "The version of the language." },
+							{ key: "code", value: "The code that you want to execute." },
 						]}
 					/>
 				</li>
@@ -128,10 +119,7 @@ const responseExample = `
 					Upon sending a successful request, you will receive a response with the following fields:
 					<FieldList
 						items={[
-							{
-								key: "language",
-								value: "The language of the code that you sent.",
-							},
+							{ key: "language", value: "The language of the code that you sent." },
 							{
 								key: "version",
 								value: "The version of the language.",
@@ -140,22 +128,13 @@ const responseExample = `
 								key: "compile/runtime",
 								value: "The result of the compilation and execution with the following fields.",
 								nestedItems: [
-									{
-										key: "stdout",
-										value: "The content of the stdout when the code is being compiled or executed.",
-									},
+									{ key: "stdout", value: "The content of the stdout when the code is being compiled or executed." },
 									{
 										key: "stderr",
 										value: "The content of the stderr when the code is being compiled or executed.",
 									},
-									{
-										key: "output",
-										value: "The combination of stdout and stderr.",
-									},
-									{
-										key: "exitCode",
-										value: "The exit code of the program compilation or execution.",
-									},
+									{ key: "output", value: "The combination of stdout and stderr." },
+									{ key: "exitCode", value: "The exit code of the program compilation or execution." },
 									{
 										key: "compileTimeout",
 										value:
@@ -201,11 +180,14 @@ const responseExample = `
 		<FieldList
 			items={[
 				{ key: "Python", value: "v3.10.2" },
-				{ key: "Java", value: "v11 in GraalVM Community v22.1.0" },
+				{ key: "Java", value: "OpenJDK 17" },
 				{ key: "C/C++", value: " GCC v9.3.0" },
 				{ key: "Javascript", value: "Node v16.15.0" },
 				{ key: "PHP", value: "v8.1" },
-				{ key: "Brainfuck", value: "v2.7.3" },
+				{
+					key: "Brainfuck",
+					value: "v2.7.3",
+				},
 				{ key: "Ruby", value: "v3.1.2" },
 			]}
 		/>
