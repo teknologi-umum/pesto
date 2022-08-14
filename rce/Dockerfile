@@ -5,7 +5,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 WORKDIR /app
 
 RUN apt-get update && \
-  apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils curl
+  apt-get upgrade -y && \
+  apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils curl tar bzip2 gzip
 
 COPY ./nosocket ./nosocket
 

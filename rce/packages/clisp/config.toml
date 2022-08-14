@@ -1,0 +1,12 @@
+language = "Common Lisp"
+version = "2.2.7"
+compiled = false
+extension = "cl"
+build_command = []
+environment = []
+run_command = [ "sbcl", "--script", "{file}" ]
+test_file = "test.cl"
+aliases = ["clisp", "sbcl"]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 256
