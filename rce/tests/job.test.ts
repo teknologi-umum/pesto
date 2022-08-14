@@ -122,7 +122,7 @@ test.serial("should be able to compile and run a file - C", async (t) => {
   const currentUser = os.userInfo();
   const runtime = new Runtime(
     "C",
-    "9.3.0",
+    "10.2.1",
     "c",
     true,
     ["gcc", "-Wall", "-Wextra", "-Werror", "-O2", "-std=c99", "-pedantic", "-o", "code", "{file}"],

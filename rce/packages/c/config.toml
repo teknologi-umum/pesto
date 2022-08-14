@@ -1,5 +1,5 @@
 language = "C"
-version = "9.3.0"
+version = "10.2.1"
 compiled = true
 extension = "c"
 build_command = [
