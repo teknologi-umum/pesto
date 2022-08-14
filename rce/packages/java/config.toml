@@ -7,6 +7,6 @@ build_command = [
     "{file}"
 ]
 run_command = [ "java", "-Xms64m", "-Xmx256m", "{file}" ]
-environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", "JAVA_HOE=/usr/lib/jvm/java-17-openjdk-amd64"]
+environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"]
 test_file = "HelloWorld.java"
 aliases = ["java"]
