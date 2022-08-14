@@ -140,7 +140,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     container: debian:bullseye
-    timeout-minutes: 15
+    timeout-minutes: 45
     needs:
       - auth
       - rce
