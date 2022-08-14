@@ -51,6 +51,7 @@ jobs:
           ENVIRONMENT: github-actions
           SENTRY_DSN: ""
           ETCD_URL: db:2379
+
   rce:
     name: RCE
     runs-on: ubuntu-latest
@@ -132,3 +133,36 @@ jobs:
         run: pnpm fmt:check
       - name: Build
         run: pnpm build
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    container: debian:bullseye
+    timeout-minutes: 15
+    needs:
+      - auth
+      - rce
+      - landing
+    steps:
+      - name: Install required packages
+        run: apt-get update && apt-get upgrade -y && apt-get install -y tar gzip curl ssh
+
+      - name: Register SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          name: id_ed25519
+          known_hosts: ${{ secrets.SSH_IP }}
+          if_key_exists: replace
+
+      - name: SSH Keyscan
+        run: ssh-keyscan -H ${{ secrets.SSH_IP }} >> /root/.ssh/known_hosts
+
+      - name: Pull latest code
+        run: ssh -i /root/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT }} -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 'cd ~/pesto && git pull'
+
+      - name: Build Docker images
+        run: ssh -i /root/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT }} -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S sh -c "cd ~/pesto && docker compose up -d --build registration rce landing auth"'
+
+      - name: Prune build artifacts
+        run: ssh -i /root/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT }} -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S sh -c "docker container prune -f && docker image prune -f && docker builder prune -f"'
