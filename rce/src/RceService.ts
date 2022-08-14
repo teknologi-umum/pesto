@@ -55,6 +55,7 @@ export class RceServiceImpl implements ICodeExecutionEngineService {
       runtime,
       req.code,
       req.compileTimeout,
+      req.runTimeout,
       req.memoryLimit
     );
 

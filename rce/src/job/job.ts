@@ -24,14 +24,14 @@ export interface CommandOutput {
 export class Job implements JobPrerequisites {
   private _sourceFilePath: string;
   private _builtFilePath: string;
-  public compileTimeout: number;
-  public runTimeout: number;
-  public memoryLimit: number;
+  public readonly compileTimeout: number;
+  public readonly runTimeout: number;
+  public readonly memoryLimit: number;
 
   constructor(
-    public user: User,
-    public runtime: Runtime,
-    public code: string,
+    public readonly user: User,
+    public readonly runtime: Runtime,
+    public readonly code: string,
     compileTimeout?: number,
     runTimeout?: number,
     memoryLimit?: number
@@ -49,13 +49,13 @@ export class Job implements JobPrerequisites {
     if (compileTimeout !== undefined && compileTimeout !== null && compileTimeout >= 1) {
       this.compileTimeout = compileTimeout;
     } else {
-      this.compileTimeout = 5_000;
+      this.compileTimeout = 10_000;
     }
 
     if (runTimeout !== undefined && runTimeout !== null && runTimeout >= 1) {
       this.runTimeout = runTimeout;
     } else {
-      this.runTimeout = 5_000;
+      this.runTimeout = 10_000;
     }
 
     if (
@@ -194,7 +194,8 @@ export class Job implements JobPrerequisites {
           PATH: process.env?.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
           LOGGER_TOKEN: "",
           LOGGER_SERVER_ADDRESS: "",
-          ENVIRONMENT: ""
+          ENVIRONMENT: "",
+          ...this.runtime.environment
         },
         cwd: "/code/" + username,
         gid: gid,

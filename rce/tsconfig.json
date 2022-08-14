@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "target": "ES2021",
-    "module": "CommonJS",
+    "module": "ESNext",
     "declaration": false,
     "types": [
       "node"
