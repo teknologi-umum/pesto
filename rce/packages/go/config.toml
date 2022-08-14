@@ -7,3 +7,6 @@ run_command = [ "./code" ]
 test_file = "test.go"
 environment = [ "GOPATH=/usr/local/go", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/go/bin" ]
 aliases = [ "go", "golang" ]
+should_limit_memory = false
+memory_limit = 0
+process_limit = 1024

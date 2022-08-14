@@ -18,3 +18,6 @@ environment = []
 run_command = [ "./code" ]
 test_file = "test.cpp"
 aliases = ["c++", "cpp"]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 256

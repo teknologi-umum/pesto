@@ -1,13 +1,16 @@
 export class Runtime {
   constructor(
-    public language: string,
-    public version: string,
-    public extension: string,
-    public compiled: boolean,
-    public buildCommand: string[],
-    public runCommand: string[],
-    public aliases: string[],
-    public environment: Record<string, string>
+    public readonly language: string,
+    public readonly version: string,
+    public readonly extension: string,
+    public readonly compiled: boolean,
+    public readonly buildCommand: string[],
+    public readonly runCommand: string[],
+    public readonly aliases: string[],
+    public readonly environment: Record<string, string>,
+    public readonly shouldLimitMemory: boolean,
+    public readonly memoryLimit: number,
+    public readonly processLimit: number
   ) {
     if (language === "" || version === "" || extension === "" || runCommand.length === 0 || aliases.length === 0 || typeof environment !== "object") {
       throw new TypeError("Invalid runtime parameters");
@@ -17,6 +20,14 @@ export class Runtime {
       throw new TypeError(
         "Invalid runtime parameters: buildCommand is empty yet compiled is true"
       );
+    }
+
+    if (shouldLimitMemory && memoryLimit <= 0) {
+      throw new TypeError("Invalid runtime parameters: memoryLimit is 0 or less");
+    }
+
+    if (processLimit <= 0) {
+      throw new TypeError("Invalid runtime parameters: processLimit is 0 or less");
     }
   }
 }
