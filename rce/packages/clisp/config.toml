@@ -3,8 +3,8 @@ version = "2.2.7"
 compiled = false
 extension = "cl"
 build_command = []
-environment = []
-run_command = [ "sbcl", "--script", "{file}" ]
+environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+run_command = [ "/usr/local/bin/sbcl", "--script", "{file}" ]
 test_file = "test.cl"
 aliases = ["clisp", "sbcl"]
 should_limit_memory = true
