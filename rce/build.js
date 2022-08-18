@@ -3,7 +3,7 @@ import { build } from "esbuild";
 build({
   entryPoints: ["src/index.ts"],
   bundle: true,
-  format: "cjs",
+  format: "esm",
   platform: "node",
   external: ["@sentry/node", "polka"],
   outdir: "./dist",
