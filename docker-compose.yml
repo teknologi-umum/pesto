@@ -13,6 +13,8 @@ services:
       - "--providers.file.directory=/confs"
       - "--ping=true"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.tlsresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.tlsresolver.acme.httpchallenge.entrypoint=web"
