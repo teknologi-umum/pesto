@@ -161,10 +161,21 @@ jobs:
         run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_IP }} >> /root/.ssh/known_hosts
 
       - name: Pull latest code
-        run: ssh -i /root/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT }} -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 'cd ${{ secrets.SSH_WORKDIR }}/pesto && git pull'
+        run: >
+          ssh
+          -i /root/.ssh/id_ed25519 
+          -p ${{ secrets.SSH_PORT }}
+          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 
+          'ssh pesto "cd ${{ secrets.SSH_WORKDIR }}/pesto && git pull" '
 
       - name: Build Docker images
-        run: ssh -i /root/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT }} -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S sh -c "cd ${{ secrets.SSH_WORKDIR }}/pesto && docker compose up -d --build registration rce landing auth"'
-
-      - name: Prune build artifacts
-        run: ssh -i /root/.ssh/id_ed25519 -p ${{ secrets.SSH_PORT }} -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S sh -c "docker container prune -f && docker image prune -f && docker builder prune -f"'
+        run: >
+          ssh 
+          -i /root/.ssh/id_ed25519
+          -p ${{ secrets.SSH_PORT }}
+          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
+          "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S sh -c '\"'cd ${{ secrets.SSH_WORKDIR }}/pesto &&
+          docker compose up -d --build registration rce landing auth &&
+          docker container prune -f &&
+          docker image prune -f &&
+          docker builder prune -f '\"' ' "
