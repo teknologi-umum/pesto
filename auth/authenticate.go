@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/go-redis/redis/v9"
 )
 
 type TokenValue struct {
@@ -37,8 +39,14 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
 	defer cancel()
 
-	resp, err := d.Client.KV.Get(ctx, token)
+	resp, err := d.Client.Get(ctx, token).Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Token not registered"))
+			return
+		}
+
 		d.Logger.CaptureException(
 			fmt.Errorf("getting token %s: %w", token, err),
 			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
@@ -50,37 +58,29 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if resp.Count == 0 {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Token not registered"))
+	var tokenValue TokenValue
+	err = json.Unmarshal([]byte(resp), &tokenValue)
+	if err != nil {
+		d.Logger.CaptureException(
+			fmt.Errorf("unmarshal token value: %w", err),
+			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
+			nil,
+		)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 		return
 	}
 
-	var tokenValue TokenValue
-	for _, kv := range resp.Kvs {
-		err := json.Unmarshal(kv.Value, &tokenValue)
-		if err != nil {
-			d.Logger.CaptureException(
-				fmt.Errorf("unmarshal token value: %w", err),
-				&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
-				nil,
-			)
-
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		if tokenValue.Revoked {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Token has been revoked"))
-			return
-		}
+	if tokenValue.Revoked {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Token has been revoked"))
+		return
 	}
 
 	// Acquire monthly counter limit
 	formattedDate := time.Now().UTC().Format("2006-01")
-	limitResp, err := d.Client.KV.Get(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail)
+	limitResp, err := d.Client.Get(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail).Result()
 	if err != nil {
 		d.Logger.CaptureException(
 			fmt.Errorf("getting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err),
@@ -94,22 +94,20 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var counterLimit int64
-	for _, kv := range limitResp.Kvs {
-		v, err := strconv.ParseInt(string(kv.Value), 10, 64)
-		if err != nil {
-			d.Logger.CaptureException(
-				fmt.Errorf("parsing counter limit: %w", err),
-				&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
-				nil,
-			)
+	v, err := strconv.ParseInt(limitResp, 10, 64)
+	if err != nil {
+		d.Logger.CaptureException(
+			fmt.Errorf("parsing counter limit: %w", err),
+			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
+			nil,
+		)
 
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-			return
-		}
-
-		counterLimit += v
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
 	}
+
+	counterLimit += v
 
 	if counterLimit > tokenValue.MonthlyLimit {
 		w.WriteHeader(http.StatusTooManyRequests)
@@ -124,7 +122,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 		formattedDate := time.Now().UTC().Format("2006-01")
 
-		_, err := d.Client.KV.Put(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10))
+		_, err := d.Client.Set(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10), redis.KeepTTL).Result()
 		if err != nil {
 			d.Logger.CaptureException(
 				fmt.Errorf("putting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err),
