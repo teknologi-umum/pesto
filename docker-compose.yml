@@ -1,7 +1,7 @@
 x-defaults:
   &defaults
   ENVIRONMENT: development
-  REDIS_URL: redis://@redis:6739
+  REDIS_URL: redis://@db:6739
 
 services:
   traefik:
