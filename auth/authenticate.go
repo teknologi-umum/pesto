@@ -81,7 +81,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// Acquire monthly counter limit
 	formattedDate := time.Now().UTC().Format("2006-01")
 	limitResp, err := d.Client.Get(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail).Result()
-	if err != nil {
+	if err != nil && !errors.Is(err, redis.Nil) {
 		d.Logger.CaptureException(
 			fmt.Errorf("getting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err),
 			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
@@ -91,6 +91,10 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
+	}
+
+	if errors.Is(err, redis.Nil) {
+		limitResp = "0"
 	}
 
 	var counterLimit int64
@@ -122,7 +126,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 		formattedDate := time.Now().UTC().Format("2006-01")
 
-		_, err := d.Client.Set(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10), redis.KeepTTL).Result()
+		_, err := d.Client.Set(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10), time.Hour*24*40).Result()
 		if err != nil {
 			d.Logger.CaptureException(
 				fmt.Errorf("putting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err),
