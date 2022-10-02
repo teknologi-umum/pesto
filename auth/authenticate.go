@@ -35,7 +35,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// The token should be exists as a key on etcd
+	// The token should be exists as a key on redis
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
 	defer cancel()
 

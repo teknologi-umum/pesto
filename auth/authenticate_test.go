@@ -86,7 +86,7 @@ func TestAuthenticate_Ok(t *testing.T) {
 	deps.Authenticate(rec, req)
 
 	if rec.Code != http.StatusOK {
-		t.Errorf("expected status code %d, got %d", http.StatusOK, rec.Code)
+		t.Errorf("expected status code %d, got %d with body: %s", http.StatusOK, rec.Code, rec.Body.String())
 	}
 }
 
@@ -128,6 +128,6 @@ func TestAuthenticate_InvalidValue(t *testing.T) {
 	deps.Authenticate(rec, req)
 
 	if rec.Code != http.StatusInternalServerError {
-		t.Errorf("expected status code %d, got %d", http.StatusInternalServerError, rec.Code)
+		t.Errorf("expected status code %d, got %d with body: %s", http.StatusInternalServerError, rec.Code, rec.Body.String())
 	}
 }
