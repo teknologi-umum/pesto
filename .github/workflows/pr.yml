@@ -14,19 +14,7 @@ jobs:
         working-directory: ./auth
     services:
       db:
-        image: gcr.io/etcd-development/etcd:v3.5.4
-        env:
-          ETCD_NAME: s1
-          ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
-          ETCD_ADVERTISE_CLIENT_URLS: http://0.0.0.0:2379
-          ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
-          ETCD_INITIAL_ADVERTISE_PEER_URLS: http://0.0.0.0:2380
-          ETCD_INITIAL_CLUSTER: s1=http://0.0.0.0:2380
-          ETCD_INITIAL_CLUSTER_TOKEN: 2d8edff944592668ef483cac8ff45f195cfc5f0463e32027e0d59bc8bb020df7
-          ETCD_INITIAL_CLUSTER_STATE: new
-        ports:
-          - 2379:2379
-          - 2380:2380
+        image: redis:7-bullseye
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -48,7 +36,7 @@ jobs:
         env:
           ENVIRONMENT: github-actions
           SENTRY_DSN: ""
-          ETCD_URL: db:2379
+          REDIS_URL: redis://@db:6379
   rce:
     name: RCE
     runs-on: ubuntu-latest

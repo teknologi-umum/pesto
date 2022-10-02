@@ -15,6 +15,7 @@ FROM build AS publish
 RUN dotnet publish "Registration.csproj" -c Release -o /app/publish
 
 FROM base AS final
+RUN apt-get update && apt-get install -y curl gzip
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Registration.dll"]

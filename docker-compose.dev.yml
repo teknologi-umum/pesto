@@ -40,8 +40,6 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
-      - "../letsencrypt:/letsencrypt"
-      - "../traefik:/confs"
     healthcheck:
       test: traefik healthcheck --ping
       interval: 10s
@@ -124,6 +122,8 @@ services:
       - pesto
   db:
     build: ./redis
+    ports:
+      - 6379:6379
     platform: linux/amd64
     healthcheck:
       test: "redis-cli -a foobared ping | grep PONG"
@@ -147,15 +147,13 @@ services:
           cpus: '0.25'
     networks:
       - pesto
-    volumes:
-      - ../redis
   auth:
     build: ./auth
     environment:
       <<: [ *defaults ]
       PORT: 3000
       SENTRY_DSN: ${AUTH_SENTRY_DSN}
-      REDIS_URL: redis://@db:6379/
+      REDIS_URL: redis://@db:6739
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=web,websecure"
@@ -273,7 +271,7 @@ services:
       <<: [ *defaults ]
       PORT: 80
       ASPNETCORE_SENTRY_DSN: ${REGISTRATION_SENTRY_DSN}
-      ASPNETCORE_REDIS_URL: db:6379
+      ASPNETCORE_REDIS_URL: db:6739
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.registration.entrypoints=web,websecure"
