@@ -21,7 +21,7 @@ services:
       - "--certificatesresolvers.tlsresolver.acme.storage=/letsencrypt/acme.json"
       - "--metrics.prometheus=true"
       - "--entryPoints.metrics.address=:8082"
-      - "--metrics.prometheus.ent`ryPoint=metrics"
+      - "--metrics.prometheus.entryPoint=metrics"
       - "--tracing.jaeger=true"
       - "--tracing.jaeger.samplingType=const"
       - "--tracing.jaeger.samplingParam=1.0"
