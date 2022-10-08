@@ -22,11 +22,11 @@ public class WaitingListService
     public async Task PutUserAsync(User user, CancellationToken cancellationToken)
     {
         var waitingListUsers = await GetUsersAsync(cancellationToken);
-        
+
         // Check if the user's email already exists on the waiting list
         var emailExists = (from waitingListUser in waitingListUsers
-            where waitingListUser.Email.Equals(user.Email)
-            select true)
+                           where waitingListUser.Email.Equals(user.Email)
+                           select true)
             .FirstOrDefault(false);
 
         if (emailExists) throw new EmailExistsException(user.Email);
@@ -52,11 +52,11 @@ public class WaitingListService
             if (!value.HasValue) continue;
 
             var user = JsonSerializer.Deserialize<User>(value.ToString());
-            if (user == null)
+            if (user is null)
             {
                 continue;
             }
-            
+
             users.Add(user);
         }
 
@@ -71,18 +71,18 @@ public class WaitingListService
     public async Task RemoveUserAsync(User user, CancellationToken cancellationToken)
     {
         var waitingListUsers = await GetUsersAsync(cancellationToken);
-    
+
         // Filter out user
         var filteredWaitingListUsers = from waitingListUser in waitingListUsers
-            where waitingListUser.Email != user.Email
-            select waitingListUser;
+                                       where waitingListUser.Email != user.Email
+                                       select waitingListUser;
 
         var db = _redis.GetDatabase();
         await db.KeyDeleteAsync("waiting-list");
 
         foreach (var value in filteredWaitingListUsers)
         {
-            if (value == null) continue;
+            if (value is null) continue;
 
             var serializedUser = JsonSerializer.Serialize(value);
             await db.ListRightPushAsync("waiting-list", serializedUser);

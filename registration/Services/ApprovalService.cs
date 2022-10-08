@@ -21,14 +21,14 @@ public class ApprovalService
     public async Task ApproveUserAsync(UserToken userToken, CancellationToken cancellationToken)
     {
         var registeredUser = new RegisteredUser(
-            userEmail: userToken.Email, 
-            monthlyLimit: userToken.Limit, 
+            userEmail: userToken.Email,
+            monthlyLimit: userToken.Limit,
             revoked: false);
 
         var serializedUser = JsonSerializer.Serialize(registeredUser);
         var db = _redis.GetDatabase();
         await db.StringSetAsync(
-            key: userToken.Token, 
+            key: userToken.Token,
             value: serializedUser,
             expiry: null);
     }
@@ -41,14 +41,14 @@ public class ApprovalService
     public async Task RevokeUserAsync(UserToken userToken, CancellationToken cancellationToken)
     {
         var registeredUser = new RegisteredUser(
-            userEmail: userToken.Email, 
-            monthlyLimit: userToken.Limit, 
+            userEmail: userToken.Email,
+            monthlyLimit: userToken.Limit,
             revoked: true);
 
         var serializedUser = JsonSerializer.Serialize(registeredUser);
         var db = _redis.GetDatabase();
         await db.StringSetAsync(
-            key: userToken.Token, 
+            key: userToken.Token,
             value: serializedUser,
             expiry: null);
     }
@@ -64,13 +64,13 @@ public class ApprovalService
     {
         var db = _redis.GetDatabase();
         var registeredUser = await db.StringGetAsync(token);
-        
+
         if (!registeredUser.HasValue) throw new UserNotExistsException(token);
 
         var user = JsonSerializer.Deserialize<RegisteredUser>(registeredUser.ToString());
 
-        if (user == null) throw new UserNotExistsException(token); 
-            
+        if (user is null) throw new UserNotExistsException(token);
+
         return user;
     }
 }

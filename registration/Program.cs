@@ -10,6 +10,8 @@ builder.Configuration
 
 var redisMultiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisUrl"));
 builder.Services.AddSingleton<IConnectionMultiplexer>(redisMultiplexer);
+builder.Services.AddSingleton<WaitingListService>();
+builder.Services.AddSingleton<ApprovalService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

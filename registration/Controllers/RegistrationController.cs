@@ -12,11 +12,11 @@ public class RegistrationController : ControllerBase
     private readonly WaitingListService _waitingListService;
     private readonly ApprovalService _approvalService;
 
-    public RegistrationController(IConnectionMultiplexer redis)
+    public RegistrationController(IConnectionMultiplexer redis, WaitingListService waitingListService, ApprovalService approvalService)
     {
         _redis = redis;
-        _waitingListService = new WaitingListService(_redis);
-        _approvalService = new ApprovalService(_redis);
+        _waitingListService = waitingListService;
+        _approvalService = approvalService;
     }
 
     /// <summary>
@@ -67,13 +67,13 @@ public class RegistrationController : ControllerBase
     public async Task<IActionResult> ApproveAsync([FromBody] UserToken userToken)
     {
         var waitingList = await _waitingListService.GetUsersAsync(CancellationToken.None);
-        
+
         // Check if email exists on the waiting list
         var user = (from x in waitingList
-            where x.Email.Equals(userToken.Email)
-            select x).FirstOrDefault();
+                    where x.Email.Equals(userToken.Email)
+                    select x).FirstOrDefault();
 
-        if (user == null)
+        if (user is null)
         {
             return BadRequest("Email does not exists");
         }
@@ -101,7 +101,7 @@ public class RegistrationController : ControllerBase
             await _approvalService.RevokeUserAsync(
                 new UserToken { Email = registeredUser.UserEmail, Token = userToken.Token, Limit = 0 },
                 CancellationToken.None);
-            
+
             return Ok();
         }
         catch (UserNotExistsException)
@@ -110,4 +110,4 @@ public class RegistrationController : ControllerBase
         }
 
     }
-}        
+}
