@@ -12,7 +12,7 @@ public class StatusController : ControllerBase
     {
         _redis = redis;
     }
-    
+
     /// <summary>
     /// Health check
     /// </summary>
@@ -20,7 +20,7 @@ public class StatusController : ControllerBase
     /// <response code="200"></response>
     [HttpGet]
     [Route("/healthz")]
-    public async Task<IActionResult> Status()
+    public async Task<IActionResult> Status(CancellationToken cancellationToken)
     {
         var db = _redis.GetDatabase();
         await db.PingAsync();

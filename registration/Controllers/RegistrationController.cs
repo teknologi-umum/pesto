@@ -28,11 +28,11 @@ public class RegistrationController : ControllerBase
     /// <response code="204">User already registered, but no worries</response>
     [HttpPost]
     [Route("/api/register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] User user)
+    public async Task<IActionResult> RegisterAsync([FromBody] User user, CancellationToken cancellationToken)
     {
         try
         {
-            await _waitingListService.PutUserAsync(user, CancellationToken.None);
+            await _waitingListService.PutUserAsync(user, cancellationToken);
 
             return Created(new Uri("/register"), null);
         }
@@ -48,9 +48,9 @@ public class RegistrationController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route("/api/pending")]
-    public async Task<IActionResult> PendingAsync()
+    public async Task<IActionResult> PendingAsync(CancellationToken cancellationToken)
     {
-        var waitingList = await _waitingListService.GetUsersAsync(CancellationToken.None);
+        var waitingList = await _waitingListService.GetUsersAsync(cancellationToken);
 
         return Ok(waitingList);
     }
@@ -64,9 +64,9 @@ public class RegistrationController : ControllerBase
     /// <response code="200">Successfully registered a user</response>
     [HttpPut]
     [Route("/api/approve")]
-    public async Task<IActionResult> ApproveAsync([FromBody] UserToken userToken)
+    public async Task<IActionResult> ApproveAsync([FromBody] UserToken userToken, CancellationToken cancellationToken)
     {
-        var waitingList = await _waitingListService.GetUsersAsync(CancellationToken.None);
+        var waitingList = await _waitingListService.GetUsersAsync(cancellationToken);
 
         // Check if email exists on the waiting list
         var user = (from x in waitingList
@@ -78,8 +78,8 @@ public class RegistrationController : ControllerBase
             return BadRequest("Email does not exists");
         }
 
-        await _approvalService.ApproveUserAsync(userToken, CancellationToken.None);
-        await _waitingListService.RemoveUserAsync(user, CancellationToken.None);
+        await _approvalService.ApproveUserAsync(userToken, cancellationToken);
+        await _waitingListService.RemoveUserAsync(user, cancellationToken);
 
         return Ok();
     }
@@ -93,11 +93,11 @@ public class RegistrationController : ControllerBase
     /// <response code="200">Successfully revoked a user</response>
     [HttpPut]
     [Route("/api/revoke")]
-    public async Task<IActionResult> RevokeAsync([FromBody] UserToken userToken)
+    public async Task<IActionResult> RevokeAsync([FromBody] UserToken userToken, CancellationToken cancellationToken)
     {
         try
         {
-            var registeredUser = await _approvalService.GetUserByTokenAsync(userToken.Token, CancellationToken.None);
+            var registeredUser = await _approvalService.GetUserByTokenAsync(userToken.Token, cancellationToken);
             await _approvalService.RevokeUserAsync(
                 new UserToken { Email = registeredUser.UserEmail, Token = userToken.Token, Limit = 0 },
                 CancellationToken.None);
@@ -108,6 +108,5 @@ public class RegistrationController : ControllerBase
         {
             return BadRequest("User does not exists");
         }
-
     }
 }
