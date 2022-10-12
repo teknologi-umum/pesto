@@ -7,15 +7,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	clientv3 "go.etcd.io/etcd/client/v3"
+	"github.com/go-redis/redis/v9"
 )
 
 type Deps struct {
-	Client *clientv3.Client
+	Client *redis.Client
 	Logger *sentry.Client
 }
 
@@ -35,15 +34,17 @@ func main() {
 		sentryDsn = ""
 	}
 
-	etcdUrl, ok := os.LookupEnv("ETCD_URL")
+	redisUrl, ok := os.LookupEnv("REDIS_URL")
 	if !ok {
-		etcdUrl = "localhost:2379"
+		redisUrl = "redis://@localhost:6379"
 	}
 
-	cli, err := clientv3.New(clientv3.Config{
-		Endpoints:   strings.Split(etcdUrl, ","),
-		DialTimeout: 30 * time.Second,
-	})
+	parsedRedisConfig, err := redis.ParseURL(redisUrl)
+	if err != nil {
+		log.Fatalf("parsing redis url to config: %v", err)
+	}
+
+	cli := redis.NewClient(parsedRedisConfig)
 	if err != nil {
 		log.Fatalf("connect etcd error: %v", err)
 	}
@@ -85,7 +86,7 @@ func main() {
 	}
 
 	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, os.Interrupt, os.Kill)
+	signal.Notify(sig, os.Interrupt)
 
 	go func() {
 		log.Printf("listening on %s", server.Addr)
