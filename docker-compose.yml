@@ -126,7 +126,7 @@ services:
     build: ./redis
     platform: linux/amd64
     healthcheck:
-      test: "redis-cli -a foobared ping | grep PONG"
+      test: "redis-cli ping | grep PONG"
       interval: 10s
       timeout: 5s
       retries: 5
