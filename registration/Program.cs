@@ -1,4 +1,5 @@
 using StackExchange.Redis;
+using Registration.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
