@@ -148,7 +148,7 @@ services:
     networks:
       - pesto
     volumes:
-      - ../redis
+      - ../redis:/data
   auth:
     build: ./auth
     environment:
