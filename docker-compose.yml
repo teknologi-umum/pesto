@@ -3,68 +3,6 @@ x-defaults:
   ENVIRONMENT: development
 
 services:
-  traefik:
-    image: traefik:v2.7.0
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.file.directory=/confs"
-      - "--ping=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.tlsresolver.acme.httpchallenge=true"
-      - "--certificatesresolvers.tlsresolver.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.tlsresolver.acme.email=pesto@teknologiumum.com"
-      - "--certificatesresolvers.tlsresolver.acme.storage=/letsencrypt/acme.json"
-      - "--metrics.prometheus=true"
-      - "--entryPoints.metrics.address=:8082"
-      - "--metrics.prometheus.entryPoint=metrics"
-      - "--tracing.jaeger=true"
-      - "--tracing.jaeger.samplingType=const"
-      - "--tracing.jaeger.samplingParam=1.0"
-      - "--tracing.jaeger.samplingServerURL=http://jaeger_agent:5778/sampling"
-      - "--tracing.jaeger.localAgentHostPort=jaeger_agent:6831"
-      - "--tracing.jaeger.propagation=jaeger"
-    environment:
-      - TZ=UTC
-    ports:
-      # The HTTP port
-      - "80:80"
-      - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
-      - "127.0.0.1:8081:8080"
-    platform: linux/amd64
-    volumes:
-      # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
-      - "../letsencrypt:/letsencrypt"
-      - "../traefik:/confs"
-    healthcheck:
-      test: traefik healthcheck --ping
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        delay: 30s
-        max_attempts: 10
-        window: 120s
-      resources:
-        limits:
-          memory: 2GB
-          cpus: '1'
-        reservations:
-          memory: 100MB
-          cpus: '0.10'
-    networks:
-      - pesto
-      - default
   landing:
     build: ./landing
     environment:
