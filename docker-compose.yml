@@ -210,8 +210,8 @@ services:
     environment:
       <<: [ *defaults ]
       PORT: 80
-      ASPNETCORE_SENTRY_DSN: ${REGISTRATION_SENTRY_DSN}
-      ASPNETCORE_REDIS_URL: db:6379
+      ASPNETCORE_SentryDsn: ${REGISTRATION_SENTRY_DSN}
+      ASPNETCORE_RedisUrl: db:6379
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.registration.entrypoints=web,websecure"
@@ -245,7 +245,7 @@ services:
       - "traefik.http.middlewares.registration-inflightreq.inflightreq.amount=50"
     platform: linux/amd64
     healthcheck:
-      test: curl -f http://localhost:8080/healthz || exit 1
+      test: curl -f http://localhost:80/healthz || exit 1
       interval: 15s
       timeout: 10s
       retries: 5
