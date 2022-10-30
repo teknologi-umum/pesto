@@ -13,6 +13,9 @@ type PingResponse struct {
 	Message string `json:"message"`
 }
 
+// Ping calls the ping endpoint. This is useful to check whether the API is having a downtime.
+// To make the function work properly, put a context with deadline (or timeout), or provide
+// DefaultTimeout a value when creating the client.
 func (c *Client) Ping(ctx context.Context) (PingResponse, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL.JoinPath("/api/ping").String(), nil)
 	if err != nil {

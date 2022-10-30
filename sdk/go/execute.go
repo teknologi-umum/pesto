@@ -74,9 +74,9 @@ type codeRequestSimplified struct {
 	Language       string `json:"language"`
 	Version        string `json:"version"`
 	Code           string `json:"code"`
-	CompileTimeout int32  `json:"compileTimeout"`
-	RunTimeout     int32  `json:"runTimeout"`
-	MemoryLimit    int32  `json:"memoryLimit"`
+	CompileTimeout int32  `json:"compileTimeout,omitempty"`
+	RunTimeout     int32  `json:"runTimeout,omitempty"`
+	MemoryLimit    int32  `json:"memoryLimit,omitempty"`
 }
 
 type Output struct {
@@ -93,15 +93,38 @@ type CodeResponse struct {
 	Runtime  Output `json:"runtime"`
 }
 
+// Execute calls the execute endpoint, and execute the given code from the codeRequest parameter.
+//
+// Custom language and version outside of the defined ones are allowed through:
+//
+//	Execute(ctx, CodeRequest{
+//		Language: pesto.Language("Rust"),
+//		Version:  pesto.Version("1.64.0"),
+//	})
+//
+// Make sure that you put the correct language and version combination, otherwise, an error
+// of ErrRuntimeNotFound will be returned.
+//
+// If language, version, or code is empty, ErrMissingParameters will be returned.
+// If the combination between language and version is not found on the server,
+// ErrRuntimeNotFound will be returned.
 func (c *Client) Execute(ctx context.Context, codeRequest CodeRequest) (CodeResponse, error) {
-	requestBody, err := json.Marshal(codeRequestSimplified{
-		Language:       string(codeRequest.Language),
-		Version:        string(codeRequest.Version),
-		Code:           codeRequest.Code,
-		CompileTimeout: int32(codeRequest.CompileTimeout) / 1000000,
-		RunTimeout:     int32(codeRequest.CompileTimeout) / 1000000,
-		MemoryLimit:    codeRequest.MemoryLimit,
-	})
+	body := codeRequestSimplified{
+		Language:    string(codeRequest.Language),
+		Version:     string(codeRequest.Version),
+		Code:        codeRequest.Code,
+		MemoryLimit: codeRequest.MemoryLimit,
+	}
+
+	if codeRequest.CompileTimeout > 1000000 {
+		body.CompileTimeout = int32(codeRequest.CompileTimeout) / 1000000
+	}
+
+	if codeRequest.RunTimeout > 1000000 {
+		body.RunTimeout = int32(codeRequest.RunTimeout) / 1000000
+	}
+
+	requestBody, err := json.Marshal(body)
 	if err != nil {
 		return CodeResponse{}, fmt.Errorf("marshalling json body: %w", err)
 	}

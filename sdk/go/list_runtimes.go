@@ -10,12 +10,14 @@ import (
 )
 
 type RuntimeResponse struct {
-	Language string
-	Version  string
-	Aliases  []string
-	Compiled bool
+	Language string   `json:"language"`
+	Version  string   `json:"version"`
+	Aliases  []string `json:"aliases"`
+	Compiled bool     `json:"compiled"`
 }
 
+// ListRuntimes calls the list-runtimes endpoint. The Language and Version item from the response struct
+// can be used to create an execute code request.
 func (c *Client) ListRuntimes(ctx context.Context) ([]RuntimeResponse, error) {
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL.JoinPath("/api/list-runtimes").String(), nil)
 	if err != nil {

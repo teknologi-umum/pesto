@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
+// sendRequest will modify the http request from the given parameter
+// and adds some headers including the token and content types.
 func (c *Client) sendRequest(ctx context.Context, request *http.Request) (*http.Response, error) {
 	request.Header.Set("X-Pesto-Token", c.token)
 	request.Header.Set("Content-Type", "application/json")
@@ -18,6 +21,8 @@ type errorResponse struct {
 	Message string `json:"message"`
 }
 
+// handleErrorCode will maps HTTP status code from the HTTP response
+// into the errors that are defined on this package
 func (c *Client) handleErrorCode(code int, response errorResponse) error {
 	switch code {
 	case http.StatusNotFound:
@@ -41,6 +46,10 @@ func (c *Client) handleErrorCode(code int, response errorResponse) error {
 	case http.StatusBadRequest:
 		if response.Message == "Runtime not found" {
 			return ErrRuntimeNotFound
+		}
+
+		if strings.HasPrefix(response.Message, "Missing parameters") {
+			return fmt.Errorf("%w: %s", ErrMissingParameters, response.Message)
 		}
 
 		return fmt.Errorf("%s (this is probably a problem with the SDK, please submit an issue on our Github repository)", response.Message)
