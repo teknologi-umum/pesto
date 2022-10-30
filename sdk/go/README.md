@@ -9,7 +9,7 @@ import (
     "context"
     "fmt"
 
-    "github.com/teknologi-umum/pesto/sdk/go"
+    pesto "github.com/teknologi-umum/pesto/sdk/go"
 )
 
 func main() {
