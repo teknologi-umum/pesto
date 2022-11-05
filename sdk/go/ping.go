@@ -29,10 +29,9 @@ func (c *Client) Ping(ctx context.Context) (PingResponse, error) {
 
 	if response.StatusCode != 200 {
 		var errResponse errorResponse
-		err := json.NewDecoder(response.Body).Decode(&errResponse)
-		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrClosedPipe) {
-			return PingResponse{}, fmt.Errorf("reading json body: %w", err)
-		}
+		// HACK: the error is intentionally not handled, we wanted to leave the empty errorResponse struct
+		// if there is any non-json response being sent from the server
+		json.NewDecoder(response.Body).Decode(&errResponse)
 
 		err = response.Body.Close()
 		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrClosedPipe) && !errors.Is(err, http.ErrBodyReadAfterClose) {
