@@ -1,4 +1,4 @@
-name: Master
+name: Master / Main Systems
 
 on:
   push:
@@ -9,7 +9,7 @@ jobs:
   auth:
     name: Auth
     runs-on: ubuntu-latest
-    container: golang:1.18
+    container: golang:1.19
     timeout-minutes: 30
     defaults:
       run:
@@ -18,27 +18,31 @@ jobs:
       db:
         image: redis:7-bullseye
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-      - name: Secrets scan
-        run: >
-          apt update && apt install -y curl tar gzip &&
-          curl -LO https://github.com/trufflesecurity/trufflehog/releases/download/v3.6.7/trufflehog_3.6.7_linux_amd64.tar.gz &&
-          tar -zxf trufflehog_3.6.7_linux_amd64.tar.gz &&
-          mv -v trufflehog /usr/bin/trufflehog &&
-          rm -rf README.md LICENSE trufflehog_3.6.7_linux_amd64.tar.gz &&
-          trufflehog git --concurrency=$(nproc) --no-update --since-commit=$(echo $BASE_COMMIT) file://./
-        continue-on-error: true
-        env:
-          BASE_COMMIT: ${{ github.sha }}
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
       - name: Build test
         run: go build .
+
       - name: Run test
         run: go test -v -coverprofile=coverage.out -covermode=atomic ./...
         env:
           ENVIRONMENT: github-actions
           SENTRY_DSN: ""
           REDIS_URL: redis://@db:6379
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3
 
   rce:
     name: RCE
@@ -49,34 +53,42 @@ jobs:
       run:
         working-directory: ./rce
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-      - name: Secrets scan
-        run: >
-          apt update && apt install -y curl tar gzip &&
-          curl -LO https://github.com/trufflesecurity/trufflehog/releases/download/v3.6.7/trufflehog_3.6.7_linux_amd64.tar.gz &&
-          tar -zxf trufflehog_3.6.7_linux_amd64.tar.gz &&
-          mv -v trufflehog /usr/bin/trufflehog &&
-          rm -rf README.md LICENSE trufflehog_3.6.7_linux_amd64.tar.gz &&
-          trufflehog git --concurrency=$(nproc) --no-update --since-commit=$(echo $BASE_COMMIT) file://./
-        continue-on-error: true
-        env:
-          BASE_COMMIT: ${{ github.sha }}
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
       - name: Setup packages && nosocket
         run: >
           apt-get update &&
           apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils &&
           make -C ./nosocket/ all && make -C ./nosocket/ install
+
       - name: Setup directory
         run: mkdir -p /code/$(whoami)
+
       - name: Install dependencies
         run: npm ci
+
       - name: Lint
         run: npx eslint --ext .ts,.js,.cjs .
+
       - name: Build
         run: npm run build
+
       - name: Test & coverage
         run: npm run test
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3
 
   landing:
     name: Landing
@@ -87,29 +99,31 @@ jobs:
       run:
         working-directory: ./landing
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-      - name: Secrets scan
-        run: >
-          apt update && apt install -y curl tar gzip &&
-          curl -LO https://github.com/trufflesecurity/trufflehog/releases/download/v3.6.7/trufflehog_3.6.7_linux_amd64.tar.gz &&
-          tar -zxf trufflehog_3.6.7_linux_amd64.tar.gz &&
-          mv -v trufflehog /usr/bin/trufflehog &&
-          rm -rf README.md LICENSE trufflehog_3.6.7_linux_amd64.tar.gz &&
-          trufflehog git --concurrency=$(nproc) --no-update --since-commit=$(echo $BASE_COMMIT) file://./
-        continue-on-error: true
-        env:
-          BASE_COMMIT: ${{ github.sha }}
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
       - name: Install pnpm
         uses: pnpm/action-setup@v2.2.2
         id: pnpm-install
         with:
           version: 7
           run_install: false
+
       - name: Get pnpm store directory
         id: pnpm-cache
         run: |
           echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+
       - uses: actions/cache@v3
         name: Setup pnpm cache
         with:
@@ -117,10 +131,13 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
       - name: Install dependencies
         run: pnpm install
+
       - name: Check formatting
         run: pnpm fmt:check
+
       - name: Build
         run: pnpm build
 
@@ -136,21 +153,22 @@ jobs:
       db:
         image: redis:7-bullseye
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-      - name: Secrets scan
-        run: >
-          apt update && apt install -y curl tar gzip &&
-          curl -LO https://github.com/trufflesecurity/trufflehog/releases/download/v3.6.7/trufflehog_3.6.7_linux_amd64.tar.gz &&
-          tar -zxf trufflehog_3.6.7_linux_amd64.tar.gz &&
-          mv -v trufflehog /usr/bin/trufflehog &&
-          rm -rf README.md LICENSE trufflehog_3.6.7_linux_amd64.tar.gz &&
-          trufflehog git --concurrency=$(nproc) --no-update --since-commit=$(echo $BASE_COMMIT) file://./
-        continue-on-error: true
-        env:
-          BASE_COMMIT: ${{ github.sha }}
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
       - name: Restore
         run: dotnet restore "Registration.csproj"
+
       - name: Build
         run: dotnet build "Registration.csproj" --no-restore -c Release
 
@@ -193,8 +211,15 @@ jobs:
           -i /root/.ssh/id_ed25519
           -p ${{ secrets.SSH_PORT }}
           -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
-          "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S sh -c '\"'cd ${{ secrets.SSH_WORKDIR }}/pesto &&
-          docker compose up -d --build registration rce landing auth &&
-          docker container prune -f &&
+          "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S bash -c '\"'cd ${{ secrets.SSH_WORKDIR }}/pesto &&
+          docker compose up -d --build registration rce landing auth '\"' ' "
+
+      - name: Clean up docker artifacts
+        run: >
+          ssh 
+          -i /root/.ssh/id_ed25519
+          -p ${{ secrets.SSH_PORT }}
+          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
+          "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S bash -c '\"'docker container prune -f &&
           docker image prune -f &&
           docker builder prune -f '\"' ' "
