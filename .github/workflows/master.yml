@@ -43,6 +43,8 @@ jobs:
 
       - name: Codecov
         uses: codecov/codecov-action@v3
+        with:
+          flags: auth
 
   rce:
     name: RCE
@@ -89,6 +91,8 @@ jobs:
 
       - name: Codecov
         uses: codecov/codecov-action@v3
+        with:
+          flags: rce
 
   landing:
     name: Landing
