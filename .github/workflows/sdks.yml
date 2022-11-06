@@ -1,0 +1,38 @@
+name: SDK
+
+on:
+  pull_request:
+    paths:
+      - sdk/**
+  push:
+    branch:
+      - master
+
+jobs:
+  go-sdk:
+    name: Go SDK
+    runs-on: ubuntu-latest
+    container: golang:1.19
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./sdk/go
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+      
+      - name: Test
+        run: go test -v -coverprofile=coverage.out -covermode=atomic -race ./...
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3
