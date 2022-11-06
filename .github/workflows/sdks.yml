@@ -37,4 +37,4 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v3
         with:
-          flags: sdk/go
+          flags: sdk-go
