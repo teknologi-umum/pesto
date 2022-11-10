@@ -1,3 +1,11 @@
 #!/usr/bin/env bash
 
-apt-get install -y sqlite3
+apt-get install -y unzip
+curl -LO https://www.sqlite.org/2022/sqlite-autoconf-3390400.tar.gz
+tar -zxf sqlite-autoconf-3390400.tar.gz
+cd sqlite-autoconf-3390400
+./configure --prefix=/opt/sqlite3
+make -j $(nproc)
+make install -j $(nproc)
+cd ..
+rm -rf sqlite-autoconf-3390400.tar.gz sqlite-autoconf-3390400

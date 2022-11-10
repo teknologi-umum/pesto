@@ -2,9 +2,9 @@ language = "SQLite3"
 version = "3.34.1"
 compiled = false
 extension = "sql"
-environment = []
+environment = [ "PATH=/opt/sqlite3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
 build_command = []
-run_command = [ "sqlite3", "<", "{file}" ]
+run_command = [ "/opt/sqlite3/bin/sqlite3", "<", "{file}" ]
 test_file = "test.sql"
 aliases = [ "sqlite3", "sql" ]
 should_limit_memory = true

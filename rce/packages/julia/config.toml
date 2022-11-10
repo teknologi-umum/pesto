@@ -2,9 +2,9 @@ language = "Julia"
 version = "1.7.3"
 compiled = false
 extension = "jl"
-environment = [ "PATH=/opt/julia/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"]
+environment = [ "PATH=/opt/julia/1.7/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"]
 build_command = []
-run_command = [ "/opt/julia/bin/julia", "{file}" ]
+run_command = [ "/opt/julia/1.7/bin/julia", "{file}" ]
 test_file = "test.jl"
 aliases = ["jl"]
 should_limit_memory = false

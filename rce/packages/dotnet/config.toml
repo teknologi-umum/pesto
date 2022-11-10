@@ -2,7 +2,7 @@ language = ".NET"
 version = "6.0.300"
 compiled = true
 extension = "cs"
-environment = [ "DOTNET_ROOT=/opt/dotnet", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/dotnet" ]
+environment = [ "DOTNET_ROOT=/opt/dotnet/6.0.300", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/dotnet/6.0.300" ]
 build_command = [
   """bash -c 'cat <<EOF > Application.csproj
 <Project Sdk="Microsoft.NET.Sdk">
@@ -15,13 +15,13 @@ build_command = [
 </Project>
 EOF'""",
   "&&",
-  "/opt/dotnet/dotnet",
+  "/opt/dotnet/6.0.300/dotnet",
   "build",
   "--nologo",
   "--configuration",
   "Release"
 ]
-run_command = [ "/opt/dotnet/dotnet", "run", "--no-build", "--configuration", "Release" ]
+run_command = [ "/opt/dotnet/6.0.300/dotnet", "run", "--no-build", "--configuration", "Release" ]
 test_file = "test.cs"
 aliases = ["dotnet", "c#", "csharp"]
 should_limit_memory = true

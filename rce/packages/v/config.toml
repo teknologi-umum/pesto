@@ -2,9 +2,9 @@ language = "V"
 version = "0.3"
 compiled = false
 extension = "v"
-environment = [ "PATH=/opt/v:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+environment = [ "PATH=/opt/v/0.3:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
 build_command = []
-run_command = [ "/opt/v/v", "run", "{file}" ]
+run_command = [ "/opt/v/0.3/v", "run", "{file}" ]
 test_file = "test.v"
 aliases = ["Vlang", "v"]
 should_limit_memory = false
