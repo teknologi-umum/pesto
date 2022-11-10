@@ -1,6 +1,7 @@
 import console from "console";
 import * as Sentry from "@sentry/node";
 import polka from "polka";
+import { z, ZodError } from "zod";
 import { RceServiceImpl } from "@/RceService";
 import { acquireRuntime } from "@/runtime/acquire";
 import { SystemUsers } from "@/user/user";
@@ -14,6 +15,15 @@ const PORT = process.env?.PORT || "50051";
 
   Sentry.init({
     dsn: process.env.SENTRY_DSN ?? ""
+  });
+
+  const executeSchema = z.object({
+    language: z.string().min(1),
+    version: z.string().min(1),
+    code: z.string().optional(),
+    compileTimeout: z.number().max(30_000).optional(),
+    runTimeout: z.number().max(30_000).optional(),
+    memoryLimit: z.number().max(1024 * 1024 * 512).optional()
   });
 
   const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
@@ -144,37 +154,14 @@ const PORT = process.env?.PORT || "50051";
   });
 
   server.post("/api/execute", async (req, res) => {
-    const missingParameters: string[] = [];
-    if (req.body?.language === undefined || req.body?.language === null || typeof req.body.language !== "string" || req.body.language === "") {
-      missingParameters.push("language");
-    }
+    const parsedBody = executeSchema.safeParse(req.body);
 
-    if (req.body?.version === undefined || req.body?.version === null || typeof req.body?.version !== "string" || req.body.version === "") {
-      missingParameters.push("version");
-    }
-
-    if (req.body?.code === undefined || req.body?.code === null || typeof req.body?.code !== "string" || req.body.code === "") {
-      missingParameters.push("code");
-    }
-
-    if (req.body?.compileTimeout !== undefined && req.body?.compileTimeout !== null && (typeof req.body.compileTimeout !== "number" || req.body.compileTimeout > 30_000)) {
-      missingParameters.push("compileTimeout");
-    }
-
-    if (req.body?.runTimeout !== undefined && req.body?.runTimeout !== null && (typeof req.body.runTimeout !== "number" || req.body.runTimeout > 30_000)) {
-      missingParameters.push("runTimeout");
-    }
-
-    if (req.body?.memoryLimit !== undefined && req.body?.memoryLimit !== null && (typeof req.body.memoryLimit !== "number" || req.body.memoryLimit > 1024 * 1024 * 512)) {
-      missingParameters.push("memoryLimit");
-    }
-
-    if (missingParameters.length > 0) {
+    if (!parsedBody.success) {
       switch (req.headers.accept) {
         case "application/x-www-form-urlencoded": {
           res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
             new URLSearchParams({
-              message: `Missing parameters: ${missingParameters.join(", ")}`
+              message: parsedBody.error.errors.join(", ")
             }).toString()
           );
           break;
@@ -183,7 +170,7 @@ const PORT = process.env?.PORT || "50051";
         default:
           res.writeHead(400, { "Content-Type": "application/json" }).end(
             JSON.stringify({
-              message: `Missing parameters: ${missingParameters.join(", ")}`
+              message: parsedBody.error.errors.join(", ")
             })
           );
       }
@@ -192,12 +179,12 @@ const PORT = process.env?.PORT || "50051";
     }
 
     const codeRequest: CodeRequest = {
-      language: req.body.language,
-      version: req.body.version,
-      code: req.body.code,
-      compileTimeout: req.body?.compileTimeout ?? 5_000,
-      runTimeout: req.body?.runTimeout ?? 5_000,
-      memoryLimit: req.body?.memoryLimit ?? 1024 * 1024 * 128
+      language: parsedBody.data.language,
+      version: parsedBody.data.version,
+      code: parsedBody.data.code,
+      compileTimeout: parsedBody.data.compileTimeout ?? 5_000,
+      runTimeout: parsedBody.data.runTimeout ?? 5_000,
+      memoryLimit: parsedBody.data.memoryLimit ?? 1024 * 1024 * 128
     };
 
     try {
