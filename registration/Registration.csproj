@@ -12,4 +12,26 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="RegistrationTest\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="RegistrationTest\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="RegistrationTest\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="RegistrationTest\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="RegistrationTest\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="RegistrationTest\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="RegistrationTest\obj\RegistrationTest.csproj.nuget.dgspec.json" />
+    </ItemGroup>
+
 </Project>
