@@ -276,3 +276,273 @@ test.serial("should be able to run multiple files - NodeJS", async (t) => {
 
   t.assert(result.stdout.trim() === "Hello world~", `File stdout must be "Hello world~", instead of "${result.stdout}"`);
 });
+
+
+test.serial("should be able to execute Happy Numbers - Lua", async (t) => {
+  if (process.env?.LANGUAGE_LUA !== "true") {
+    t.pass("Skipping test because LANGUAGE_LUA is not set");
+    return;
+  }
+
+  const currentUser = os.userInfo();
+  const runtime = new Runtime(
+    "Lua",
+    "5.4",
+    "lua",
+    false,
+    [],
+    ["lua", "{file}"],
+    ["lua"],
+    {},
+    true,
+    256 * 1024 * 1024,
+    256,
+    1
+  );
+
+  // Solution stolen from:
+  // https://rosettacode.org/wiki/Happy_numbers#Lua
+  const job = new Job(
+    { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
+    runtime,
+    new Files([
+      {
+        fileName: "happynumbers.lua",
+        code: `function digits(n)
+        if n > 0 then return n % 10, digits(math.floor(n/10)) end
+      end
+      function sumsq(a, ...)
+        return a and a ^ 2 + sumsq(...) or 0
+      end
+      local happy = setmetatable({true, false, false, false}, {
+            __index = function(self, n)
+               self[n] = self[sumsq(digits(n))]
+               return self[n]
+            end } )
+      i, j = 0, 1
+      repeat
+         i, j = happy[j] and (print(j) or i+1) or i, j + 1
+      until i == 8`,
+        entrypoint: true
+      }
+    ], runtime.extension),
+    15_000,
+    15_000,
+    512 * 1024 * 1024
+  );
+
+  await job.createFile();
+
+  const compileResult = await job.compile();
+
+  t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
+
+  const runResult = await job.run();
+
+  t.assert(runResult.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`);
+
+  t.assert(runResult.output.trim().split("\n").join(" ") === "1 7 10 13 19 23 28 31", `File output must be "1 7 10 13 19 23 28 31", instead of "${runResult.output}"`);
+
+  t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
+
+  t.assert(runResult.stdout.trim().split("\n").join(" ") === "1 7 10 13 19 23 28 31", `File stdout must be "1 7 10 13 19 23 28 31", instead of "${runResult.stdout}"`);
+});
+
+
+
+test.serial("should be able to execute Happy Numbers - Python", async (t) => {
+  if (process.env?.LANGUAGE_PYTHON !== "true") {
+    t.pass("Skipping test because LANGUAGE_PYTHON is not set");
+    return;
+  }
+
+  const currentUser = os.userInfo();
+  const runtime = new Runtime(
+    "Python",
+    "3.9.2",
+    "py",
+    false,
+    [],
+    ["python3", "{file}"],
+    ["py"],
+    {},
+    true,
+    256 * 1024 * 1024,
+    256,
+    1
+  );
+
+  // Solution stolen from:
+  // https://rosettacode.org/wiki/Category:Python
+  const job = new Job(
+    { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
+    runtime,
+    new Files([
+      {
+        fileName: "happynumbers.py",
+        code: `'''Happy numbers'''
+
+        from itertools import islice
+
+
+        # main :: IO ()
+        def main():
+            '''Test'''
+            print(
+                take(8)(
+                    happyNumbers()
+                )
+            )
+
+
+        # happyNumbers :: Gen [Int]
+        def happyNumbers():
+            '''Generator :: non-finite stream of happy numbers.'''
+            x = 1
+            while True:
+                x = until(isHappy)(succ)(x)
+                yield x
+                x = succ(x)
+
+
+        # isHappy :: Int -> Bool
+        def isHappy(n):
+            '''Happy number sequence starting at n reaches 1 ?'''
+            seen = set()
+
+            # p :: Int -> Bool
+            def p(x):
+                if 1 == x or x in seen:
+                    return True
+                else:
+                    seen.add(x)
+                    return False
+
+            # f :: Int -> Int
+            def f(x):
+                return sum(int(d)**2 for d in str(x))
+
+            return 1 == until(p)(f)(n)
+
+
+        # GENERIC -------------------------------------------------
+
+        # succ :: Int -> Int
+        def succ(x):
+            '''The successor of an integer.'''
+            return 1 + x
+
+
+        # take :: Int -> [a] -> [a]
+        # take :: Int -> String -> String
+        def take(n):
+            '''The prefix of xs of length n,
+               or xs itself if n > length xs.'''
+            return lambda xs: (
+                xs[0:n]
+                if isinstance(xs, list)
+                else list(islice(xs, n))
+            )
+
+
+        # until :: (a -> Bool) -> (a -> a) -> a -> a
+        def until(p):
+            '''The result of repeatedly applying f until p holds.
+               The initial seed value is x.'''
+            def go(f, x):
+                v = x
+                while not p(v):
+                    v = f(v)
+                return v
+            return lambda f: lambda x: go(f, x)
+
+
+        if __name__ == '__main__':
+            main()`,
+        entrypoint: true
+      }
+    ], runtime.extension),
+    15_000,
+    15_000,
+    512 * 1024 * 1024
+  );
+
+  await job.createFile();
+
+  const compileResult = await job.compile();
+
+  t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
+
+  const runResult = await job.run();
+
+  t.assert(runResult.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`);
+
+  t.assert(runResult.output.trim() === "[1, 7, 10, 13, 19, 23, 28, 31]", `File output must be "[1, 7, 10, 13, 19, 23, 28, 31]", instead of "${runResult.output}"`);
+
+  t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
+
+  t.assert(runResult.stdout.trim() === "[1, 7, 10, 13, 19, 23, 28, 31]", `File stdout must be "[1, 7, 10, 13, 19, 23, 28, 31]", instead of "${runResult.stdout}"`);
+});
+
+
+test.serial("should be able to execute SQL queries - SQLite3", async (t) => {
+  if (process.env?.LANGUAGE_PYTHON !== "true") {
+    t.pass("Skipping test because LANGUAGE_PYTHON is not set");
+    return;
+  }
+
+  const currentUser = os.userInfo();
+  const runtime = new Runtime(
+    "SQLite3",
+    "3",
+    "sql",
+    false,
+    [],
+    ["sqlite3", "<", "{file}"],
+    ["sqlite3"],
+    {},
+    true,
+    256 * 1024 * 1024,
+    256,
+    1
+  );
+
+  // Solution stolen from:
+  // https://rosettacode.org/wiki/Table_creation/Postal_addresses#SQLite
+  const job = new Job(
+    { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
+    runtime,
+    new Files([
+      {
+        fileName: "table.sql",
+        code: `CREATE TABLE address_USA (
+          address_ID INTEGER PRIMARY KEY,
+          address_Street TEXT,
+          address_City TEXT,
+          address_State TEXT,
+          address_Zip INTEGER
+      );`,
+        entrypoint: true
+      }
+    ], runtime.extension),
+    15_000,
+    15_000,
+    512 * 1024 * 1024
+  );
+
+  await job.createFile();
+
+  const compileResult = await job.compile();
+
+  t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
+
+  const runResult = await job.run();
+
+  t.assert(runResult.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`);
+
+  t.assert(runResult.output.trim() === "", `File output must be empty, instead of "${runResult.output}"`);
+
+  t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
+
+  t.assert(runResult.stdout.trim() === "", `File stdout must be empty, instead of "${runResult.stdout}"`);
+});
