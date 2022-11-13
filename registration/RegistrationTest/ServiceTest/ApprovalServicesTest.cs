@@ -10,6 +10,8 @@ namespace RegistrationTest.ServiceTest;
 [TestCaseOrderer("RegistrationTest.AlphabeticalOrderer", "RegistrationTest")]
 public class ApprovalServicesTest
 {
+    readonly string _redisUrl = Environment.GetEnvironmentVariable("ASPNETCORE_RedisUrl") ?? "localhost:6379";
+    
     [Fact]
     public async void ShouldAbleToApproveAndRevokeUser()
     {
@@ -23,7 +25,7 @@ public class ApprovalServicesTest
             Email = email,
             Name = "Raymond"
         };
-        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync("localhost:6379");
+        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync(_redisUrl);
         var waitingListService = new WaitingListService(redisMultiplexer);
         var approvalService = new ApprovalService(redisMultiplexer);
         
@@ -52,7 +54,7 @@ public class ApprovalServicesTest
             Email = email,
             Name = "Raymond"
         };
-        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync("localhost:6379");
+        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync(_redisUrl);
         var waitingListService = new WaitingListService(redisMultiplexer);
         var approvalService = new ApprovalService(redisMultiplexer);
         

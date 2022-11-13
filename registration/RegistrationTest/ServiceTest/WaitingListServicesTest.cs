@@ -11,10 +11,12 @@ namespace RegistrationTest.ServiceTest;
 [TestCaseOrderer("RegistrationTest.AlphabeticalOrderer", "RegistrationTest")]
 public class WaitingListServicesTest
 {
+    readonly string _redisUrl = Environment.GetEnvironmentVariable("ASPNETCORE_RedisUrl") ?? "localhost:6379";
+    
     [Fact]
     public async void ShouldAbleToCleanUsers()
     {
-        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync("localhost:6379");
+        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync(_redisUrl);
         var waitingListService = new WaitingListService(redisMultiplexer);
         
         ImmutableList<User> listOfUser =
@@ -27,7 +29,7 @@ public class WaitingListServicesTest
     [Fact]
     public async void ShouldBeAbleToAddAndQueryAndDeleteUsers()
     {
-        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync("localhost:6379");
+        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync(_redisUrl);
 
         var waitingListService = new WaitingListService(redisMultiplexer);
         User user1 = new User()
@@ -51,11 +53,12 @@ public class WaitingListServicesTest
             Email = "raymond2@gmail.com",
             Name = "Raymond"
         };
-        await waitingListService.PutUserAsync(user1, CancellationToken.None);
-        await waitingListService.PutUserAsync(user2, CancellationToken.None);
-        await waitingListService.PutUserAsync(user3, CancellationToken.None);
 
-
+        await Task.WhenAll(
+            waitingListService.PutUserAsync(user1, CancellationToken.None), 
+            waitingListService.PutUserAsync(user2, CancellationToken.None),
+            waitingListService.PutUserAsync(user3, CancellationToken.None));
+        
         ImmutableList<User> listOfUser =
             (await waitingListService.GetUsersAsync(CancellationToken.None)).ToImmutableList();
 
@@ -80,7 +83,7 @@ public class WaitingListServicesTest
     [Fact]
     public async void ShouldPreventDuplicateEmail()
     {
-        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync("localhost:6379");
+        var redisMultiplexer = await ConnectionMultiplexer.ConnectAsync(_redisUrl);
 
         var waitingListService = new WaitingListService(redisMultiplexer);
         User user1 = new User()
