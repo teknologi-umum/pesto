@@ -64,7 +64,7 @@ test.serial("should be able to create a file", async (t) => {
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
-    new Files([{fileName: "index.js", code: "console.log(\"Hello world~\");", entrypoint: true }], runtime.extension)
+    new Files([{ fileName: "code.js", code: "console.log(\"Hello world~\");", entrypoint: true }], runtime.extension)
   );
 
   await job.createFile();
@@ -91,7 +91,7 @@ test.serial("should be able to run a file - NodeJS", async (t) => {
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
-    new Files([{fileName: "index.js", code: "console.log(\"Hello world~\");", entrypoint: true }], runtime.extension),
+    new Files([{fileName: "code.js", code: "console.log(\"Hello world~\");", entrypoint: true }], runtime.extension),
     10_000,
     10_000,
     512 * 1024 * 1024
@@ -111,7 +111,7 @@ test.serial("should be able to run a file - NodeJS", async (t) => {
 
   t.assert(result.stdout.trim() === "Hello world~", `File stdout must be "Hello world~", instead of "${result.stdout}"`);
 
-  await fs.rm(filePath, { force: true });
+  await fs.rm(filePath, { force: true, recursive: true });
 });
 
 test.serial("should be able to compile and run a file - C", async (t) => {
@@ -157,7 +157,7 @@ test.serial("should be able to compile and run a file - C", async (t) => {
 
   await job.createFile();
 
-  const filePath = path.join("/code", `/${job.user.username}`, `/code.${runtime.extension}`);
+  const filePath = path.join("/code", `/${job.user.username}`);
 
   const compileResult = await job.compile();
 
@@ -173,7 +173,7 @@ test.serial("should be able to compile and run a file - C", async (t) => {
 
   t.assert(runResult.stdout.trim() === "Hello World~", `File stdout must be "Hello World~", instead of "${runResult.stdout}"`);
 
-  await fs.rm(filePath, { force: true });
+  await fs.rm(filePath, { force: true, recursive: true });
 });
 
 
@@ -236,7 +236,7 @@ test.serial("should be able to compile and run a file - Python", async (t) => {
 });
 
 
-test.serial("should be able to run mujltiple files - NodeJS", async (t) => {
+test.serial("should be able to run multiple files - NodeJS", async (t) => {
   if (process.env?.LANGUAGE_JAVASCRIPT !== "true") {
     t.pass("Skipping test because LANGUAGE_JAVASCRIPT was not set");
     return;
@@ -278,7 +278,7 @@ test.serial("should be able to run mujltiple files - NodeJS", async (t) => {
 
   await job.createFile();
 
-  const filePath = path.join("/code", `/${job.user.username}`, `/code.${runtime.extension}`);
+  const filePath = path.join("/code", `/${job.user.username}`);
 
   const result = await job.run();
 
@@ -290,5 +290,5 @@ test.serial("should be able to run mujltiple files - NodeJS", async (t) => {
 
   t.assert(result.stdout.trim() === "Hello world~", `File stdout must be "Hello world~", instead of "${result.stdout}"`);
 
-  await fs.rm(filePath, { force: true });
+  await fs.rm(filePath, { force: true, recursive: true });
 });
