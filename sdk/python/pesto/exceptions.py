@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -102,3 +102,18 @@ class RuntimeNotFoundError(Exception):
     """
     Provided language-version combination does not exists on Pesto's API.
     """
+
+    def __init__(self):
+        self.message = "runtime not found"
+
+
+class MaximumAllowedEntrypointsExceededError(Exception):
+    """
+    The files "entrypoint" parameter exceeds what was defined on the
+    language package.
+
+    Please refer to the documentation of each language.
+    """
+
+    def __init__(self, message: str):
+        self.message = message

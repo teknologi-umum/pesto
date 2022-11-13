@@ -1,5 +1,5 @@
 """
-Copyright 2022 Teknologi Umum and contributors
+Copyright 2022-2023 Teknologi Umum and contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,3 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+
+class PingResponse:
+    def __init__(self, message: str):
+        self.__message = message
+
+    @property
+    def message(self):
+        return self.__message
