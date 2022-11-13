@@ -1,5 +1,11 @@
+type File = {
+    fileName: string;
+    code: string;
+    entrypoint: boolean;
+}
+
 export class Files {
-  public readonly files: Array<{ fileName: string, code: string, entrypoint: boolean }>;
+  public readonly files: File[];
   constructor(files: Array<{ fileName: string, code: string, entrypoint: boolean }>, extension: string) {
     this.files = [];
 
