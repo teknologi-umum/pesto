@@ -46,7 +46,7 @@ test("should be able to create a Files class with normal parameters", (t) => {
   ], "sh");
 
   t.assert(files.files.length === 3);
-  for (let i = 1; i < files.files.length + 1; i++) {
-    t.assert(files.files[i].fileName === `code${i}.bash`);
+  for (let i = 0; i < files.files.length; i++) {
+    t.assert(files.files[i].fileName === `code${i+1}.bash`);
   }
 });

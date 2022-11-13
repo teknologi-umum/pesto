@@ -489,8 +489,8 @@ if __name__ == '__main__':
 
 
 test.serial("should be able to execute SQL queries - SQLite3", async (t) => {
-  if (process.env?.LANGUAGE_PYTHON !== "true") {
-    t.pass("Skipping test because LANGUAGE_PYTHON is not set");
+  if (process.env?.LANGUAGE_SQLITE !== "true") {
+    t.pass("Skipping test because LANGUAGE_SQLITE is not set");
     return;
   }
 
@@ -501,7 +501,7 @@ test.serial("should be able to execute SQL queries - SQLite3", async (t) => {
     "sql",
     false,
     [],
-    ["sqlite3", "<", "$(cat {file})"],
+    ["sqlite3 < {file}"],
     ["sqlite3"],
     {},
     true,
