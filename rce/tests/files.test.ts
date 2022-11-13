@@ -1,4 +1,4 @@
-import { Files } from "@/job/files";
+import { Files } from "../src/job/files";
 import test from "ava";
 
 test("should be able to create a Files class with empty fileNames", (t) => {

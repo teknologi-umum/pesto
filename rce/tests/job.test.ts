@@ -4,7 +4,7 @@ import path from "node:path";
 import fs from "node:fs/promises";
 import { Job } from "../src/job/job.js";
 import { Runtime } from "../src/runtime/runtime.js";
-import { Files } from "@/job/files.js";
+import { Files } from "../src/job/files.js";
 
 test("should throw error on invalid job parameters", (t) => {
   const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
