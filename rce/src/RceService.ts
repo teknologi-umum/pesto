@@ -45,7 +45,7 @@ export class RceServiceImpl implements ICodeExecutionEngineService {
     const runtime = this._registeredRuntimes[runtimeIndex];
 
     // Convert to Files class
-    const files = new Files(req.files.map(o => ({fileName: o.fileName, code: o.code, entrypoint: o.entrypoint})), runtime.extension);
+    const files = new Files(req.files.map(o => ({ fileName: o.fileName, code: o.code, entrypoint: o.entrypoint })), runtime.extension);
 
     // Validate allowed entrypoints
     if (runtime.allowedEntrypoints !== -1 && files.files.length > 1 && files.files.filter((i) => i.entrypoint === true).length > runtime.allowedEntrypoints) {
