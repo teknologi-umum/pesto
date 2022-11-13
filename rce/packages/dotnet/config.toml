@@ -27,3 +27,4 @@ aliases = ["dotnet", "c#", "csharp"]
 should_limit_memory = true
 memory_limit = 256
 process_limit = 1024
+allowed_entrypoints = 1

@@ -77,6 +77,10 @@ jobs:
           apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils &&
           make -C ./nosocket/ all && make -C ./nosocket/ install
 
+      - name: Install other language packages
+        run: >
+          apt-get install -y python3 sqlite3 lua5.4
+
       - name: Setup directory
         run: mkdir -p /code/$(whoami)
 
@@ -91,6 +95,12 @@ jobs:
 
       - name: Test & coverage
         run: npm run test
+        env:
+          LANGUAGE_JAVASCRIPT: true
+          LANGUAGE_C: true
+          LANGUAGE_LUA: true
+          LANGUAGE_PYTHON: true
+          LANGUAGE_SQLITE: true
 
       - name: Codecov
         uses: codecov/codecov-action@v3

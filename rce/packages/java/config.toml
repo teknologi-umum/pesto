@@ -13,3 +13,4 @@ aliases = ["java"]
 should_limit_memory = false
 memory_limit = 0
 process_limit = 512
+allowed_entrypoints = -1

@@ -1,11 +1,11 @@
 import console from "console";
 import * as Sentry from "@sentry/node";
 import polka from "polka";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import { RceServiceImpl } from "@/RceService";
 import { acquireRuntime } from "@/runtime/acquire";
 import { SystemUsers } from "@/user/user";
-import { CodeRequest } from "./stub/rce";
+import { CodeRequest, CodeRequest_File } from "./stub/rce";
 import { ClientError, ServerError } from "./Error";
 
 const PORT = process.env?.PORT || "50051";
@@ -21,6 +21,11 @@ const PORT = process.env?.PORT || "50051";
     language: z.string().min(1),
     version: z.string().min(1),
     code: z.string().optional(),
+    files: z.array(z.object({
+      name: z.string().min(1),
+      code: z.string().min(1),
+      entrypoint: z.boolean().default(false)
+    })).optional(),
     compileTimeout: z.number().max(30_000).optional(),
     runTimeout: z.number().max(30_000).optional(),
     memoryLimit: z.number().max(1024 * 1024 * 512).optional()
@@ -178,10 +183,33 @@ const PORT = process.env?.PORT || "50051";
       return;
     }
 
+    if (parsedBody.data.code === undefined && parsedBody.data.files === undefined) {
+      throw new ClientError("Both code and files must not be empty", 400);
+    }
+
+    if (parsedBody.data.code !== undefined && parsedBody.data.code === "" && (parsedBody.data.files !== undefined && parsedBody.data.files.length === 0)) {
+      throw new ClientError("Both code and files must not be empty", 400);
+    }
+
+    const codeRequestFiles: CodeRequest_File[] = [];
+    if (parsedBody.data.files !== undefined) {
+      for (const file of parsedBody.data.files) {
+        if (file.name === "") {
+          throw new ClientError("File name cannot be empty", 400);
+        }
+
+        codeRequestFiles.push({ fileName: file.name, code: file.code, entrypoint: file.entrypoint });
+      }
+    } else if (parsedBody.data.code !== undefined) {
+      codeRequestFiles.push({ fileName: "", code: parsedBody.data.code, entrypoint: true });
+    } else {
+      throw new ServerError("Wrong validation on our side for files and code");
+    }
+
     const codeRequest: CodeRequest = {
       language: parsedBody.data.language,
       version: parsedBody.data.version,
-      code: parsedBody.data.code,
+      files: codeRequestFiles,
       compileTimeout: parsedBody.data.compileTimeout ?? 5_000,
       runTimeout: parsedBody.data.runTimeout ?? 5_000,
       memoryLimit: parsedBody.data.memoryLimit ?? 1024 * 1024 * 128
@@ -258,7 +286,6 @@ const PORT = process.env?.PORT || "50051";
         Sentry.withScope((scope) => {
           scope.setExtra("language", codeRequest.language);
           scope.setExtra("version", codeRequest.version);
-          scope.setExtra("code", codeRequest.code);
           scope.setExtra("compile_timeout", codeRequest.compileTimeout);
           scope.setExtra("run_timeout", codeRequest.runTimeout);
           scope.setExtra("memory_limit", codeRequest.memoryLimit);

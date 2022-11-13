@@ -10,9 +10,10 @@ export class Runtime {
     public readonly environment: Record<string, string>,
     public readonly shouldLimitMemory: boolean,
     public readonly memoryLimit: number,
-    public readonly processLimit: number
+    public readonly processLimit: number,
+    public readonly allowedEntrypoints: number
   ) {
-    if (language === "" || version === "" || extension === "" || runCommand.length === 0 || aliases.length === 0 || typeof environment !== "object") {
+    if (language === "" || version === "" || extension === "" || runCommand.length === 0 || aliases.length === 0 || typeof environment !== "object" || allowedEntrypoints === 0) {
       throw new TypeError("Invalid runtime parameters");
     }
 

@@ -10,3 +10,4 @@ aliases = ["php"]
 should_limit_memory = true
 memory_limit = 512
 process_limit = 256
+allowed_entrypoints = 1
