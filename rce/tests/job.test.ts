@@ -501,7 +501,7 @@ test.serial("should be able to execute SQL queries - SQLite3", async (t) => {
     "sql",
     false,
     [],
-    ["sqlite3 < {file}"],
+    ["'sqlite3 < {file}'"],
     ["sqlite3"],
     {},
     true,
@@ -519,12 +519,16 @@ test.serial("should be able to execute SQL queries - SQLite3", async (t) => {
       {
         fileName: "table.sql",
         code: `CREATE TABLE address_USA (
-          address_ID INTEGER PRIMARY KEY,
-          address_Street TEXT,
-          address_City TEXT,
-          address_State TEXT,
-          address_Zip INTEGER
-      );`,
+  address_ID INTEGER PRIMARY KEY,
+  address_Street TEXT,
+  address_City TEXT,
+  address_State TEXT,
+  address_Zip INTEGER
+);
+
+INSERT INTO address_USA (address_ID, address_Street) VALUES (1, "Milky Way Drive");
+
+SELECT * FROM address_USA;`,
         entrypoint: true
       }
     ], runtime.extension),
