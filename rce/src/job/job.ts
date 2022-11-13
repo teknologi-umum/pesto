@@ -5,7 +5,6 @@ import childProcess from "child_process";
 import { Runtime } from "@/runtime/runtime";
 import { User } from "@/user/user";
 import { Files } from "./files";
-import { Stats } from "fs";
 
 export interface JobPrerequisites {
   user: User;
@@ -78,35 +77,24 @@ export class Job implements JobPrerequisites {
   }
 
   async createFile(): Promise<void> {
-    const writeTasks: Promise<void>[] = [];
-    const modTasks: Promise<void>[] = [];
-    const ownTasks: Promise<void>[] = [];
-    const statTasks: Promise<Stats>[] = [];
-
     this._baseFilePath = path.join("/code", `/${this.user.username}`);
 
-    for (const file of this.files.files) {
+    for await (const file of this.files.files) {
       const filePath = path.join("/code", `/${this.user.username}`, file.fileName);
-      writeTasks.push(fs.writeFile(filePath, file.code, { encoding: "utf-8" }));
-      modTasks.push(fs.chmod(filePath, 0o700));
-      ownTasks.push(fs.chown(filePath, this.user.uid, this.user.gid));
-      statTasks.push(fs.stat(filePath));
+      await fs.writeFile(filePath, file.code, { encoding: "utf-8" });
+      await fs.chmod(filePath, 0o700);
+      await fs.chown(filePath, this.user.uid, this.user.gid);
+
+      // Make sure the file is written properly.
+      const stat = await fs.stat(filePath);
+      console.log(`File path: ${filePath}`);
+      console.log(`File stat: UID: ${stat.uid}, GID: ${stat.gid}, Mode: ${stat.mode}, Size: ${stat.size}`);
 
       if (file.entrypoint === true) {
         this._entrypointsPath.push(file.fileName);
       }
 
       this._sourceFilePath.push(filePath);
-    }
-
-    await Promise.all(writeTasks);
-    await Promise.all(modTasks);
-    await Promise.all(ownTasks);
-    const fileStats = await Promise.all(statTasks);
-
-    for (const stat of fileStats) {
-      // Make sure the file is written properly.
-      console.log(`File stat: UID: ${stat.uid}, GID: ${stat.gid}, Mode: ${stat.mode}, Size: ${stat.size}`);
     }
   }
 
