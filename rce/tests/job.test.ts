@@ -309,20 +309,23 @@ test.serial("should be able to execute Happy Numbers - Lua", async (t) => {
       {
         fileName: "happynumbers.lua",
         code: `function digits(n)
-        if n > 0 then return n % 10, digits(math.floor(n/10)) end
-      end
-      function sumsq(a, ...)
-        return a and a ^ 2 + sumsq(...) or 0
-      end
-      local happy = setmetatable({true, false, false, false}, {
-            __index = function(self, n)
-               self[n] = self[sumsq(digits(n))]
-               return self[n]
-            end } )
-      i, j = 0, 1
-      repeat
-         i, j = happy[j] and (print(j) or i+1) or i, j + 1
-      until i == 8`,
+  if n > 0 then return n % 10, digits(math.floor(n/10)) end
+end
+
+function sumsq(a, ...)
+  return a and a ^ 2 + sumsq(...) or 0
+end
+
+local happy = setmetatable({true, false, false, false}, {
+      __index = function(self, n)
+          self[n] = self[sumsq(digits(n))]
+          return self[n]
+      end } )
+
+i, j = 0, 1
+repeat
+    i, j = happy[j] and (print(j) or i+1) or i, j + 1
+until i == 8`,
         entrypoint: true
       }
     ], runtime.extension),
@@ -382,83 +385,83 @@ test.serial("should be able to execute Happy Numbers - Python", async (t) => {
         fileName: "happynumbers.py",
         code: `'''Happy numbers'''
 
-        from itertools import islice
+from itertools import islice
 
 
-        # main :: IO ()
-        def main():
-            '''Test'''
-            print(
-                take(8)(
-                    happyNumbers()
-                )
-            )
+# main :: IO ()
+def main():
+    '''Test'''
+    print(
+        take(8)(
+            happyNumbers()
+        )
+    )
 
 
-        # happyNumbers :: Gen [Int]
-        def happyNumbers():
-            '''Generator :: non-finite stream of happy numbers.'''
-            x = 1
-            while True:
-                x = until(isHappy)(succ)(x)
-                yield x
-                x = succ(x)
+# happyNumbers :: Gen [Int]
+def happyNumbers():
+    '''Generator :: non-finite stream of happy numbers.'''
+    x = 1
+    while True:
+        x = until(isHappy)(succ)(x)
+        yield x
+        x = succ(x)
 
 
-        # isHappy :: Int -> Bool
-        def isHappy(n):
-            '''Happy number sequence starting at n reaches 1 ?'''
-            seen = set()
+# isHappy :: Int -> Bool
+def isHappy(n):
+    '''Happy number sequence starting at n reaches 1 ?'''
+    seen = set()
 
-            # p :: Int -> Bool
-            def p(x):
-                if 1 == x or x in seen:
-                    return True
-                else:
-                    seen.add(x)
-                    return False
+    # p :: Int -> Bool
+    def p(x):
+        if 1 == x or x in seen:
+            return True
+        else:
+            seen.add(x)
+            return False
 
-            # f :: Int -> Int
-            def f(x):
-                return sum(int(d)**2 for d in str(x))
+    # f :: Int -> Int
+    def f(x):
+        return sum(int(d)**2 for d in str(x))
 
-            return 1 == until(p)(f)(n)
-
-
-        # GENERIC -------------------------------------------------
-
-        # succ :: Int -> Int
-        def succ(x):
-            '''The successor of an integer.'''
-            return 1 + x
+    return 1 == until(p)(f)(n)
 
 
-        # take :: Int -> [a] -> [a]
-        # take :: Int -> String -> String
-        def take(n):
-            '''The prefix of xs of length n,
-               or xs itself if n > length xs.'''
-            return lambda xs: (
-                xs[0:n]
-                if isinstance(xs, list)
-                else list(islice(xs, n))
-            )
+# GENERIC -------------------------------------------------
+
+# succ :: Int -> Int
+def succ(x):
+    '''The successor of an integer.'''
+    return 1 + x
 
 
-        # until :: (a -> Bool) -> (a -> a) -> a -> a
-        def until(p):
-            '''The result of repeatedly applying f until p holds.
-               The initial seed value is x.'''
-            def go(f, x):
-                v = x
-                while not p(v):
-                    v = f(v)
-                return v
-            return lambda f: lambda x: go(f, x)
+# take :: Int -> [a] -> [a]
+# take :: Int -> String -> String
+def take(n):
+    '''The prefix of xs of length n,
+        or xs itself if n > length xs.'''
+    return lambda xs: (
+        xs[0:n]
+        if isinstance(xs, list)
+        else list(islice(xs, n))
+    )
 
 
-        if __name__ == '__main__':
-            main()`,
+# until :: (a -> Bool) -> (a -> a) -> a -> a
+def until(p):
+    '''The result of repeatedly applying f until p holds.
+        The initial seed value is x.'''
+    def go(f, x):
+        v = x
+        while not p(v):
+            v = f(v)
+        return v
+    return lambda f: lambda x: go(f, x)
+
+
+if __name__ == '__main__':
+    main()`,
         entrypoint: true
       }
     ], runtime.extension),
@@ -498,7 +501,7 @@ test.serial("should be able to execute SQL queries - SQLite3", async (t) => {
     "sql",
     false,
     [],
-    ["sqlite3", "<", "{file}"],
+    ["sqlite3", "<", "$(cat {file})"],
     ["sqlite3"],
     {},
     true,
