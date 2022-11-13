@@ -32,7 +32,8 @@ export async function acquireRuntime() {
         Object.fromEntries(configObject.environment.map((o: string) => o.split("="))),
         configObject.should_limit_memory,
         configObject.memory_limit * 1024 * 1024,
-        configObject.process_limit
+        configObject.process_limit,
+        configObject.allowed_entrypoints
       );
       runtimes.push(runtime);
     }

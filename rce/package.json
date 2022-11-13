@@ -6,8 +6,6 @@
     "start": "node -r dotenv/config ./dist/index.js",
     "build": "node build.js",
     "lint": "eslint --fix --ext .ts,.js,.cjs .",
-    "protoc:rce": "npx protoc --ts_out src/stub --ts_opt server_grpc1,client_none,generate_dependencies,optimize_code_size,add_pb_suffix --proto_path ../proto rce.proto",
-    "protoc:logger": "npx protoc --ts_out src/stub --ts_opt server_none,client_grpc1,generate_dependencies,optimize_code_size,add_pb_suffix --proto_path ../proto logger.proto",
     "test": "c8 ava"
   },
   "author": "",
@@ -29,7 +27,8 @@
   "dependencies": {
     "@sentry/node": "^7.1.1",
     "polka": "^1.0.0-next.22",
-    "toml": "^3.0.0"
+    "toml": "^3.0.0",
+    "zod": "^3.19.1"
   },
   "type": "module"
 }
