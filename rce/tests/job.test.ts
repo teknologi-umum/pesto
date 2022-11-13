@@ -99,8 +99,6 @@ test.serial("should be able to run a file - NodeJS", async (t) => {
 
   await job.createFile();
 
-  const filePath = path.join("/code", `/${job.user.username}`, `/code.${runtime.extension}`);
-
   const result = await job.run();
 
   t.assert(result.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${result.exitCode} and message ${result.output}`);
@@ -110,8 +108,6 @@ test.serial("should be able to run a file - NodeJS", async (t) => {
   t.assert(result.stderr.trim() === "", "File stderr assert must be empty");
 
   t.assert(result.stdout.trim() === "Hello world~", `File stdout must be "Hello world~", instead of "${result.stdout}"`);
-
-  await fs.rm(filePath, { force: true, recursive: true });
 });
 
 test.serial("should be able to compile and run a file - C", async (t) => {
@@ -157,8 +153,6 @@ test.serial("should be able to compile and run a file - C", async (t) => {
 
   await job.createFile();
 
-  const filePath = path.join("/code", `/${job.user.username}`);
-
   const compileResult = await job.compile();
 
   t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
@@ -172,8 +166,6 @@ test.serial("should be able to compile and run a file - C", async (t) => {
   t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
 
   t.assert(runResult.stdout.trim() === "Hello World~", `File stdout must be "Hello World~", instead of "${runResult.stdout}"`);
-
-  await fs.rm(filePath, { force: true, recursive: true });
 });
 
 
@@ -216,8 +208,6 @@ test.serial("should be able to compile and run a file - Python", async (t) => {
 
   await job.createFile();
 
-  const filePath = path.join("/code", `/${job.user.username}`);
-
   const compileResult = await job.compile();
 
   t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
@@ -231,8 +221,6 @@ test.serial("should be able to compile and run a file - Python", async (t) => {
   t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
 
   t.assert(runResult.stdout.trim() === "Hello World~", `File stdout must be "Hello World~", instead of "${runResult.stdout}"`);
-
-  await fs.rm(filePath, { force: true, recursive: true });
 });
 
 
@@ -278,8 +266,6 @@ test.serial("should be able to run multiple files - NodeJS", async (t) => {
 
   await job.createFile();
 
-  const filePath = path.join("/code", `/${job.user.username}`);
-
   const result = await job.run();
 
   t.assert(result.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${result.exitCode} and message ${result.output}`);
@@ -289,6 +275,4 @@ test.serial("should be able to run multiple files - NodeJS", async (t) => {
   t.assert(result.stderr.trim() === "", "File stderr assert must be empty");
 
   t.assert(result.stdout.trim() === "Hello world~", `File stdout must be "Hello world~", instead of "${result.stdout}"`);
-
-  await fs.rm(filePath, { force: true, recursive: true });
 });
