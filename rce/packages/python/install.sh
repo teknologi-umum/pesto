@@ -6,6 +6,7 @@ cd /tmp
 # Acquire the Python tar.gz file from the source repository
 curl -LO https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz
 tar -zxf Python-${VERSION}.tgz
+mkdir -p /opt/python/${VERSION}
 cd Python-${VERSION}
 ./configure \
   --prefix=/opt/python/${VERSION} \
