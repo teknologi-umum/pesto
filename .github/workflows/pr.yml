@@ -1,4 +1,4 @@
-name: PR / Main Systems
+name: Main System
 
 on:
   pull_request:

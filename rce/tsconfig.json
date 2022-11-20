@@ -8,6 +8,7 @@
     "types": [
       "node"
     ],
+    "sourceMap": true,
     "preserveSymlinks": true,
     "isolatedModules": true,
     "esModuleInterop": true,
