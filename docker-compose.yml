@@ -12,7 +12,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.landing.entrypoints=web,websecure"
       - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`)"
-      - "traefik.http.routers.priority=1"
+      - "traefik.http.routers.landing.priority=1"
       - "traefik.http.routers.landing.tls.certresolver=tlsresolver"
       - "traefik.http.routers.landing.middlewares=landing-header,landing-rate,landing-redirectscheme"
       - "traefik.http.services.landing.loadbalancer.server.port=3000"
@@ -50,7 +50,7 @@ services:
       retries: 5
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 30s
@@ -109,7 +109,7 @@ services:
       - "traefik.http.services.auth.loadbalancer.healthcheck.path=/healthz"
       - "traefik.http.middlewares.auth-error.errors.status=500-599"
       - "traefik.http.middlewares.auth-error.errors.service=landing@docker"
-      - "traefik.http.middlewares.auth-error.errors.query=/error"
+      - "traefik.http.middlewares.auth-error.errors.query=/500"
       - "traefik.http.middlewares.auth-rate.ratelimit.average=20"
       - "traefik.http.middlewares.auth-rate.ratelimit.burst=5"
       - "traefik.http.middlewares.auth-rate.ratelimit.period=1s"
@@ -164,7 +164,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.rce.entrypoints=web,websecure"
       - "traefik.http.routers.rce.rule=Host(`pesto.teknologiumum.com`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.rce.priority=2"
+      - "traefik.http.routers.rce.priority=3"
       - "traefik.http.routers.rce.tls.certresolver=tlsresolver"
       - "traefik.http.routers.rce.middlewares=rce-auth,rce-error,rce-header,rce-rate,rce-redirectscheme,rce-inflightreq"
       - "traefik.http.services.rce.loadbalancer.server.port=50051"
@@ -176,7 +176,7 @@ services:
       - "traefik.http.middlewares.rce-auth.forwardauth.tls.insecureSkipVerify=true"
       - "traefik.http.middlewares.rce-error.errors.status=500-599"
       - "traefik.http.middlewares.rce-error.errors.service=landing@docker"
-      - "traefik.http.middlewares.rce-error.errors.query=/error"
+      - "traefik.http.middlewares.rce-error.errors.query=/500"
       - "traefik.http.middlewares.rce-rate.ratelimit.average=60"
       - "traefik.http.middlewares.rce-rate.ratelimit.burst=5"
       - "traefik.http.middlewares.rce-rate.ratelimit.period=1m"
@@ -235,7 +235,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.registration.entrypoints=web,websecure"
       - "traefik.http.routers.registration.rule=Host(`pesto.teknologiumum.com`) && Path(`/api/register`)"
-      - "traefik.http.routers.registration.priority=3"
+      - "traefik.http.routers.registration.priority=5"
       - "traefik.http.routers.registration.tls.certresolver=tlsresolver"
       - "traefik.http.routers.registration.middlewares=registration-error,registration-header,registration-rate,registration-redirectscheme,registration-inflightreq"
       - "traefik.http.services.registration.loadbalancer.server.port=80"
@@ -244,7 +244,7 @@ services:
       - "traefik.http.services.registration.loadbalancer.healthcheck.path=/healthz"
       - "traefik.http.middlewares.registration-error.errors.status=500-599"
       - "traefik.http.middlewares.registration-error.errors.service=landing@docker"
-      - "traefik.http.middlewares.registration-error.errors.query=/error"
+      - "traefik.http.middlewares.registration-error.errors.query=/500"
       - "traefik.http.middlewares.registration-rate.ratelimit.average=100"
       - "traefik.http.middlewares.registration-rate.ratelimit.burst=10"
       - "traefik.http.middlewares.registration-rate.ratelimit.period=1m"
