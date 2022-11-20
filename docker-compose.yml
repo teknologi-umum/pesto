@@ -102,7 +102,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=web,websecure"
-      - "traefik.http.routers.auth.middlewares=landing-error,landing-header,landing-rate,landing-redirectscheme"
+      - "traefik.http.routers.auth.middlewares=auth-error,auth-header,auth-rate,auth-redirectscheme"
       - "traefik.http.services.auth.loadbalancer.server.port=3000"
       - "traefik.http.services.auth.loadbalancer.server.scheme=http"
       - "traefik.http.services.auth.loadbalancer.healthcheck.interval=30s"
