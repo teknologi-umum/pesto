@@ -15,9 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     container: golang:1.19
     timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
     defaults:
       run:
         working-directory: ./auth
@@ -53,50 +50,11 @@ jobs:
         with:
           flags: auth
 
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-auth
-          flavor: |
-            latest=false
-          tags: |
-            type=edge
-            type=sha
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Create Sentry release
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: pesto-auth
-        with:
-          environment: production
-          ignore_empty: true
-
   rce:
     name: RCE
     runs-on: ubuntu-latest
     container: node:16.14.0-bullseye
     timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
     defaults:
       run:
         working-directory: ./rce
@@ -150,6 +108,184 @@ jobs:
         with:
           flags: rce
 
+  landing:
+    name: Landing
+    runs-on: ubuntu-latest
+    container: node:18.6.0
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./landing
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check formatting
+        run: pnpm fmt:check
+
+      - name: Build
+        run: pnpm build
+
+  registration:
+    name: Registration
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/dotnet/sdk:6.0
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./registration
+    services:
+      db:
+        image: redis:7-bullseye
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Restore
+        run: dotnet restore "Registration.csproj"
+
+      - name: Build
+        run: dotnet build "Registration.csproj" --no-restore -c Release
+
+  build-auth:
+    name: Build Auth
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - auth
+    defaults:
+      run:
+        working-directory: ./auth
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-auth
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: pesto-auth
+        with:
+          environment: production
+          ignore_empty: true
+
+  build-landing:
+    name: Build Landing
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - landing
+    defaults:
+      run:
+        working-directory: ./landing
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-landing
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-rce:
+    name: Build RCE
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - rce
+    defaults:
+      run:
+        working-directory: ./rce
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
@@ -185,107 +321,22 @@ jobs:
         with:
           environment: production
           ignore_empty: true
-          sourcemaps: ./dist/
 
-  landing:
-    name: Landing
+  build-registration:
+    name: Build Registration
     runs-on: ubuntu-latest
-    container: node:18.6.0
     timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
-    defaults:
-      run:
-        working-directory: ./landing
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 7
-          run_install: false
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Check formatting
-        run: pnpm fmt:check
-
-      - name: Build
-        run: pnpm build
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-landing
-          flavor: |
-            latest=false
-          tags: |
-            type=edge
-            type=sha
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  registration:
-    name: Registration
-    runs-on: ubuntu-latest
-    container: mcr.microsoft.com/dotnet/sdk:6.0
-    timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
+    needs:
+      - registration
     defaults:
       run:
         working-directory: ./registration
-    services:
-      db:
-        image: redis:7-bullseye
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
-
-      - name: Restore
-        run: dotnet restore "Registration.csproj"
-
-      - name: Build
-        run: dotnet build "Registration.csproj" --no-restore -c Release
 
       - name: Log in to the Container registry
         uses: docker/login-action@v2
@@ -329,10 +380,10 @@ jobs:
     container: debian:bullseye
     timeout-minutes: 120
     needs:
-      - auth
-      - rce
-      - landing
-      - registration
+      - build-auth
+      - build-rce
+      - build-landing
+      - build-registration
     steps:
       - name: Install required packages
         run: apt-get update && apt-get upgrade -y && apt-get install -y tar gzip curl ssh
