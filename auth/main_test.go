@@ -34,12 +34,12 @@ func TestMain(m *testing.M) {
 
 	cli := redis.NewClient(parsedRedisConfig)
 	if err != nil {
-		log.Fatalf("connect etcd error: %v", err)
+		log.Fatalf("connect redis error: %v", err)
 	}
 	defer func() {
 		err := cli.Close()
 		if err != nil {
-			log.Printf("close etcd error: %v", err)
+			log.Printf("close redis error: %v", err)
 		}
 	}()
 
@@ -71,7 +71,7 @@ func TestMain(m *testing.M) {
 
 	err = cli.Close()
 	if err != nil {
-		log.Printf("close etcd error: %v", err)
+		log.Printf("close redis error: %v", err)
 	}
 
 	os.Exit(exitCode)
@@ -81,19 +81,19 @@ func seed() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	_, err := deps.Client.Set(ctx, "foo", `{"user_email":"foo@example.com","revoked":false}`, redis.KeepTTL).Result()
+	_, err := deps.Client.Set(ctx, "foo", `{"UserEmail":"foo@example.com","Revoked":false}`, redis.KeepTTL).Result()
 	if err != nil {
-		return fmt.Errorf("failed to seed etcd: %v", err)
+		return fmt.Errorf("failed to seed redis: %v", err)
 	}
 
-	_, err = deps.Client.Set(ctx, "bar", `{"user_email":"bar@example.com","revoked":true}`, redis.KeepTTL).Result()
+	_, err = deps.Client.Set(ctx, "bar", `{"UserEmail":"bar@example.com","Revoked":true}`, redis.KeepTTL).Result()
 	if err != nil {
-		return fmt.Errorf("failed to seed etcd: %v", err)
+		return fmt.Errorf("failed to seed redis: %v", err)
 	}
 
-	_, err = deps.Client.Set(ctx, "baz", `{user_email:"baz@example.com","ugla_baga":"baka!"`, redis.KeepTTL).Result()
+	_, err = deps.Client.Set(ctx, "baz", `{UserEmail:"baz@example.com","ugla_baga":"baka!"`, redis.KeepTTL).Result()
 	if err != nil {
-		return fmt.Errorf("failed to seed etcd: %v", err)
+		return fmt.Errorf("failed to seed redis: %v", err)
 	}
 
 	return nil
@@ -107,7 +107,7 @@ func cleanup() error {
 	for _, token := range tokens {
 		_, err := deps.Client.Del(ctx, token).Result()
 		if err != nil {
-			return fmt.Errorf("failed to cleanup etcd: %v", err)
+			return fmt.Errorf("failed to cleanup redis: %v", err)
 		}
 	}
 
