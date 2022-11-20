@@ -11,15 +11,15 @@ if (Astro.url.searchParams.has("message")) {
 
 if (Astro.request.headers.get("Accept") === "application/json") {
 	const responseMessages: string[] = [
-		"Internal server error", 
-		errorMessage, 
-		"If you think this shouldn't happen, you can help us fix this error by sending us a bug report to our Github Issue page"
-	]
+		"Internal server error",
+		errorMessage,
+		"If you think this shouldn't happen, you can help us fix this error by sending us a bug report to our Github Issue page",
+	];
 
-	return new Response(
-		JSON.stringify({ message: responseMessages.filter(i => i !== "").join(". ")}), 
-		{ status: 500, headers: { "Content-Type": "application/json" } },
-	);
+	return new Response(JSON.stringify({ message: responseMessages.filter((i) => i !== "").join(". ") }), {
+		status: 500,
+		headers: { "Content-Type": "application/json" },
+	});
 }
 
 Astro.response.status = 500;
