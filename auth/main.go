@@ -9,13 +9,15 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/francoispqt/onelog"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redis/redis/v9"
 )
 
 type Deps struct {
-	Client *redis.Client
-	Logger *sentry.Client
+	Client  *redis.Client
+	Sentry  *sentry.Client
+	Console *onelog.Logger
 }
 
 func main() {
@@ -68,8 +70,9 @@ func main() {
 	defer logger.Flush(2 * time.Second)
 
 	dependencies := &Deps{
-		Logger: logger,
-		Client: cli,
+		Sentry:  logger,
+		Client:  cli,
+		Console: onelog.New(os.Stdout, onelog.ALL),
 	}
 
 	mux := http.NewServeMux()

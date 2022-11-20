@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/francoispqt/onelog"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redis/redis/v9"
 )
@@ -51,8 +52,9 @@ func TestMain(m *testing.M) {
 	}
 
 	deps = &main.Deps{
-		Logger: logger,
-		Client: cli,
+		Sentry:  logger,
+		Client:  cli,
+		Console: onelog.New(os.Stdout, onelog.ALL),
 	}
 
 	err = seed()
