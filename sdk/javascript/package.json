@@ -52,6 +52,7 @@
     "c8": "^7.12.0",
     "esbuild": "^0.15.14",
     "eslint": "^8.28.0",
+    "msw": "^0.49.0",
     "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.1",
     "typescript": "^4.9.3",

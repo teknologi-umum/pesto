@@ -30,9 +30,16 @@ export type CodeRequest = {
     language: string,
     version: string,
     code: string,
-    compileTimeout: number,
-    runTimeout: number,
-    memoryLimit: number
+    compileTimeout?: number,
+    runTimeout?: number,
+    memoryLimit?: number
+} | {
+    language: string,
+    version: string,
+    files: Array<{ name: string, code: string, entrypoint: boolean }>,
+    compileTimeout?: number,
+    runTimeout?: number,
+    memoryLimit?: number
 }
 
 export type CodeOutput = {

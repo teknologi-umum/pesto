@@ -17,12 +17,10 @@ import { CodeRequest, CodeResponse, PingResponse, RuntimeResponse } from "./resp
 
 export type ClientConfig = {
     token: string,
-    baseURL?: URL,
-    timeout?: number
+    baseURL?: URL
 }
 
 export class PestoClient {
-    private readonly timeout: number;
     private readonly baseURL: URL;
     private readonly token: string;
 
@@ -32,12 +30,6 @@ export class PestoClient {
         }
 
         this.token = config.token;
-
-        if (config.timeout !== undefined && config.timeout > 0) {
-            this.timeout = config.timeout;
-        } else {
-            this.timeout = 30;
-        }
 
         if (config.baseURL !== undefined) {
             this.baseURL = config.baseURL;
@@ -54,8 +46,10 @@ export class PestoClient {
         const response = await fetch(new URL("/api/ping", this.baseURL), {
             signal: abortSignal ?? null,
             headers: {
+                "X-Pesto-Token": this.token,
                 "Accept": "application/json"
-            }
+            },
+            method: "GET"
         });
 
         if (response.status !== 200) {
@@ -67,11 +61,41 @@ export class PestoClient {
     }
 
     public async listRuntimes(abortSignal?: AbortSignal): Promise<RuntimeResponse> {
-        // TODO
+        const response = await fetch(new URL("/api/list-runtimes", this.baseURL), {
+            signal: abortSignal ?? null,
+            headers: {
+                "X-Pesto-Token": this.token,
+                "Accept": "application/json"
+            },
+            method: "GET"
+        });
+
+        if (response.status !== 200) {
+            await this.processError(response.status, response);
+        }
+
+        const body = await response.json();
+        return { runtime: body.runtime };
     }
 
     public async execute(codeRequest: CodeRequest, abortSignal?: AbortSignal): Promise<CodeResponse> {
-        // TODO
+        const response = await fetch(new URL("/api/execute", this.baseURL), {
+            signal: abortSignal ?? null,
+            headers: {
+                "X-Pesto-Token": this.token,
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(codeRequest),
+            method: "POST"
+        });
+
+        if (response.status !== 200) {
+            await this.processError(response.status, response);
+        }
+
+        const body = await response.json();
+        return { language: body.language, version: body.version, runtime: body.runtime, compile: body.compile };
     }
 
     private async processError(statusCode: number, response: Response): Promise<void> {
