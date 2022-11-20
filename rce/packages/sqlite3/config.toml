@@ -2,7 +2,11 @@ language = "SQLite3"
 version = "3.34.1"
 compiled = false
 extension = "sql"
-environment = [ "PATH=/opt/sqlite3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+environment = [
+  "PATH=/opt/sqlite3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  "LD_RUN_PATH=/opt/sqlite3/lib",
+  "LD_LIBRARY_PATH=/opt/sqlite3/lib"
+]
 build_command = []
 run_command = [ "/opt/sqlite3/exec_sqlite3", "{file}" ]
 test_file = "test.sql"
