@@ -3,8 +3,8 @@ root = true
 [*]
 end_of_line = lf
 charset = utf-8
-indent_style = space
+indent_style = tab
 trim_trailing_whitespace = true
 insert_final_newline = true
-max_line_length = 80
-tab_width = 2
+max_line_length = 120
+tab_width = 4
