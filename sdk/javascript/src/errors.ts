@@ -11,32 +11,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 /**
  * Some parameters are missing on the HTTP request or the request body is empty.
  */
 export class MissingParameterError extends Error {
-    constructor(public override message: string) {
-        super(message);
-    }
+	constructor(public override message: string) {
+		super(message);
+	}
 }
 
 /**
  * Token was empty during Client creation.
  */
 export class EmptyTokenError extends Error {
-    constructor() {
-        super("Empty token");
-    }
+	constructor() {
+		super("Empty token");
+	}
 }
 
 /**
  * Token was not sent during the HTTP request.
  */
 export class MissingTokenError extends Error {
-    constructor() {
-        super("missing token");
-    }
+	constructor() {
+		super("missing token");
+	}
 }
 
 /**
@@ -45,27 +44,27 @@ export class MissingTokenError extends Error {
  * If the error persist, please contact the Pesto team.
  */
 export class InternalServerError extends Error {
-    constructor(public override message: string) {
-        super(message);
-    }
+	constructor(public override message: string) {
+		super(message);
+	}
 }
 
 /**
  * Given Client token was not registered on Pesto's API.
  */
 export class TokenNotRegisteredError extends Error {
-    constructor() {
-        super("Token not registered");
-    }
+	constructor() {
+		super("Token not registered");
+	}
 }
 
 /**
  * Provided token is already revoked on Pesto's API.
  */
 export class TokenRevokedError extends Error {
-    constructor() {
-        super("Token revoked");
-    }
+	constructor() {
+		super("Token revoked");
+	}
 }
 
 /**
@@ -74,9 +73,9 @@ export class TokenRevokedError extends Error {
  * To increase your limit, please contact the Pesto team.
  */
 export class MonthlyLimitExceededError extends Error {
-    constructor() {
-        super("Monthly limit exceeded");
-    }
+	constructor() {
+		super("Monthly limit exceeded");
+	}
 }
 
 /**
@@ -87,19 +86,20 @@ export class MonthlyLimitExceededError extends Error {
  * https://en.wikipedia.org/wiki/Semaphore_(programming)
  */
 export class ServerRateLimitedError extends Error {
-    constructor() {
-        super("Server rate limited");
-    }
+	constructor() {
+		super("Server rate limited");
+	}
 }
 
 /**
  * Provided language-version combination does not exists on Pesto's API.
  */
 export class RuntimeNotFoundError extends Error {
-    constructor(language?: string, version?: string) {
-        const combination: string = language !== undefined && version !== undefined ? ` of ${language} and ${version}` : "";
-        super(`Provided language-version combination${combination} does not exists on Pesto's API`);
-    }
+	constructor(language?: string, version?: string) {
+		const combination: string =
+			language !== undefined && version !== undefined ? ` of ${language} and ${version}` : "";
+		super(`Provided language-version combination${combination} does not exists on Pesto's API`);
+	}
 }
 
 /**
@@ -108,7 +108,7 @@ export class RuntimeNotFoundError extends Error {
  * Please refer to the documentation of each language.
  */
 export class MaximumAllowedEntrypointsExceededError extends Error {
-    constructor(public override message: string) {
-        super(message);
-    }
+	constructor(public override message: string) {
+		super(message);
+	}
 }
