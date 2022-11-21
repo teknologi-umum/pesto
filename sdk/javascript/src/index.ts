@@ -43,7 +43,7 @@ export class PestoClient {
 	}
 
 	public static fromToken(token: string): PestoClient {
-		return new this({ token: token });
+		return new PestoClient({ token: token });
 	}
 
 	public async ping(abortSignal?: AbortSignal): Promise<PingResponse> {
