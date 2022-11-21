@@ -21,6 +21,7 @@ import {
 	ServerRateLimitedError,
 	TokenNotRegisteredError,
 	TokenRevokedError,
+	UnauthorizedError,
 } from "./errors";
 import { CodeRequest, CodeResponse, PingResponse, RuntimeResponse } from "./responses";
 
@@ -57,7 +58,7 @@ export class PestoClient {
 		});
 
 		if (response.status !== 200) {
-			await this.processError(response.status, response);
+			throw await this.processError(response.status, response);
 		}
 
 		const body = await response.json();
@@ -75,7 +76,7 @@ export class PestoClient {
 		});
 
 		if (response.status !== 200) {
-			await this.processError(response.status, response);
+			throw await this.processError(response.status, response);
 		}
 
 		const body = await response.json();
@@ -95,7 +96,7 @@ export class PestoClient {
 		});
 
 		if (response.status !== 200) {
-			await this.processError(response.status, response);
+			throw await this.processError(response.status, response);
 		}
 
 		const body = await response.json();
@@ -107,43 +108,38 @@ export class PestoClient {
 		};
 	}
 
-	private async processError(statusCode: number, response: Response): Promise<void> {
+	private async processError(statusCode: number, response: Response): Promise<Error> {
 		switch (statusCode) {
 			case 404:
-				throw new Error("api path not found");
+				return new Error("api path not found");
 			case 500: {
 				const body = await response.json();
-				throw new InternalServerError(body.message);
+				return new InternalServerError(body.message);
 			}
 			case 401: {
 				const body = await response.json();
-
-				if (body.message === "Token must be supplied") throw new MissingTokenError();
-				if (body.message === "Token not registered") throw new TokenNotRegisteredError();
-				if (body.message === "Token has been revoked") throw new TokenRevokedError();
-				break;
+				if (body.message === "Token must be supplied") return new MissingTokenError();
+				if (body.message === "Token not registered") return new TokenNotRegisteredError();
+				if (body.message === "Token has been revoked") return new TokenRevokedError();
+				return new UnauthorizedError();
 			}
 			case 429: {
 				const body = await response.json();
-
-				if (body?.message === "Monthly limit exceeded") throw new MonthlyLimitExceededError();
-
-				throw new ServerRateLimitedError();
+				if (body?.message === "Monthly limit exceeded") return new MonthlyLimitExceededError();
+				return new ServerRateLimitedError();
 			}
 			case 400: {
 				const body = await response.json();
-
-				if (body?.message === "Runtime not found") throw new RuntimeNotFoundError();
-				if (body?.message.startsWith("Missing parameters")) throw new MissingParameterError(body.message);
-
-				throw new Error(
+				if (body?.message === "Runtime not found") return new RuntimeNotFoundError();
+				if (body?.message.startsWith("Missing parameters")) return new MissingParameterError(body.message);
+				return new Error(
 					`${body.message} (this is probably a problem with the SDK, please submit an issue on our Github repository)`
 				);
 			}
 		}
 
 		const body = await response.text();
-		throw new Error(
+		return new Error(
 			`Received ${statusCode} with body ${body} (this is probably a problem with the SDK, please submit an issue on our Github repository)`
 		);
 	}

@@ -39,6 +39,15 @@ export class MissingTokenError extends Error {
 }
 
 /**
+ * Unauthorized request with unknown reason
+ */
+ export class UnauthorizedError extends Error {
+	constructor() {
+		super("unauthorized for unknown reason");
+	}
+}
+
+/**
  * An error occurred on Pesto's server. Client should retry the request after a few seconds.
  *
  * If the error persist, please contact the Pesto team.
