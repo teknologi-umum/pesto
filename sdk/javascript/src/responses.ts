@@ -12,48 +12,48 @@
 // limitations under the License.
 
 export type PingResponse = {
-	message: string;
+    message: string;
 };
 
 export type Runtime = {
-	language: string;
-	version: string;
-	aliases: string[];
-	compiled: boolean;
+    language: string;
+    version: string;
+    aliases: string[];
+    compiled: boolean;
 };
 
 export type RuntimeResponse = {
-	runtime: Runtime[];
+    runtime: Runtime[];
 };
 
 export type CodeRequest =
-	| {
-			language: string;
-			version: string;
-			code: string;
-			compileTimeout?: number;
-			runTimeout?: number;
-			memoryLimit?: number;
-	  }
-	| {
-			language: string;
-			version: string;
-			files: Array<{ name: string; code: string; entrypoint: boolean }>;
-			compileTimeout?: number;
-			runTimeout?: number;
-			memoryLimit?: number;
-	  };
+    | {
+        language: string;
+        version: string;
+        code: string;
+        compileTimeout?: number;
+        runTimeout?: number;
+        memoryLimit?: number;
+    }
+    | {
+        language: string;
+        version: string;
+        files: Array<{ name: string; code: string; entrypoint: boolean }>;
+        compileTimeout?: number;
+        runTimeout?: number;
+        memoryLimit?: number;
+    };
 
 export type CodeOutput = {
-	stdout: string;
-	stderr: string;
-	output: string;
-	exitCode: number;
+    stdout: string;
+    stderr: string;
+    output: string;
+    exitCode: number;
 };
 
 export type CodeResponse = {
-	language: string;
-	version: string;
-	compile: CodeOutput;
-	runtime: CodeOutput;
+    language: string;
+    version: string;
+    compile: CodeOutput;
+    runtime: CodeOutput;
 };
