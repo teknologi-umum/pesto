@@ -4,6 +4,7 @@ import { terser } from "rollup-plugin-terser";
 
 export default defineConfig({
     input: "src/index.ts",
+    external: ["node-fetch"],
     output: [
         {
             file: "dist/index.cjs",
@@ -17,8 +18,11 @@ export default defineConfig({
         {
             file: "dist/index.iife.js",
             format: "iife",
-            name: "terbilang",
-            plugins: [terser()]
+            name: "PestoClient",
+            plugins: [terser()],
+            globals: {
+                "node-fetch": "fetch"
+            }
         }
     ],
     plugins: [ts({ tsconfig: "./tsconfig.json" })]

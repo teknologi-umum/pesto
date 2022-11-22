@@ -26,6 +26,10 @@ export type RuntimeResponse = {
     runtime: Runtime[];
 };
 
+export type ErrorResponse = {
+    message: string;
+}
+
 export type CodeRequest =
     | {
         language: string;
