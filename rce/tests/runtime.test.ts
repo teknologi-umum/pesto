@@ -93,7 +93,7 @@ test("should be able to parse semver", (t) => {
             semver.edition = "beta";
           } else if (tags[i].startsWith("alpha")) {
             semver.edition = "alpha";
-          } else {
+          } else if (tags[i] !== "") {
             semver.edition = "nightly";
           }
         }
@@ -105,7 +105,7 @@ test("should be able to parse semver", (t) => {
 
   t.deepEqual(parseSemver(["3"]), { major: 3, minor: 0, patch: 0, edition: "latest" });
   t.deepEqual(parseSemver(["16", "15", "8", "rc-8"]), { major: 16, minor: 15, patch: 8, edition: "rc" });
-  t.deepEqual(parseSemver(["lorem", "ipsum", "dolor", "sit", "amet"]), { major: 0, minor: 0, patch: 0, edition: "latest" });
+  t.deepEqual(parseSemver(["lorem", "ipsum", "dolor", "sit", "amet"]), { major: 0, minor: 0, patch: 0, edition: "nightly" });
 });
 
 test("should be able to search for latest tag", (t) => {
@@ -170,7 +170,7 @@ test("should be able to search for latest tag", (t) => {
             semver.edition = "beta";
           } else if (tags[i].startsWith("alpha")) {
             semver.edition = "alpha";
-          } else {
+          } else if (tags[i] !== "") {
             semver.edition = "nightly";
           }
         }
@@ -232,26 +232,26 @@ test("should be able to search for latest tag", (t) => {
 
             // I'm too lazy to write the rest of it. We'll just avoid nightly.
             if (aSemver.edition === "nightly" || bSemver.edition === "nightly") {
-              return -1;
+              return 1;
             }
 
-            // Otherwise, we'll just return 1
-            return 1;
+            // Otherwise, we'll just return -1
+            return -1;
           } else if (aSemver.patch > bSemver.patch) {
-            return 1;
+            return -1;
           }
 
-          return -1;
-        } else if (aSemver.minor > bSemver.minor) {
           return 1;
+        } else if (aSemver.minor > bSemver.minor) {
+          return -1;
         }
 
-        return -1;
-      } else if (aSemver.major > bSemver.major) {
         return 1;
+      } else if (aSemver.major > bSemver.major) {
+        return -1;
       }
 
-      return -1;
+      return 1;
     });
 
     const latestIndex = language.versions[0].index;

@@ -75,7 +75,7 @@ function parseSemver(tags: string[]): Semver {
           semver.edition = "beta";
         } else if (tags[i].startsWith("alpha")) {
           semver.edition = "alpha";
-        } else {
+        } else if (tags[i] !== "") {
           semver.edition = "nightly";
         }
       }
@@ -162,26 +162,26 @@ export async function acquireRuntime() {
 
             // I'm too lazy to write the rest of it. We'll just avoid nightly.
             if (aSemver.edition === "nightly" || bSemver.edition === "nightly") {
-              return -1;
+              return 1;
             }
 
-            // Otherwise, we'll just return 1
-            return 1;
+            // Otherwise, we'll just return -1
+            return -1;
           } else if (aSemver.patch > bSemver.patch) {
-            return 1;
+            return -1;
           }
 
-          return -1;
-        } else if (aSemver.minor > bSemver.minor) {
           return 1;
+        } else if (aSemver.minor > bSemver.minor) {
+          return -1;
         }
 
-        return -1;
-      } else if (aSemver.major > bSemver.major) {
         return 1;
+      } else if (aSemver.major > bSemver.major) {
+        return -1;
       }
 
-      return -1;
+      return 1;
     });
 
     const latestIndex = language.versions[0].index;
