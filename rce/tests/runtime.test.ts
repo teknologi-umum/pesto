@@ -104,7 +104,7 @@ test("should be able to parse semver", (t) => {
   }
 
   t.deepEqual(parseSemver(["3"]), { major: 3, minor: 0, patch: 0, edition: "latest" });
-  t.deepEqual(parseSemver(["16", "15", "8", "rc-8"]), { major: 16, minor: 15, patch: 8, edition: "rc "});
+  t.deepEqual(parseSemver(["16", "15", "8", "rc-8"]), { major: 16, minor: 15, patch: 8, edition: "rc" });
   t.deepEqual(parseSemver(["lorem", "ipsum", "dolor", "sit", "amet"]), { major: 0, minor: 0, patch: 0, edition: "latest" });
 });
 
@@ -260,5 +260,10 @@ test("should be able to search for latest tag", (t) => {
 
   t.assert(runtimes[0].latest === true);
   t.assert(runtimes[1].latest === false);
+  t.assert(runtimes[2].latest === false);
+  t.assert(runtimes[3].latest === false);
+  t.assert(runtimes[4].latest === false);
   t.assert(runtimes[5].latest === true);
+  t.assert(runtimes[6].latest === false);
+  t.assert(runtimes[7].latest === false);
 });
