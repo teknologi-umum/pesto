@@ -4,7 +4,7 @@ x-defaults:
 
 services:
   landing:
-    build: ./landing
+    image: ghcr.io/teknologi-umum/pesto-landing:edge
     environment:
       <<: [ *defaults ]
       PORT: 3000
@@ -93,7 +93,7 @@ services:
     volumes:
       - ../redis:/data
   auth:
-    build: ./auth
+    image: ghcr.io/teknologi-umum/pesto-auth:edge
     environment:
       <<: [ *defaults ]
       PORT: 3000
@@ -155,7 +155,7 @@ services:
     networks:
       - pesto
   rce:
-    build: ./rce
+    image: ghcr.io/teknologi-umum/pesto-rce:edge
     environment:
       <<: [ *defaults ]
       PORT: 50051
@@ -225,7 +225,7 @@ services:
     networks:
       - pesto
   registration:
-    build: ./registration
+    image: ghcr.io/teknologi-umum/pesto-registration:edge
     environment:
       <<: [ *defaults ]
       PORT: 80
