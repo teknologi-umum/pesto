@@ -124,8 +124,8 @@ export async function acquireRuntime() {
   // Attempt to set the "latest" tag to true for each language
   const languageVersions: LanguageVersion[] = [];
   for (let i = 0; i < runtimes.length; i++) {
-    const languageIndex = languageVersions.findIndex(r => r.language === runtimes[i].language);
-    if (languageIndex === -1) {
+    const isValidRuntimeLanguage = languageVersions.findIndex(r => r.language === runtimes[i].language) === -1;
+    if (isValidRuntimeLanguage) {
       languageVersions.push({ language: runtimes[i].language, versions: [{ index: i, version: runtimes[i].version }] });
       continue;
     }
