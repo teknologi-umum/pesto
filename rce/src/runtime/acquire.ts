@@ -4,14 +4,14 @@ import { fileURLToPath } from "url";
 import toml from "toml";
 import { Runtime } from "./runtime";
 
+type Version = {
+	index: number,
+	version: string,
+}
+
 type LanguageVersion = {
   language: string,
-  versions: Array<
-    {
-      index: number,
-      version: string
-    }
-  >
+  versions: Version[],
 }
 
 type Semver = {
