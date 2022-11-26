@@ -59,8 +59,8 @@ function execute(command, workingDirectory = process.cwd(), env = { "PATH": proc
     console.log(`Installing ${pkg.name}.`);
 
     const packagePath = path.join(__dirname, "..", "packages", pkg.name);
-    await execute(`chmod +x ./packages/${pkg.name}/install.sh`);
-    const installResult = await execute(`./packages/${pkg.name}/install.sh`);
+    await execute("chmod +x install.sh", packagePath);
+    const installResult = await execute("./install.sh", packagePath);
     console.log(installResult);
 
     const configPath = path.join(packagePath, "config.toml");

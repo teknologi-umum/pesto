@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ ! -d "/opt/erlang/25/" ]]; then
-  source "../erlang-25/install.sh"
+  source ../erlang-25/install.sh
 fi
 
 cd ~
