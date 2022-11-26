@@ -36,8 +36,9 @@ export class RceServiceImpl implements ICodeExecutionEngineService {
 
   public async execute(req: CodeRequest): Promise<CodeResponse> {
     const runtimeIndex = this._registeredRuntimes.findIndex(
-      (r) => r.language === req.language && r.version === req.version
+        (r) => r.language === req.language && (req.version === "latest" ? r.latest : r.version === req.version)
     );
+
     if (runtimeIndex < 0) {
       throw new ClientError("Runtime not found");
     }

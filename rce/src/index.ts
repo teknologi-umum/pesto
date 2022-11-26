@@ -19,7 +19,7 @@ const PORT = process.env?.PORT || "50051";
 
   const executeSchema = z.object({
     language: z.string().min(1),
-    version: z.string().min(1),
+    version: z.string().default("latest"),
     code: z.string().optional(),
     files: z.array(z.object({
       name: z.string().min(1),
