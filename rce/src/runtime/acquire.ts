@@ -130,7 +130,7 @@ export async function acquireRuntime() {
       continue;
     }
 
-    languageVersions[languageIndex].versions.push({ index: i, version: runtimes[i].version });
+    languageVersions[languageVersions.findIndex(r => r.language === runtimes[i].language)].versions.push({ index: i, version: runtimes[i].version });
   }
 
   for (const language of languageVersions) {
@@ -163,7 +163,9 @@ export async function acquireRuntime() {
       if (aSemver.edition === "nightly" || bSemver.edition === "nightly") {
         return 1;
       }
+
       return -1;
+    });
 
     const latestIndex = language.versions[0].index;
     runtimes[latestIndex].markAsLatest();
