@@ -9,11 +9,11 @@ const toml = require("toml");
 
 // This file should be in CommonJS as it will be called directly.
 
-function execute(command, workingDirectory = process.cwd()) {
+function execute(command, workingDirectory = process.cwd(), env = {}) {
   return new Promise((resolve, reject) => {
     const cmd = cp.exec(
       command,
-      { cwd: workingDirectory },
+      { cwd: workingDirectory, env },
       (error) => {
         if (error) {
           reject(error);
@@ -67,20 +67,26 @@ function execute(command, workingDirectory = process.cwd()) {
     const configFile = await fs.readFile(configPath, "utf8");
     const config = toml.parse(configFile, { joiner: "\n", bigint: false });
 
+    const environment = config["environment"].reduce((acc, curr) => {
+      const [key, ...value] = curr.split("=");
+      acc[key] = value.join("=");
+      return acc;
+    }, {});
+
     // Run the Hello World file.
     if (config.compiled) {
-      const compiled = await execute(config["build_command"].join(" ").replace("{file}", config["test_file"]), packagePath);
+      const compiled = await execute(config["build_command"].join(" ").replace("{file}", config["test_file"]), packagePath, environment);
       console.log(compiled);
 
       // Run the test file.
-      const testResult = await execute(config["run_command"].join(" ").replace("{file}", config["test_file"]), packagePath);
+      const testResult = await execute(config["run_command"].join(" ").replace("{file}", config["test_file"]), packagePath, environment);
       console.log(testResult);
 
       if (testResult.trim() !== "Hello world!") {
         throw new Error(`Test file failed for package ${pkg.name}. Expecting "Hello world!", got "${testResult.trim()}"`);
       }
     } else {
-      const testResult = await execute(config["run_command"].join(" ").replace("{file}", config["test_file"]), packagePath);
+      const testResult = await execute(config["run_command"].join(" ").replace("{file}", config["test_file"]), packagePath, environment);
       console.log(testResult);
 
       if (testResult.trim() !== "Hello world!") {
