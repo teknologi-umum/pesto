@@ -9,11 +9,11 @@ const toml = require("toml");
 
 // This file should be in CommonJS as it will be called directly.
 
-function execute(command, workingDirectory = process.cwd(), env = { "PATH": process.env?.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", ...process.env }) {
+function execute(command, workingDirectory = process.cwd(), env = { "PATH": process.env?.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" }) {
   return new Promise((resolve, reject) => {
     const cmd = cp.exec(
       command,
-      { cwd: workingDirectory, env },
+      { cwd: workingDirectory, env: { ...process.env, ...env } },
       (error) => {
         if (error) {
           reject(error);
