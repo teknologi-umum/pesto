@@ -59,6 +59,7 @@ function execute(command, workingDirectory = process.cwd()) {
     console.log(`Installing ${pkg.name}.`);
 
     const packagePath = path.join(__dirname, "..", "packages", pkg.name);
+    await execute(`chmod +x ./packages/${pkg.name}/install.sh`);
     const installResult = await execute(`./packages/${pkg.name}/install.sh`);
     console.log(installResult);
 
