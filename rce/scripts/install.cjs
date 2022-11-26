@@ -9,7 +9,7 @@ const toml = require("toml");
 
 // This file should be in CommonJS as it will be called directly.
 
-function execute(command, workingDirectory = process.cwd(), env = { "PATH": process.env?.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" }) {
+function execute(command, workingDirectory = process.cwd(), env = { "PATH": process.env?.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", ...process.env }) {
   return new Promise((resolve, reject) => {
     const cmd = cp.exec(
       command,
@@ -71,7 +71,7 @@ function execute(command, workingDirectory = process.cwd(), env = { "PATH": proc
       const [key, ...value] = curr.split("=");
       acc[key] = value.join("=");
       return acc;
-    }, {}) ?? undefined;
+    }, {}) || undefined;
 
     // Run the Hello World file.
     if (config.compiled) {
