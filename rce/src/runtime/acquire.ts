@@ -153,36 +153,17 @@ export async function acquireRuntime() {
       const aSemver: Semver = parseSemver(aVersionTag);
       const bSemver: Semver = parseSemver(bVersionTag);
 
-      if (aSemver.major === bSemver.major) {
-        if (aSemver.minor === bSemver.minor) {
-          if (aSemver.patch === bSemver.patch) {
-            if (aSemver.edition === bSemver.edition) {
-              return 0;
-            }
-
-            // I'm too lazy to write the rest of it. We'll just avoid nightly.
-            if (aSemver.edition === "nightly" || bSemver.edition === "nightly") {
-              return 1;
-            }
-
-            // Otherwise, we'll just return -1
-            return -1;
-          } else if (aSemver.patch > bSemver.patch) {
-            return -1;
-          }
-
-          return 1;
-        } else if (aSemver.minor > bSemver.minor) {
-          return -1;
-        }
-
+      if (aSemver.major > bSemver.major) return -1;
+      if (aSemver.major !== bSemver.major) return 1;
+      if (aSemver.minor > bSemver.minor) return -1;
+      if (aSemver.minor !== bSemver.minor) return 1;
+      if (aSemver.patch > bSemver.patch) return -1;
+      if (aSemver.patch !== bSemver.patch) return 1;
+      if (aSemver.edition === bSemver.edition) return 0;
+      if (aSemver.edition === "nightly" || bSemver.edition === "nightly") {
         return 1;
-      } else if (aSemver.major > bSemver.major) {
-        return -1;
       }
-
-      return 1;
-    });
+      return -1;
 
     const latestIndex = language.versions[0].index;
     runtimes[latestIndex].markAsLatest();
