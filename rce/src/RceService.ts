@@ -35,7 +35,7 @@ export class RceServiceImpl implements ICodeExecutionEngineService {
   }
 
   public async execute(req: CodeRequest): Promise<CodeResponse> {
-    let runtimeIndex = this._registeredRuntimes.findIndex(
+    const runtimeIndex = this._registeredRuntimes.findIndex(
         (r) => r.language === req.language && (req.version === "latest" ? r.latest : r.version === req.version)
     );
 
