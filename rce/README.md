@@ -22,7 +22,8 @@ Run tests:
 
 ```bash
 # If you have gcc executables
-export LANGUAGE_C=true
+export LANGUAGE_C=true       # For Linux/MacOS
+$env:LANGUAGE_C = "true";    # For Windows
 
 # If you have python3 executable
 export LANGUAGE_PYTHON=true
@@ -36,3 +37,7 @@ export LANGUAGE_JAVASCRIPT=true
 # Then, run
 npm run test
 ```
+
+It's recommended to develop the module using Linux as your machine. If you are using Windows, you can
+utilize [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/) and get Linux
+functionalities out of the box.
