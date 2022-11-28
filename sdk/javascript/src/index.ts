@@ -59,7 +59,7 @@ export class PestoClient {
         });
 
         if (response.status !== 200) {
-            throw await this.processError(response.status, response);
+            throw await this.processError(response);
         }
 
         const body = (await response.json()) as PingResponse;
@@ -77,7 +77,7 @@ export class PestoClient {
         });
 
         if (response.status !== 200) {
-            throw await this.processError(response.status, response);
+            throw await this.processError(response);
         }
 
         const body = (await response.json()) as RuntimeResponse;
@@ -97,8 +97,9 @@ export class PestoClient {
         });
 
         if (response.status !== 200) {
-            throw await this.processError(response.status, response);
+            throw await this.processError(response);
         }
+
 
         const body = (await response.json()) as CodeResponse;
         return {
@@ -109,8 +110,8 @@ export class PestoClient {
         };
     }
 
-    private async processError(statusCode: number, response: Response): Promise<Error> {
-        switch (statusCode) {
+    private async processError(response: Response): Promise<Error> {
+        switch (response.status) {
             case 404:
                 return new Error("api path not found");
             case 500: {
@@ -141,7 +142,7 @@ export class PestoClient {
 
         const body = await response.text();
         return new Error(
-            `Received ${statusCode} with body ${body} (this is probably a problem with the SDK, please submit an issue on our Github repository)`
+            `Received ${response.status} with body ${body} (this is probably a problem with the SDK, please submit an issue on our Github repository)`
         );
     }
 }
