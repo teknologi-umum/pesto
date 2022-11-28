@@ -28,25 +28,25 @@ export type RuntimeResponse = {
 
 export type ErrorResponse = {
     message: string;
-}
+};
 
-export type CodeRequest =
-    | {
-        language: string;
-        version: string;
-        code: string;
-        compileTimeout?: number;
-        runTimeout?: number;
-        memoryLimit?: number;
-    }
-    | {
-        language: string;
-        version: string;
-        files: Array<{ name: string; code: string; entrypoint: boolean }>;
-        compileTimeout?: number;
-        runTimeout?: number;
-        memoryLimit?: number;
-    };
+export type CodeRequestBase = {
+    language: string;
+    version: string;
+    compileTimeout?: number;
+    runTimeout?: number;
+    memoryLimit?: number;
+};
+
+export type CodeSnippetRequest = CodeRequestBase & {
+    code: string;
+};
+
+export type CodeFileRequest = CodeRequestBase & {
+    files: Array<{ name: string; code: string; entrypoint: boolean }>;
+};
+
+export type CodeRequest = CodeSnippetRequest | CodeFileRequest;
 
 export type CodeOutput = {
     stdout: string;
