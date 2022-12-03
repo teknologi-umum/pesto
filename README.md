@@ -4,7 +4,8 @@
 
 Pesto was written with a fresh start, minimizing the dependencies needed, and system controlled for limited resources usage. Hence, users will need to register in order to gain access to Pesto's API.
 
-Pesto API itself is hosted on our cloud VPS in Singapore, backed by the contributions on our donators from [Saweria](https://saweria.co/teknologiumum) (Indonesian only) and [Github Sponsors](https://github.com/sponsors/teknologi-umum) (Worldwide). The API is 100% free to use> However, if you are using Pesto API on a commercial project or on a project that makes money to you, please consider donating to keep the API running.
+Pesto API itself is hosted on our cloud VPS in Singapore, backed by the contributions on our donators from [Saweria](https://saweria.co/teknologiumum) (Indonesian only) and [Github Sponsors](https://github.com/sponsors/teknologi-umum) (Worldwide). The API is 100% free to use. However, if you are using Pesto API on a commercial project or on a project that makes money to you, please consider donating to keep the API running.
+
 
 See [our website](https://pesto.teknologiumum.com) for details.
 
