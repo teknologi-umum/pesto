@@ -13,4 +13,33 @@ describe("Integration test against real API", () => {
 
         expect(pingResponse.message).toStrictEqual("OK");
     });
+
+    it.skipIf(shouldSkip)("should be able to create a list runtimes request", async () => {
+        const abortController = new AbortController();
+        setTimeout(() => abortController.abort(), 1000 * 60 /* 1 minute */);
+        const listRuntimesResponse = await client.listRuntimes(abortController.signal);
+
+        expect(listRuntimesResponse.runtime.length).toBeGreaterThan(0);
+    });
+
+    it.skipIf(shouldSkip)("should be able to create a execute request", async () => {
+        const abortController = new AbortController();
+        setTimeout(() => abortController.abort(), 1000 * 60 /* 1 minute */);
+        const executeResponse = await client.execute({
+            language: "Python",
+            version: "latest",
+            files: [
+                {
+                    name: "code.py",
+                    code: "print('Hello world!')",
+                    entrypoint: true
+                }
+            ]
+        }, abortController.signal);
+
+        expect(executeResponse.language).toStrictEqual("Python");
+        expect(executeResponse.runtime).toBeDefined();
+        expect(executeResponse.runtime.exitCode).toStrictEqual(0);
+        expect(executeResponse.runtime.output).toStrictEqual("Hello world!");
+    })
 });
