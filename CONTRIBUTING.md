@@ -21,7 +21,7 @@ To keep a healthy community, please adhere to the [Code of Conduct](./.github/CO
 
 This is the easiest contribution you can do, by spreading the word!
 
-If you are using Pesto API on your project, please add your project to the [WHo uses Pesto](./README.md#who-uses-pesto)
+If you are using Pesto API on your project, please add your project to the [Who uses Pesto](./README.md#who-uses-pesto)
 section on our README file.
 
 Otherwise, you can create an article on Medium or Dev.to about how you utilize Pesto's API on
