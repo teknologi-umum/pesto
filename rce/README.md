@@ -15,7 +15,7 @@ npm install
 ```
 
 Running the application in development mode should be unnecessary. All functionalities should be
-covered by tests. External executables like `gcc`, `python3`, and `lua` are optinoal, yet it's
+covered by tests. External executables like `gcc`, `python3`, and `lua` are optional, yet it's
 recommended to test `Job` (the core logic to execute code) functionalities.
 
 Run tests:
