@@ -8,7 +8,7 @@
  * It will crawwl the 'packages' directory next to this 'scripts' directory,
  * and will:
  *
- * 1.Read 'config.toml' file for the package/runtime configuration.
+ * 1. Read 'config.toml' file for the package/runtime configuration.
  * 2. Set 'install.sh' file to have execute mode permission.
  * 3. Execute 'install.sh' file to install the package/runtime.
  * 4. Test the package/runtime against the defined test file on 'config.toml'
