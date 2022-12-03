@@ -2,6 +2,7 @@ export class Runtime {
   constructor(
     public readonly language: string,
     public readonly version: string,
+    public latest: boolean,
     public readonly extension: string,
     public readonly compiled: boolean,
     public readonly buildCommand: string[],
@@ -13,7 +14,7 @@ export class Runtime {
     public readonly processLimit: number,
     public readonly allowedEntrypoints: number
   ) {
-    if (language === "" || version === "" || extension === "" || runCommand.length === 0 || aliases.length === 0 || typeof environment !== "object" || allowedEntrypoints === 0) {
+    if (language === "" || version === "" || latest === undefined || extension === "" || runCommand.length === 0 || aliases.length === 0 || typeof environment !== "object" || allowedEntrypoints === 0) {
       throw new TypeError("Invalid runtime parameters");
     }
 
@@ -30,5 +31,9 @@ export class Runtime {
     if (processLimit <= 0) {
       throw new TypeError("Invalid runtime parameters: processLimit is 0 or less");
     }
+  }
+
+  public markAsLatest() {
+    this.latest = true;
   }
 }

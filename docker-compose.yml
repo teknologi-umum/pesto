@@ -1,26 +1,24 @@
 x-defaults:
   &defaults
-  ENVIRONMENT: development
+  ENVIRONMENT: production
 
 services:
   landing:
-    build: ./landing
+    image: ghcr.io/teknologi-umum/pesto-landing:edge
     environment:
       <<: [ *defaults ]
       PORT: 3000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.landing.entrypoints=web,websecure"
-      - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`) && (Path(`/`) || PathPrefix(`/assets`) || PathPrefix(`/meta`) || PathPrefix(`/chunks`) || PathPrefix(`/entries`))"
+      - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`)"
+      - "traefik.http.routers.landing.priority=1"
       - "traefik.http.routers.landing.tls.certresolver=tlsresolver"
-      - "traefik.http.routers.landing.middlewares=landing-error,landing-header,landing-rate,landing-redirectscheme"
+      - "traefik.http.routers.landing.middlewares=landing-header,landing-rate,landing-redirectscheme"
       - "traefik.http.services.landing.loadbalancer.server.port=3000"
       - "traefik.http.services.landing.loadbalancer.server.scheme=http"
       - "traefik.http.services.landing.loadbalancer.healthcheck.interval=30s"
       - "traefik.http.services.landing.loadbalancer.healthcheck.path=/"
-      - "traefik.http.middlewares.landing-error.errors.status=500-599"
-      - "traefik.http.middlewares.landing-error.errors.service=landing@docker"
-      - "traefik.http.middlewares.landing-error.errors.query=/error"
       - "traefik.http.middlewares.landing-rate.ratelimit.average=100"
       - "traefik.http.middlewares.landing-rate.ratelimit.burst=20"
       - "traefik.http.middlewares.landing-rate.ratelimit.period=1s"
@@ -38,6 +36,13 @@ services:
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.permanent=true"
     platform: linux/amd64
+    storage_opt:
+      size: '1G'
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: 3
     healthcheck:
       test: curl -f http://localhost:3000/ || exit 1
       interval: 15s
@@ -45,7 +50,7 @@ services:
       retries: 5
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 30s
@@ -53,10 +58,10 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 500MB
+          memory: 350MB
           cpus: '0.75'
         reservations:
-          memory: 100MB
+          memory: 25MB
           cpus: '0.10'
     networks:
       - pesto
@@ -88,7 +93,7 @@ services:
     volumes:
       - ../redis:/data
   auth:
-    build: ./auth
+    image: ghcr.io/teknologi-umum/pesto-auth:edge
     environment:
       <<: [ *defaults ]
       PORT: 3000
@@ -97,14 +102,14 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=web,websecure"
-      - "traefik.http.routers.auth.middlewares=landing-error,landing-header,landing-rate,landing-redirectscheme"
+      - "traefik.http.routers.auth.middlewares=auth-error,auth-header,auth-rate"
       - "traefik.http.services.auth.loadbalancer.server.port=3000"
       - "traefik.http.services.auth.loadbalancer.server.scheme=http"
       - "traefik.http.services.auth.loadbalancer.healthcheck.interval=30s"
       - "traefik.http.services.auth.loadbalancer.healthcheck.path=/healthz"
       - "traefik.http.middlewares.auth-error.errors.status=500-599"
       - "traefik.http.middlewares.auth-error.errors.service=landing@docker"
-      - "traefik.http.middlewares.auth-error.errors.query=/error"
+      - "traefik.http.middlewares.auth-error.errors.query=/500"
       - "traefik.http.middlewares.auth-rate.ratelimit.average=20"
       - "traefik.http.middlewares.auth-rate.ratelimit.burst=5"
       - "traefik.http.middlewares.auth-rate.ratelimit.period=1s"
@@ -117,6 +122,13 @@ services:
       - "traefik.http.middlewares.auth-header.headers.contentTypeNosniff=true"
       - "traefik.http.middlewares.auth-header.headers.customResponseHeaders.server=Teknologi Umum"
     platform: linux/amd64
+    storage_opt:
+      size: '1G'
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: 3
     healthcheck:
       test: curl -f http://localhost:3000/healthz || exit 1
       interval: 15s
@@ -124,7 +136,7 @@ services:
       retries: 5
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 30s
@@ -135,7 +147,7 @@ services:
           memory: 500MB
           cpus: '0.75'
         reservations:
-          memory: 50MB
+          memory: 25MB
           cpus: '0.10'
     depends_on:
       db:
@@ -143,7 +155,7 @@ services:
     networks:
       - pesto
   rce:
-    build: ./rce
+    image: ghcr.io/teknologi-umum/pesto-rce:edge
     environment:
       <<: [ *defaults ]
       PORT: 50051
@@ -152,7 +164,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.rce.entrypoints=web,websecure"
       - "traefik.http.routers.rce.rule=Host(`pesto.teknologiumum.com`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.rce.priority=1"
+      - "traefik.http.routers.rce.priority=3"
       - "traefik.http.routers.rce.tls.certresolver=tlsresolver"
       - "traefik.http.routers.rce.middlewares=rce-auth,rce-error,rce-header,rce-rate,rce-redirectscheme,rce-inflightreq"
       - "traefik.http.services.rce.loadbalancer.server.port=50051"
@@ -164,7 +176,7 @@ services:
       - "traefik.http.middlewares.rce-auth.forwardauth.tls.insecureSkipVerify=true"
       - "traefik.http.middlewares.rce-error.errors.status=500-599"
       - "traefik.http.middlewares.rce-error.errors.service=landing@docker"
-      - "traefik.http.middlewares.rce-error.errors.query=/error"
+      - "traefik.http.middlewares.rce-error.errors.query=/500"
       - "traefik.http.middlewares.rce-rate.ratelimit.average=60"
       - "traefik.http.middlewares.rce-rate.ratelimit.burst=5"
       - "traefik.http.middlewares.rce-rate.ratelimit.period=1m"
@@ -183,6 +195,13 @@ services:
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.permanent=true"
       - "traefik.http.middlewares.rce-inflightreq.inflightreq.amount=50"
     platform: linux/amd64
+    storage_opt:
+      size: '5G'
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: 3
     healthcheck:
       test: curl -f http://localhost:50051/healthz || exit 1
       interval: 15s
@@ -198,15 +217,15 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 5GB
-          cpus: '3'
+          memory: 4GB
+          cpus: '2'
         reservations:
           memory: 100MB
           cpus: '0.10'
     networks:
       - pesto
   registration:
-    build: ./registration
+    image: ghcr.io/teknologi-umum/pesto-registration:edge
     environment:
       <<: [ *defaults ]
       PORT: 80
@@ -216,7 +235,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.registration.entrypoints=web,websecure"
       - "traefik.http.routers.registration.rule=Host(`pesto.teknologiumum.com`) && Path(`/api/register`)"
-      - "traefik.http.routers.registration.priority=2"
+      - "traefik.http.routers.registration.priority=5"
       - "traefik.http.routers.registration.tls.certresolver=tlsresolver"
       - "traefik.http.routers.registration.middlewares=registration-error,registration-header,registration-rate,registration-redirectscheme,registration-inflightreq"
       - "traefik.http.services.registration.loadbalancer.server.port=80"
@@ -225,7 +244,7 @@ services:
       - "traefik.http.services.registration.loadbalancer.healthcheck.path=/healthz"
       - "traefik.http.middlewares.registration-error.errors.status=500-599"
       - "traefik.http.middlewares.registration-error.errors.service=landing@docker"
-      - "traefik.http.middlewares.registration-error.errors.query=/error"
+      - "traefik.http.middlewares.registration-error.errors.query=/500"
       - "traefik.http.middlewares.registration-rate.ratelimit.average=100"
       - "traefik.http.middlewares.registration-rate.ratelimit.burst=10"
       - "traefik.http.middlewares.registration-rate.ratelimit.period=1m"
@@ -244,6 +263,13 @@ services:
       - "traefik.http.middlewares.registration-redirectscheme.redirectscheme.permanent=true"
       - "traefik.http.middlewares.registration-inflightreq.inflightreq.amount=50"
     platform: linux/amd64
+    storage_opt:
+      size: '1G'
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: 3
     healthcheck:
       test: curl -f http://localhost:80/healthz || exit 1
       interval: 15s
@@ -265,7 +291,7 @@ services:
           memory: 2GB
           cpus: '1'
         reservations:
-          memory: 100MB
+          memory: 25MB
           cpus: '0.10'
     networks:
       - pesto

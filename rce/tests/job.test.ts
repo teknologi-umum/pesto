@@ -7,7 +7,7 @@ import { Runtime } from "../src/runtime/runtime.js";
 import { Files } from "../src/job/files.js";
 
 test("should throw error on invalid job parameters", (t) => {
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
 
   t.throws(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -21,7 +21,7 @@ test("should throw error on invalid job parameters", (t) => {
 });
 
 test("should give a default value for timeouts and memoryLimit", (t) => {
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
   const job = new Job(
     { uid: 1, gid: 1, free: false, username: "code_executor_1" },
     runtime,
@@ -36,7 +36,7 @@ test("should give a default value for timeouts and memoryLimit", (t) => {
 });
 
 test("should not use default value for timeouts and memoryLimit", (t) => {
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
   const job = new Job(
     { uid: 1, gid: 1, free: false, username: "code_executor_1" },
     runtime,
@@ -60,7 +60,7 @@ test.serial("should be able to create a file", async (t) => {
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
@@ -87,7 +87,7 @@ test.serial("should be able to run a file - NodeJS", async (t) => {
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
@@ -120,6 +120,7 @@ test.serial("should be able to compile and run a file - C", async (t) => {
   const runtime = new Runtime(
     "C",
     "10.2.1",
+    true,
     "c",
     true,
     ["gcc", "-Wall", "-Wextra", "-Werror", "-O2", "-std=c99", "-pedantic", "-o", "code", "{file}"],
@@ -179,6 +180,7 @@ test.serial("should be able to compile and run a file - Python", async (t) => {
   const runtime = new Runtime(
     "Python",
     "3.9.2",
+    true,
     "py",
     false,
     [],
@@ -231,7 +233,7 @@ test.serial("should be able to run multiple files - NodeJS", async (t) => {
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
@@ -288,6 +290,7 @@ test.serial("should be able to execute Happy Numbers - Lua", async (t) => {
   const runtime = new Runtime(
     "Lua",
     "5.4",
+    true,
     "lua",
     false,
     [],
@@ -363,6 +366,7 @@ test.serial("should be able to execute Happy Numbers - Python", async (t) => {
   const runtime = new Runtime(
     "Python",
     "3.9.2",
+    true,
     "py",
     false,
     [],

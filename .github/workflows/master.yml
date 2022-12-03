@@ -273,7 +273,7 @@ jobs:
   build-rce:
     name: Build RCE
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 300
     needs:
       - rce
     permissions:
@@ -414,7 +414,7 @@ jobs:
           -p ${{ secrets.SSH_PORT }}
           -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
           "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S bash -c '\"'cd ${{ secrets.SSH_WORKDIR }}/pesto &&
-          docker compose up -d --build registration rce landing auth '\"' ' "
+          docker compose up -d --pull always registration rce landing auth '\"' ' "
 
       - name: Clean up docker artifacts
         run: >
