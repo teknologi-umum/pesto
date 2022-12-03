@@ -2,7 +2,8 @@
 
 This service provides frontend for Pesto. Written using [Astro](https://astro.build/) with [Solid.js](https://www.solidjs.com/) integration.
 
-The frontpage of Pesto should gives information about what Pesto is, how people can benefit through it, and how to register for
+The frontpage of Pesto should give information about what Pesto is, how people can benefit through it, and how to register for
+
 access token. Documentation on HTTP API should also be documented on the web, alongside with Postman collection or HAR file.
 
 ### Development
