@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"os"
 	"testing"
 	"time"
 
@@ -63,6 +64,29 @@ func TestClient_ListRuntimes(t *testing.T) {
 
 		if !errors.Is(err, pesto.ErrServerRateLimited) {
 			t.Errorf("expecting an error of ErrServerRateLimited, instead got %s", err.Error())
+		}
+	})
+
+	t.Run("RealAPI", func(t *testing.T) {
+		if os.Getenv("PESTO_TOKEN") == "" {
+			t.Skip("Skipped because PESTO_TOKEN environment variable is empty")
+		}
+
+		client, err := pesto.NewClient(os.Getenv("PESTO_TOKEN"))
+		if err != nil {
+			t.Fatalf("creating client: %s", err.Error())
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+		defer cancel()
+
+		response, err := client.ListRuntimes(ctx)
+		if err != nil {
+			t.Errorf("unexpected error: %s", err.Error())
+		}
+
+		if len(response.Runtime) == 0 {
+			t.Errorf("expected response.Runtime to have length greater than 0")
 		}
 	})
 }

@@ -59,6 +59,12 @@ var (
 
 	LanguageV Language = "V"
 	VersionV  Version  = "0.3"
+
+	// VersionLatest tells the API to choose the latest version
+	// of the selected language. The `version` response will be a
+	// normal semver version, instead of the same "latest"
+	// string input.
+	VersionLatest Version = "latest"
 )
 
 type CodeRequest struct {
