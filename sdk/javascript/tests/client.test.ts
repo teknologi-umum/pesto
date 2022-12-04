@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from "vitest";
 import { setupServer } from "msw/node";
 import { PestoClient } from "../src";
-import { EmptyTokenError } from "../src/errors";
+import { EmptyTokenError, MissingParameterError, RuntimeNotFoundError } from "../src/errors";
 import { mockHandlers } from "./mock-handlers";
 
 describe("Client creation", () => {
@@ -16,7 +16,7 @@ describe("Client creation", () => {
 });
 
 describe("Happy path", () => {
-    const client = new PestoClient({ token: "AABBCC" });
+    const client = new PestoClient({ token: "AABBCC", baseURL: new URL("https://mock-pesto.com") });
 
     const server = setupServer(...mockHandlers);
 
@@ -34,6 +34,20 @@ describe("Happy path", () => {
     it("should be able to list runtimes using the sdk", async () => {
         const runtimes = await client.listRuntimes();
         expect(runtimes.runtime.length).toBe(3);
+    });
+
+    it("should return missing parameters", () => {
+        expect(async () => {
+            await client.execute({ code: "print('asdf')", language: "", version: "" });
+        })
+            .toThrowError(new MissingParameterError("Missing parameters"));
+    });
+
+    it("should returned runtime not found", () => {
+        expect(async () => {
+            await client.execute({ code: "print('asdf')", language: "Rust", version: "1.64.0" });
+        })
+            .toThrowError(new RuntimeNotFoundError());
     });
 
     it("should be able to execute python code", async () => {

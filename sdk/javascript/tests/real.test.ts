@@ -12,7 +12,7 @@ describe("Integration test against real API", () => {
         const pingResponse = await client.ping(abortController.signal);
 
         expect(pingResponse.message).toStrictEqual("OK");
-    });
+    }, { timeout: 60_000 });
 
     it.skipIf(shouldSkip)("should be able to create a list runtimes request", async () => {
         const abortController = new AbortController();
@@ -20,7 +20,7 @@ describe("Integration test against real API", () => {
         const listRuntimesResponse = await client.listRuntimes(abortController.signal);
 
         expect(listRuntimesResponse.runtime.length).toBeGreaterThan(0);
-    });
+    }, { timeout: 60_000 });
 
     it.skipIf(shouldSkip)("should be able to create a execute request", async () => {
         const abortController = new AbortController();
@@ -41,5 +41,5 @@ describe("Integration test against real API", () => {
         expect(executeResponse.runtime).toBeDefined();
         expect(executeResponse.runtime.exitCode).toStrictEqual(0);
         expect(executeResponse.runtime.output).toStrictEqual("Hello world!");
-    })
+    }, { timeout: 60_000 });
 });

@@ -45,18 +45,18 @@
   },
   "homepage": "https://pesto.teknologiumum.com",
   "devDependencies": {
-    "@rollup/plugin-typescript": "^9.0.2",
+    "@rollup/plugin-typescript": "^10.0.1",
     "@teknologi-umum/eslint-config-typescript": "^0.0.6",
-    "@types/node": "^18.11.9",
-    "@vitest/coverage-c8": "^0.25.2",
+    "@types/node": "^18.11.10",
+    "@vitest/coverage-c8": "^0.25.3",
     "c8": "^7.12.0",
-    "esbuild": "^0.15.14",
-    "eslint": "^8.28.0",
-    "msw": "^0.49.0",
+    "esbuild": "^0.15.16",
+    "eslint": "^8.29.0",
+    "msw": "^0.49.1",
     "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.1",
     "typescript": "^4.9.3",
-    "vitest": "^0.25.2"
+    "vitest": "^0.25.3"
   },
   "dependencies": {
     "node-fetch": "^3.3.0"
