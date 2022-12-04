@@ -48,17 +48,6 @@ describe("Happy path", () => {
             .toThrowError(new RuntimeNotFoundError());
     });
 
-    // FIXME: this doesn't work, we don't know why.
-    it.skip("should be able to execute python code", async () => {
-        const codeResponse = await client.execute({
-            code: "print('asdf')",
-            language: "Python",
-            version: "3.10.2"
-        });
-        expect(codeResponse.language).toBe("Python");
-        expect(codeResponse.version).toBe("3.10.2");
-    });
-
     beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
     afterAll(() => server.close());
     afterEach(() => server.resetHandlers());
