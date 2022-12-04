@@ -100,7 +100,6 @@ export class PestoClient {
             await this.processError(response);
         }
 
-
         const body = (await response.json()) as CodeResponse;
         return {
             language: body.language,
