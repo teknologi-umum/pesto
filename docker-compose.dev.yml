@@ -37,7 +37,6 @@ services:
       - "traefik.http.middlewares.landing-header.headers.customResponseHeaders.server=Teknologi Umum"
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.permanent=true"
-    platform: linux/amd64
     healthcheck:
       test: curl -f http://localhost:3000/ || exit 1
       interval: 15s
@@ -64,7 +63,6 @@ services:
     build: ./redis
     ports:
       - 6379:6379
-    platform: linux/amd64
     healthcheck:
       test: "redis-cli ping | grep PONG"
       interval: 10s
@@ -116,7 +114,6 @@ services:
       - "traefik.http.middlewares.auth-header.headers.browserXssFilter=true"
       - "traefik.http.middlewares.auth-header.headers.contentTypeNosniff=true"
       - "traefik.http.middlewares.auth-header.headers.customResponseHeaders.server=Teknologi Umum"
-    platform: linux/amd64
     healthcheck:
       test: curl -f http://localhost:3000/healthz || exit 1
       interval: 15s
@@ -182,7 +179,6 @@ services:
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.permanent=true"
       - "traefik.http.middlewares.rce-inflightreq.inflightreq.amount=50"
-    platform: linux/amd64
     healthcheck:
       test: curl -f http://localhost:50051/healthz || exit 1
       interval: 15s
@@ -243,7 +239,6 @@ services:
       - "traefik.http.middlewares.registration-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.registration-redirectscheme.redirectscheme.permanent=true"
       - "traefik.http.middlewares.registration-inflightreq.inflightreq.amount=50"
-    platform: linux/amd64
     healthcheck:
       test: curl -f http://localhost:80/healthz || exit 1
       interval: 15s
