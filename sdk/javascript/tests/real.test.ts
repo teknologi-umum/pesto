@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { PestoClient } from "../src";
+import { MissingParameterError, RuntimeNotFoundError, TokenNotRegisteredError } from "../src/errors";
 
 describe("Integration test against real API", () => {
     const shouldSkip = process.env.PESTO_TOKEN === undefined || process.env?.PESTO_TOKEN === "";
@@ -40,6 +41,28 @@ describe("Integration test against real API", () => {
         expect(executeResponse.language).toStrictEqual("Python");
         expect(executeResponse.runtime).toBeDefined();
         expect(executeResponse.runtime.exitCode).toStrictEqual(0);
-        expect(executeResponse.runtime.output).toStrictEqual("Hello world!");
+        expect(executeResponse.runtime.output).toStrictEqual("Hello world!\n");
     }, { timeout: 60_000 });
+
+    it.skipIf(shouldSkip)("should throw missing parameters", () => {
+        expect(async () => {
+            await client.execute({ code: "print('asdf')", language: "", version: "" });
+        })
+            .toThrowError(new MissingParameterError("Missing parameters"));
+    });
+
+    it.skipIf(shouldSkip)("should throw runtime not found", () => {
+        expect(async () => {
+            await client.execute({ code: "print('asdf')", language: "SomeUnknownLanguage", version: "100" });
+        })
+            .toThrowError(new RuntimeNotFoundError());
+    });
+
+    it.skipIf(shouldSkip)("should throw token not registered", () => {
+        expect(async () => {
+            const notRegisteredClient = PestoClient.fromToken("invalidToken");
+            await notRegisteredClient.execute({ code: "print('Hello')", language: "Python", version: "latest" });
+        })
+            .toThrowError(new TokenNotRegisteredError());
+    });
 });

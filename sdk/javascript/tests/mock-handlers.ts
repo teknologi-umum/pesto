@@ -51,6 +51,4 @@ export const mockHandlers = [
             } as RuntimeResponse)
         );
     })
-
-
 ];

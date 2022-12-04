@@ -36,14 +36,14 @@ describe("Happy path", () => {
         expect(runtimes.runtime.length).toBe(3);
     });
 
-    it("should return missing parameters", () => {
+    it("should throw missing parameters", () => {
         expect(async () => {
             await client.execute({ code: "print('asdf')", language: "", version: "" });
         })
             .toThrowError(new MissingParameterError("Missing parameters"));
     });
 
-    it("should returned runtime not found", () => {
+    it("should throw runtime not found", () => {
         expect(async () => {
             await client.execute({ code: "print('asdf')", language: "Rust", version: "1.64.0" });
         })
