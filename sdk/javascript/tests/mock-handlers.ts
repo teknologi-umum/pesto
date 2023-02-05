@@ -1,5 +1,5 @@
 import { rest } from "msw";
-import type { CodeRequest, CodeResponse, RuntimeResponse } from "../src/responses";
+import type { CodeResponse, RuntimeResponse } from "../src/responses";
 import { constants as httpStatus } from "http2";
 
 export const mockHandlers = [
@@ -7,16 +7,15 @@ export const mockHandlers = [
         return res(ctx.status(httpStatus.HTTP_STATUS_OK), ctx.body(JSON.stringify({ message: "OK" })));
     }),
 
-    rest.post("https://mock-pesto.com/api/execute", async (req, res, ctx) => {
-        const body = (await req.json()) as CodeRequest;
-        if (body.language === "" || ("code" in body && body.code === "") || body.version === "") {
-            return res(ctx.status(httpStatus.HTTP_STATUS_BAD_REQUEST), ctx.json({ message: "Missing parameters" }));
-        }
+    rest.post("https://missing-parameters.mock-pesto.com/api/execute", (req, res, ctx) => {
+        return res(ctx.status(httpStatus.HTTP_STATUS_BAD_REQUEST), ctx.json({ message: "Missing parameters" }));
+    }),
 
-        if (body.language !== "Python" && body.version !== "3.10.2") {
-            return res(ctx.status(httpStatus.HTTP_STATUS_BAD_REQUEST), ctx.json({ message: "Runtime not found" }));
-        }
+    rest.post("https://runtime-not-found.mock-pesto.com/api/execute", (req, res, ctx) => {
+        return res(ctx.status(httpStatus.HTTP_STATUS_BAD_REQUEST), ctx.json({ message: "Runtime not found" }));
+    }),
 
+    rest.post("https://mock-pesto.com/api/execute", (req, res, ctx) => {
         return res(
             ctx.status(httpStatus.HTTP_STATUS_OK),
             ctx.json({

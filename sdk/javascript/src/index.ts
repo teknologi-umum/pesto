@@ -24,7 +24,7 @@ import {
     TokenRevokedError,
     UnauthorizedError
 } from "./errors";
-import { CodeRequest, CodeResponse, ErrorResponse, PingResponse, RuntimeResponse } from "./responses";
+import type { CodeRequest, CodeResponse, ErrorResponse, PingResponse, RuntimeResponse } from "./responses";
 
 export type ClientConfig = {
     token: string;

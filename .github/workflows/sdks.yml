@@ -75,7 +75,7 @@ jobs:
         run: npx eslint --fix --ext .ts --ignore-path .gitignore .
 
       - name: Test
-        run: npm run test --dangerouslyIgnoreUnhandledErrors --passWithNoTests
+        run: npx vitest run --coverage --threads=false
         env:
           PESTO_TOKEN: ${{ secrets.PESTO_TOKEN }}
 
