@@ -39,7 +39,7 @@ jobs:
           extra_args: --debug --only-verified
 
       - name: Build test
-        run: go build .
+        run: go build -buildvcs=false .
 
       - name: Run test
         run: go test -v -coverprofile=coverage.out -covermode=atomic ./...
