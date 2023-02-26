@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Authors>Teknologi Umum</Authors>
+        <Copyright>2022 Teknologi Umum and contributors</Copyright>
+        <PackageProjectUrl>https://pesto.teknologiumum.com/</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/teknologi-umum/pesto/blob/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/teknologi-umum/pesto/</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <Company>TeknologiUmum</Company>
+    </PropertyGroup>
+
+</Project>
