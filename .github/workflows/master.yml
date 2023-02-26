@@ -53,7 +53,7 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    container: node:16.14.0-bullseye
+    container: node:18.14.2-bullseye
     timeout-minutes: 30
     defaults:
       run:
