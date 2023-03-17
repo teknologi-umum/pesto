@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-VERSION="3.1.2"
-MINOR="3.1"
+VERSION="3.2.1"
+MINOR="3.2"
 
 curl -LO https://cache.ruby-lang.org/pub/ruby/${MINOR}/ruby-${VERSION}.tar.gz
 tar -zxf ruby-${VERSION}.tar.gz
 cd ruby-${VERSION}
-mkdir -p /opt/ruby/3.1
-./configure --prefix=/opt/ruby/3.1
+mkdir -p /opt/ruby/${MINOR}
+./configure --prefix=/opt/ruby/$MINOR
 make -j $(nproc)
 make install -j $(nproc)
 cd ..
