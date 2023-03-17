@@ -1,11 +1,11 @@
 language = "Go"
-version = "1.18.3"
+version = "1.20.2"
 compiled = true
 extension = "go"
-build_command = [ "/opt/go/1.18/go/bin/go", "build", "-o", "code", "{file}"]
+build_command = [ "/opt/go/1.20/go/bin/go", "build", "-o", "code", "{file}"]
 run_command = [ "./code" ]
 test_file = "test.go"
-environment = [ "GOPATH=/opt/go/1.18/go", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/go/1.18/go/bin" ]
+environment = [ "GOPATH=/opt/go/1.20/go", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/go/1.20/go/bin" ]
 aliases = [ "go", "golang" ]
 should_limit_memory = false
 memory_limit = 0
