@@ -75,10 +75,8 @@ public class PestoClient : IDisposable {
     /// <exception cref="PestoServerRateLimitedException">Too many request to the API. Client should try again in a few minutes</exception>
     /// <exception cref="PestoAPIException"></exception>
     public async Task<PingResponse> PingAsync(CancellationToken cancellationToken) {
-        using HttpResponseMessage response = await _httpClient.GetAsync(
-            requestUri: new Uri("api/ping"),
-            cancellationToken: cancellationToken
-        );
+	    using HttpRequestMessage request = new(HttpMethod.Get, "api/ping");
+        using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.TooManyRequests) throw new PestoServerRateLimitedException();
 
@@ -98,10 +96,8 @@ public class PestoClient : IDisposable {
 	/// <exception cref="PestoServerRateLimitedException">Too many request to the API. Client should try again in a few minutes</exception>
 	/// <exception cref="PestoAPIException"></exception>
 	public async Task<RuntimeResponse> ListRuntimesAsync(CancellationToken cancellationToken) {
-		using HttpResponseMessage response = await _httpClient.GetAsync(
-			requestUri: new Uri( "api/list-runtimes"),
-			cancellationToken: cancellationToken
-		);
+	    using HttpRequestMessage request = new(HttpMethod.Get, "api/list-runtimes");
+	    using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken);
 
 		if (response.StatusCode == HttpStatusCode.TooManyRequests) throw new PestoServerRateLimitedException();
 
@@ -124,18 +120,18 @@ public class PestoClient : IDisposable {
 	/// <exception cref="PestoServerRateLimitedException">Too many request to the API. Client should try again in a few minutes</exception>
 	/// <exception cref="PestoAPIException"></exception>
 	public async Task<CodeResponse> ExecuteAsync(string language, string code, CancellationToken cancellationToken) {
-		using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(
-			requestUri: new Uri("api/execute"),
-			value: new CodeRequest(
-				Language: language,
-				Code: code,
-				Version: "latest",
-				CompileTimeout: 0,
-				RunTimeout: 0,
-				MemoryLimit: 0
-			),
-			cancellationToken: cancellationToken
-		);
+		string requestBody = JsonSerializer.Serialize(new CodeRequest(
+			Language: language,
+			Code: code,
+			Version: "latest",
+			CompileTimeout: 0,
+			RunTimeout: 0,
+			MemoryLimit: 0
+		), _jsonSerializerOptions);
+		
+		using HttpRequestMessage request = new(HttpMethod.Post, "api/execute");
+		request.Content = new StringContent(requestBody);
+		using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken);
 
 		if (response.StatusCode != HttpStatusCode.OK) {
 			var errorResponse =
@@ -169,11 +165,10 @@ public class PestoClient : IDisposable {
 	/// <exception cref="PestoServerRateLimitedException">Too many request to the API. Client should try again in a few minutes</exception>
 	/// <exception cref="PestoAPIException"></exception>
 	public async Task<CodeResponse> ExecuteAsync(CodeRequest codeRequest, CancellationToken cancellationToken) {
-		using HttpResponseMessage response = await _httpClient.PostAsJsonAsync(
-			requestUri: new Uri("api/execute"),
-			value: codeRequest,
-			cancellationToken: cancellationToken
-		);
+		string requestBody = JsonSerializer.Serialize(codeRequest, _jsonSerializerOptions);
+		using HttpRequestMessage request = new(HttpMethod.Post, "api/execute");
+		request.Content = new StringContent(requestBody);
+		using HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken);
 
 		if (response.StatusCode != HttpStatusCode.OK) {
 			var errorResponse =
@@ -197,6 +192,6 @@ public class PestoClient : IDisposable {
 	}
 
 	public void Dispose() {
-		throw new NotImplementedException();
+		_httpClient.Dispose();
 	}
 }

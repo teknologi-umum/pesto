@@ -26,5 +26,21 @@
     <ItemGroup>
       <ProjectReference Include="..\Pesto\Pesto.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <EmbeddedResource Include="Responses\SuccessfulPingResponse.json" />
+        <None Remove="Responses\SuccessfulExecuteCode.json" />
+        <EmbeddedResource Include="Responses\SuccessfulExecuteCode.json" />
+        <None Remove="Responses\SuccessfulListRuntimes.json" />
+        <EmbeddedResource Include="Responses\SuccessfulListRuntimes.json" />
+        <None Remove="Responses\BadRequestError.json" />
+        <EmbeddedResource Include="Responses\BadRequestError.json" />
+        <None Remove="Responses\InvalidResponse.json" />
+        <EmbeddedResource Include="Responses\InvalidResponse.json" />
+        <None Remove="Responses\MonthlyLimitExceededError.json" />
+        <EmbeddedResource Include="Responses\MonthlyLimitExceededError.json" />
+        <None Remove="Responses\RuntimeNotFoundError.json" />
+        <EmbeddedResource Include="Responses\RuntimeNotFoundError.json" />
+    </ItemGroup>
 
 </Project>

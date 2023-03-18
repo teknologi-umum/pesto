@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using Moq;
 using Moq.Protected;
 
@@ -33,7 +34,7 @@ public static class PestoHttpClientMock {
 				.ReturnsAsync(responseMessage);
 
 			using HttpClient httpClient = new(handlerMock.Object, disposeHandler: false) {
-				BaseAddress = new("https://pesto.teknologiumum.com/"),
+				BaseAddress = new Uri("https://pesto.teknologiumum.com/"),
 				DefaultRequestHeaders =
 				{
 					{ "User-Agent", "Pesto Testing/1.0" },
@@ -49,7 +50,7 @@ public static class PestoHttpClientMock {
 		}
 
 		// ReSharper disable once InconsistentNaming
-		public static async Task TestHttpClientUsingDummyJsonContentAsync(string jsonContent, Func<HttpClient, Task> testAsync) {
+		public static async Task TestHttpClientUsingDummyJsonContentAsync(string jsonContent, Func<HttpClient, Task> testAsync, HttpStatusCode statusCode) {
 			Mock<HttpMessageHandler> handlerMock = new();
 
 			handlerMock
@@ -59,8 +60,8 @@ public static class PestoHttpClientMock {
 					ItExpr.IsAny<HttpRequestMessage>(),
 					ItExpr.IsAny<CancellationToken>()
 				)
-				.ReturnsAsync(() => new() {
-					StatusCode = System.Net.HttpStatusCode.OK,
+				.ReturnsAsync(() => new HttpResponseMessage {
+					StatusCode = statusCode,
 					Content = new StringContent(
 						content: jsonContent,
 						encoding: Encoding.UTF8,
@@ -69,7 +70,7 @@ public static class PestoHttpClientMock {
 				});
 
 			using HttpClient httpClient = new(handlerMock.Object, disposeHandler: false) {
-				BaseAddress = new("https://pesto.teknologiumum.com/"),
+				BaseAddress = new Uri("https://pesto.teknologiumum.com/"),
 				DefaultRequestHeaders =
 				{
 					{ "User-Agent", "Pesto/1.0" },
@@ -83,11 +84,11 @@ public static class PestoHttpClientMock {
 		}
 
 		// ReSharper disable once InconsistentNaming
-		public static async Task TestHttpClientUsingDummyJsonResourceAsync(string resourceName, Func<HttpClient, Task> testAsync) {
+		public static async Task TestHttpClientUsingDummyJsonResourceAsync(string resourceName, Func<HttpClient, Task> testAsync, HttpStatusCode statusCode = HttpStatusCode.OK) {
 			await using Stream? stream = typeof(PestoHttpClientMock).Assembly.GetManifestResourceStream(resourceName);
 			if (stream is null) throw new InvalidProgramException($"Embedded resource not found: {resourceName}");
 			using StreamReader streamReader = new(stream);
 			string jsonContent = await streamReader.ReadToEndAsync();
-			await TestHttpClientUsingDummyJsonContentAsync(jsonContent, testAsync);
+			await TestHttpClientUsingDummyJsonContentAsync(jsonContent, testAsync, statusCode);
 		}
 }
