@@ -56,9 +56,7 @@ jobs:
       - name: Update OS
         run: >
           apt-get update -y && apt-get upgrade -y &&
-          apt-get install -y curl tar gzip openssl build-essential git &&
-          curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb &&
-          apt install -y ./google-chrome-stable_current_amd64.deb
+          apt-get install -y curl tar gzip openssl build-essential git
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -69,6 +67,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+
+      - name: Setup Chrome
+        run: >
+          curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb &&
+          apt install -y ./google-chrome-stable_current_amd64.deb
 
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@main
