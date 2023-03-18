@@ -14,7 +14,11 @@ const PORT = process.env?.PORT || "50051";
   const users = new SystemUsers(64101 + 0, 64101 + 49, 64101);
 
   Sentry.init({
-    dsn: process.env.SENTRY_DSN ?? ""
+    dsn: process.env.SENTRY_DSN ?? "",
+    attachStacktrace: true,
+    autoSessionTracking: true,
+    environment: process.env.NODE_ENV ?? "development",
+    tracesSampleRate: 1.0
   });
 
   const executeSchema = z.object({
@@ -28,7 +32,7 @@ const PORT = process.env?.PORT || "50051";
     })).optional(),
     compileTimeout: z.number().max(30_000).optional(),
     runTimeout: z.number().max(30_000).optional(),
-    memoryLimit: z.number().max(1024 * 1024 * 512).optional()
+    memoryLimit: z.number().max(1024 * 1024 * 1024).optional()
   });
 
   const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
@@ -166,7 +170,7 @@ const PORT = process.env?.PORT || "50051";
         case "application/x-www-form-urlencoded": {
           res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
             new URLSearchParams({
-              message: parsedBody.error.errors.join(", ")
+              message: parsedBody.error.errors.map(o => o.message).join(", ")
             }).toString()
           );
           break;
@@ -175,7 +179,7 @@ const PORT = process.env?.PORT || "50051";
         default:
           res.writeHead(400, { "Content-Type": "application/json" }).end(
             JSON.stringify({
-              message: parsedBody.error.errors.join(", ")
+              message: parsedBody.error.errors.map(o => o.message).join(", ")
             })
           );
       }
@@ -210,9 +214,9 @@ const PORT = process.env?.PORT || "50051";
       language: parsedBody.data.language,
       version: parsedBody.data.version,
       files: codeRequestFiles,
-      compileTimeout: parsedBody.data.compileTimeout ?? 5_000,
-      runTimeout: parsedBody.data.runTimeout ?? 5_000,
-      memoryLimit: parsedBody.data.memoryLimit ?? 1024 * 1024 * 128
+      compileTimeout: parsedBody.data.compileTimeout,
+      runTimeout: parsedBody.data.runTimeout,
+      memoryLimit: parsedBody.data.memoryLimit
     };
 
     try {
