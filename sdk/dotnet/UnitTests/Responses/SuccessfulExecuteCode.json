@@ -1,0 +1,16 @@
+﻿{
+  "language": "Python",
+  "version": "3.10.2",
+  "compile": {
+    "stdout": "",
+    "stderr": "",
+    "output": "",
+    "exitCode": 0
+  },
+  "runtime": {
+    "stdout": "Hello World",
+    "stderr": "",
+    "output": "Hello World",
+    "exitCode": 0
+  }
+}

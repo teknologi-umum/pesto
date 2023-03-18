@@ -85,3 +85,41 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: sdk-javascript
+
+  dotnet-sdk:
+    name: .NET SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet: [ '3.x', '6.x', '7.x' ]
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./sdk/dotnet
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Test
+        run: dotnet test Pesto.sln --collect "XPlat Code Coverage"
+        env:
+          PESTO_TOKEN: ${{ secrets.PESTO_TOKEN }}
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: sdk-dotnet
