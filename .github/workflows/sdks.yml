@@ -63,6 +63,14 @@ jobs:
           apt-get update -y && apt-get upgrade -y &&
           apt-get install -y curl tar gzip openssl build-essential git
 
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
       - name: Setup node
         uses: actions/setup-node@v3
         with:
@@ -72,14 +80,6 @@ jobs:
         run: >
           curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb &&
           apt install -y ./google-chrome-stable_current_amd64.deb
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
 
       - name: Install dependency
         run: npm ci
