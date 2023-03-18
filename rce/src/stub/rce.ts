@@ -64,15 +64,15 @@ export type CodeRequest = {
   /**
    * @generated from protobuf field: int32 compile_timeout = 4;
    */
-  compileTimeout: number;
+  compileTimeout?: number;
   /**
    * @generated from protobuf field: int32 run_timeout = 5;
    */
-  runTimeout: number;
+  runTimeout?: number;
   /**
    * @generated from protobuf field: int32 memory_limit = 6;
    */
-  memoryLimit: number;
+  memoryLimit?: number;
 }
 
 /**
