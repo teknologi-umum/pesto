@@ -44,6 +44,7 @@ jobs:
   js-sdk:
     name: JavaScript SDK
     runs-on: ubuntu-latest
+    container: ubuntu:latest
     strategy:
       matrix:
         node: [ '14', '16', '18' ]
@@ -52,6 +53,13 @@ jobs:
       run:
         working-directory: ./sdk/javascript
     steps:
+      - name: Update OS
+        run: >
+          apt-get update -y && apt-get upgrade -y &&
+          apt-get install -y curl tar gzip openssl build-essential git &&
+          curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb &&
+          apt install -y ./google-chrome-stable_current_amd64.deb
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
@@ -70,13 +78,6 @@ jobs:
           head: HEAD
           extra_args: --debug --only-verified
 
-      - name: Update OS
-        run: >
-          apt-get update -y && apt-get upgrade -y &&
-          apt-get install -y curl tar gzip openssl build-essential &&
-          curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb &&
-          apt install -y ./google-chrome-stable_current_amd64.deb
-      
       - name: Install dependency
         run: npm ci
 
