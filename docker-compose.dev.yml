@@ -151,7 +151,7 @@ services:
       - "traefik.http.routers.rce.rule=Host(`pesto.teknologiumum.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.rce.priority=1"
       - "traefik.http.routers.rce.tls.certresolver=tlsresolver"
-      - "traefik.http.routers.rce.middlewares=rce-auth,rce-error,rce-header,rce-rate,rce-redirectscheme,rce-inflightreq"
+      - "traefik.http.routers.rce.middlewares=rce-auth,rce-error,rce-header,rce-rate,rce-redirectscheme"
       - "traefik.http.services.rce.loadbalancer.server.port=50051"
       - "traefik.http.services.rce.loadbalancer.server.scheme=http"
       - "traefik.http.services.rce.loadbalancer.healthcheck.interval=30s"
@@ -178,7 +178,6 @@ services:
       - "traefik.http.middlewares.rce-header.headers.customResponseHeaders.server=Teknologi Umum"
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.permanent=true"
-      - "traefik.http.middlewares.rce-inflightreq.inflightreq.amount=50"
     healthcheck:
       test: curl -f http://localhost:50051/healthz || exit 1
       interval: 15s
