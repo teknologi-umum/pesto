@@ -6,11 +6,15 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/getsentry/sentry-go"
 )
 
 func TestAuthenticate_Method(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+	
+	ctx = sentry.SetHubOnContext(ctx, sentry.CurrentHub())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "/", nil)
 	if err != nil {
@@ -29,6 +33,8 @@ func TestAuthenticate_Method(t *testing.T) {
 func TestAuthenticate_EmptyToken(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+
+	ctx = sentry.SetHubOnContext(ctx, sentry.CurrentHub())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	if err != nil {
@@ -51,6 +57,8 @@ func TestAuthenticate_EmptyToken(t *testing.T) {
 func TestAuthenticate_NotRegistered(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+
+	ctx = sentry.SetHubOnContext(ctx, sentry.CurrentHub())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	if err != nil {
@@ -75,6 +83,8 @@ func TestAuthenticate_Ok(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
+	ctx = sentry.SetHubOnContext(ctx, sentry.CurrentHub())
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	if err != nil {
 		t.Fatalf("failed to create request: %v", err)
@@ -93,6 +103,8 @@ func TestAuthenticate_Ok(t *testing.T) {
 func TestAuthenticate_Revoked(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+
+	ctx = sentry.SetHubOnContext(ctx, sentry.CurrentHub())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	if err != nil {
@@ -116,6 +128,8 @@ func TestAuthenticate_Revoked(t *testing.T) {
 func TestAuthenticate_InvalidValue(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+
+	ctx = sentry.SetHubOnContext(ctx, sentry.CurrentHub())
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
 	if err != nil {
