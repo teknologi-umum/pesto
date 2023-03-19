@@ -7,9 +7,15 @@ build_command = [
     "{file}"
 ]
 run_command = [ "java", "-Xms64m", "-Xmx256m", "{file}" ]
-environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64"]
+environment = [
+  "PATH=/opt/java/17/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  "JAVA_HOME=/opt/java/17",
+  "JAVA_VERSION=17.0.5",
+  "LIBC=gnu"
+]
 test_file = "HelloWorld.java"
 aliases = ["java"]
 should_limit_memory = false
 memory_limit = 0
 process_limit = 512
+allowed_entrypoints = -1

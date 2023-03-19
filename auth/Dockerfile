@@ -1,4 +1,4 @@
-FROM golang:1.19.1-bullseye AS builder
+FROM golang:1.20.1-bullseye AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ FROM debian:bullseye
 
 WORKDIR /app
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl
+RUN apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates
 
 COPY --from=builder /app/pesto_auth .
 

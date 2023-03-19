@@ -1,0 +1,13 @@
+language = "Elixir"
+version = "1.14.1"
+compiled = false
+extension = "exs"
+environment = [ "PATH=/opt/elixir/1.14/bin:/opt/erlang/25/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+build_command = []
+run_command = [ "elixir", "{file}" ]
+test_file = "test.exs"
+aliases = ["ex", "elixir"]
+should_limit_memory = true
+memory_limit = 1024
+process_limit = 1024
+allowed_entrypoints = 1

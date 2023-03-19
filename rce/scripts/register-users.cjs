@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+/**
+ * This file is executed on the Dockerfile to register 50 Linux users on
+ * the Docker image to enable parallel execution to the RCE API.
+ */
+
 const fs = require("fs/promises");
 const cp = require("child_process");
 const console = require("console");

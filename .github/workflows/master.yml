@@ -1,15 +1,19 @@
-name: Master / Main Systems
+name: Main System
 
 on:
   push:
     branches:
       - master
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   auth:
     name: Auth
     runs-on: ubuntu-latest
-    container: golang:1.19
+    container: golang:1.20
     timeout-minutes: 30
     defaults:
       run:
@@ -32,7 +36,7 @@ jobs:
           extra_args: --debug --only-verified
 
       - name: Build test
-        run: go build .
+        run: go build -buildvcs=false .
 
       - name: Run test
         run: go test -v -coverprofile=coverage.out -covermode=atomic ./...
@@ -49,7 +53,7 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    container: node:16.14.0-bullseye
+    container: node:18.14.2-bullseye
     timeout-minutes: 30
     defaults:
       run:
@@ -74,6 +78,10 @@ jobs:
           apt-get install -y coreutils binutils build-essential libseccomp-dev gcc apt-utils &&
           make -C ./nosocket/ all && make -C ./nosocket/ install
 
+      - name: Install other language packages
+        run: >
+          apt-get install -y python3 sqlite3 lua5.4
+
       - name: Setup directory
         run: mkdir -p /code/$(whoami)
 
@@ -88,6 +96,12 @@ jobs:
 
       - name: Test & coverage
         run: npm run test
+        env:
+          LANGUAGE_JAVASCRIPT: true
+          LANGUAGE_C: true
+          LANGUAGE_LUA: true
+          LANGUAGE_PYTHON: true
+          LANGUAGE_SQLITE: true
 
       - name: Codecov
         uses: codecov/codecov-action@v3
@@ -134,7 +148,7 @@ jobs:
   registration:
     name: Registration
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/dotnet/sdk:6.0
+    container: mcr.microsoft.com/dotnet/sdk:7.0
     timeout-minutes: 30
     defaults:
       run:
@@ -162,16 +176,214 @@ jobs:
       - name: Build
         run: dotnet build "Registration.csproj" --no-restore -c Release
 
+  build-auth:
+    name: Build Auth
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - auth
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-auth
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: "{{defaultContext}}:auth"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: pesto-auth
+        with:
+          environment: production
+          ignore_empty: true
+
+  build-landing:
+    name: Build Landing
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - landing
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-landing
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: "{{defaultContext}}:landing"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-rce:
+    name: Build RCE
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    needs:
+      - rce
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rce
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: "{{defaultContext}}:rce"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: pesto-rce
+        with:
+          environment: production
+          ignore_empty: true
+
+  build-registration:
+    name: Build Registration
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - registration
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-registration
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: "{{defaultContext}}:registration"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: pesto-registration
+        with:
+          environment: production
+          ignore_empty: true
+
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     container: debian:bullseye
     timeout-minutes: 120
     needs:
-      - auth
-      - rce
-      - landing
-      - registration
+      - build-auth
+      - build-rce
+      - build-landing
+      - build-registration
     steps:
       - name: Install required packages
         run: apt-get update && apt-get upgrade -y && apt-get install -y tar gzip curl ssh
@@ -202,7 +414,8 @@ jobs:
           -p ${{ secrets.SSH_PORT }}
           -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
           "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S bash -c '\"'cd ${{ secrets.SSH_WORKDIR }}/pesto &&
-          docker compose up -d --build registration rce landing auth '\"' ' "
+          docker compose pull &&
+          docker compose up -d --pull always registration rce landing auth '\"' ' "
 
       - name: Clean up docker artifacts
         run: >

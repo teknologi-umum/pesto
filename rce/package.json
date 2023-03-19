@@ -6,30 +6,29 @@
     "start": "node -r dotenv/config ./dist/index.js",
     "build": "node build.js",
     "lint": "eslint --fix --ext .ts,.js,.cjs .",
-    "protoc:rce": "npx protoc --ts_out src/stub --ts_opt server_grpc1,client_none,generate_dependencies,optimize_code_size,add_pb_suffix --proto_path ../proto rce.proto",
-    "protoc:logger": "npx protoc --ts_out src/stub --ts_opt server_none,client_grpc1,generate_dependencies,optimize_code_size,add_pb_suffix --proto_path ../proto logger.proto",
     "test": "c8 ava"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@teknologi-umum/eslint-config-base": "^0.0.7",
-    "@types/node": "^17.0.21",
-    "@typescript-eslint/eslint-plugin": "^5.12.1",
-    "@typescript-eslint/parser": "^5.12.1",
-    "ava": "^4.3.1",
-    "c8": "^7.11.0",
-    "dotenv": "^16.0.0",
-    "esbuild": "^0.14.23",
-    "eslint": "^8.10.0",
-    "eslint-plugin-ava": "^13.2.0",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.5.5"
+    "@teknologi-umum/eslint-config-base": "^0.0.10",
+    "@types/node": "^18.14.1",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
+    "ava": "^5.2.0",
+    "c8": "^7.13.0",
+    "dotenv": "^16.0.3",
+    "esbuild": "^0.17.10",
+    "eslint": "^8.34.0",
+    "eslint-plugin-ava": "^14.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@sentry/node": "^7.1.1",
+    "@sentry/node": "^7.38.0",
     "polka": "^1.0.0-next.22",
-    "toml": "^3.0.0"
+    "toml": "^3.0.0",
+    "zod": "^3.20.6"
   },
   "type": "module"
 }

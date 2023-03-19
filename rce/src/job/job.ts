@@ -4,11 +4,12 @@ import console from "console";
 import childProcess from "child_process";
 import { Runtime } from "@/runtime/runtime";
 import { User } from "@/user/user";
+import { Files } from "./files";
 
 export interface JobPrerequisites {
   user: User;
   runtime: Runtime;
-  code: string;
+  files: Files;
   compileTimeout: number;
   memoryLimit: number;
 }
@@ -22,8 +23,10 @@ export interface CommandOutput {
 }
 
 export class Job implements JobPrerequisites {
-  private _sourceFilePath: string;
+  private _sourceFilePath: string[];
   private _builtFilePath: string;
+  private _entrypointsPath: string[];
+  private _baseFilePath: string;
   public readonly compileTimeout: number;
   public readonly runTimeout: number;
   public readonly memoryLimit: number;
@@ -31,7 +34,7 @@ export class Job implements JobPrerequisites {
   constructor(
     public readonly user: User,
     public readonly runtime: Runtime,
-    public readonly code: string,
+    public readonly files: Files,
     compileTimeout?: number,
     runTimeout?: number,
     memoryLimit?: number
@@ -40,9 +43,8 @@ export class Job implements JobPrerequisites {
       || Object.keys(user).length === 0
       || runtime === undefined
       || Object.keys(runtime).length === 0
-      || code === null
-      || code === undefined
-      || code === "") {
+      || files === undefined
+    ) {
       throw new TypeError("Invalid job parameters");
     }
 
@@ -68,21 +70,32 @@ export class Job implements JobPrerequisites {
       this.memoryLimit = this.runtime.memoryLimit;
     }
 
-    this._sourceFilePath = "";
+    this._sourceFilePath = [];
     this._builtFilePath = "";
+    this._entrypointsPath = [];
+    this._baseFilePath = "";
   }
 
   async createFile(): Promise<void> {
-    const filePath = path.join("/code", `/${this.user.username}`, `/code.${this.runtime.extension}`);
-    await fs.writeFile(filePath, this.code, { encoding: "utf-8" });
-    await fs.chmod(filePath, 0o700);
-    await fs.chown(filePath, this.user.uid, this.user.gid);
+    this._baseFilePath = path.join("/code", `/${this.user.username}`);
 
-    // Make sure the file is written properly.
-    const stat = await fs.stat(filePath);
-    console.log(`File path: ${filePath}`);
-    console.log(`File stat: UID: ${stat.uid}, GID: ${stat.gid}, Mode: ${stat.mode}, Size: ${stat.size}`);
-    this._sourceFilePath = filePath;
+    for await (const file of this.files.files) {
+      const filePath = path.join("/code", `/${this.user.username}`, file.fileName);
+      await fs.writeFile(filePath, file.code, { encoding: "utf-8" });
+      await fs.chmod(filePath, 0o700);
+      await fs.chown(filePath, this.user.uid, this.user.gid);
+
+      // Make sure the file is written properly.
+      const stat = await fs.stat(filePath);
+      console.log(`File path: ${filePath}`);
+      console.log(`File stat: UID: ${stat.uid}, GID: ${stat.gid}, Mode: ${stat.mode}, Size: ${stat.size}`);
+
+      if (file.entrypoint === true) {
+        this._entrypointsPath.push(file.fileName);
+      }
+
+      this._sourceFilePath.push(filePath);
+    }
   }
 
   async compile(): Promise<CommandOutput> {
@@ -97,7 +110,6 @@ export class Job implements JobPrerequisites {
     }
 
     try {
-      const fileName = path.basename(this._sourceFilePath);
       const buildCommand: string[] = [
         "/usr/bin/nice",
         "prlimit",
@@ -107,7 +119,7 @@ export class Job implements JobPrerequisites {
         "--rttime=" + this.compileTimeout.toString(),
         "--as=" + this.memoryLimit.toString(),
         "nosocket",
-        ...this.runtime.buildCommand.map(arg => arg.replace("{file}", fileName))
+        ...this.runtime.buildCommand.map(arg => arg.replace("{file}", this._entrypointsPath.join(" ")))
       ];
 
       const buildCommandOutput = await this.executeCommand(buildCommand);
@@ -116,7 +128,7 @@ export class Job implements JobPrerequisites {
         this.cleanup();
       }
 
-      this._builtFilePath = this._sourceFilePath.replace(`code.${this.runtime.extension}`, "code");
+      this._builtFilePath = path.join(this._baseFilePath, "code");
 
       return buildCommandOutput;
     } catch (error) {
@@ -127,9 +139,14 @@ export class Job implements JobPrerequisites {
 
   async run(): Promise<CommandOutput> {
     try {
-      let finalFileName: string = path.basename(this._sourceFilePath);
-      if (this.runtime.compiled) {
-        finalFileName = this._builtFilePath.replace(`.${this.runtime.extension}`, "");
+      const finalFileName: string[] = [];
+      for (const file of this._entrypointsPath) {
+        let baseName: string = path.basename(file);
+        if (this.runtime.compiled) {
+          baseName = this._builtFilePath.replace(`.${this.runtime.extension}`, "");
+        }
+
+        finalFileName.push(baseName);
       }
 
       const runCommand: string[] = [
@@ -148,7 +165,7 @@ export class Job implements JobPrerequisites {
       runCommand.push(
         "nosocket",
         ...this.runtime.runCommand.map((arg) =>
-          arg.replace("{file}", finalFileName)
+          arg.replace("{file}", finalFileName.join(" "))
         )
       );
 
@@ -163,12 +180,10 @@ export class Job implements JobPrerequisites {
 
   private async cleanup(): Promise<void> {
     // Crawl the directory and delete all files.
-    const pwd = "/code/" + this.user.username;
-
-    const files = await fs.readdir(pwd, { withFileTypes: false });
+    const files = await fs.readdir(this._baseFilePath, { withFileTypes: false });
 
     const promises = files.map((file) => {
-      return fs.rm(path.join(pwd, file), { force: true, recursive: true, maxRetries: 3, retryDelay: 100 });
+      return fs.rm(path.join(this._baseFilePath, file), { force: true, recursive: true, maxRetries: 3, retryDelay: 100 });
     });
 
     await Promise.allSettled(promises);

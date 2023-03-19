@@ -21,3 +21,4 @@ aliases = ["c++", "cpp"]
 should_limit_memory = true
 memory_limit = 256
 process_limit = 256
+allowed_entrypoints = 1

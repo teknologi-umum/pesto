@@ -15,9 +15,9 @@ import (
 )
 
 type TokenValue struct {
-	UserEmail    string `json:"user_email"`
-	MonthlyLimit int64  `json:"monthly_limit"`
-	Revoked      bool   `json:"revoked"`
+	UserEmail    string `json:"UserEmail"`
+	MonthlyLimit int64  `json:"MonthlyLimit"`
+	Revoked      bool   `json:"Revoked"`
 }
 
 func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
@@ -30,8 +30,9 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// Acquire X-Pesto-Token from header
 	token := r.Header.Get("X-Pesto-Token")
 	if token == "" {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Token must be supplied"))
+		w.Write([]byte(`{"message":"Token must be supplied"}`))
 		return
 	}
 
@@ -42,39 +43,45 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	resp, err := d.Client.Get(ctx, token).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
+			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Token not registered"))
+			w.Write([]byte(`{"message":"Token not registered"}`))
 			return
 		}
 
-		d.Logger.CaptureException(
+		d.Console.Error(err.Error())
+		d.Sentry.CaptureException(
 			fmt.Errorf("getting token %s: %w", token, err),
 			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
 			nil,
 		)
 
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte(`{"message":` + strconv.Quote(err.Error()) + "}"))
 		return
 	}
 
 	var tokenValue TokenValue
 	err = json.Unmarshal([]byte(resp), &tokenValue)
 	if err != nil {
-		d.Logger.CaptureException(
+		d.Console.Error(err.Error())
+		d.Sentry.CaptureException(
 			fmt.Errorf("unmarshal token value: %w", err),
 			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
 			nil,
 		)
 
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte(`{"message":` + strconv.Quote(err.Error()) + "}"))
 		return
 	}
 
 	if tokenValue.Revoked {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Token has been revoked"))
+		w.Write([]byte(`{"message":"Token has been revoked"}`))
 		return
 	}
 
@@ -82,14 +89,16 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	formattedDate := time.Now().UTC().Format("2006-01")
 	limitResp, err := d.Client.Get(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
-		d.Logger.CaptureException(
+		d.Console.Error(err.Error())
+		d.Sentry.CaptureException(
 			fmt.Errorf("getting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err),
 			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
 			nil,
 		)
 
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte(`{"message":` + strconv.Quote(err.Error()) + "}"))
 		return
 	}
 
@@ -100,22 +109,25 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	var counterLimit int64
 	v, err := strconv.ParseInt(limitResp, 10, 64)
 	if err != nil {
-		d.Logger.CaptureException(
+		d.Console.Error(err.Error())
+		d.Sentry.CaptureException(
 			fmt.Errorf("parsing counter limit: %w", err),
 			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
 			nil,
 		)
 
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write([]byte(`{"message":` + strconv.Quote(err.Error()) + "}"))
 		return
 	}
 
 	counterLimit += v
 
 	if counterLimit > tokenValue.MonthlyLimit {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusTooManyRequests)
-		w.Write([]byte("Monthly limit exceeded"))
+		w.Write([]byte(`{"message":"Monthly limit exceeded"}`))
 		return
 	}
 
@@ -128,7 +140,8 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 		_, err := d.Client.Set(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10), time.Hour*24*40).Result()
 		if err != nil {
-			d.Logger.CaptureException(
+			d.Console.Error(err.Error())
+			d.Sentry.CaptureException(
 				fmt.Errorf("putting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err),
 				&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
 				nil,

@@ -3,10 +3,11 @@ version = "2.2.7"
 compiled = false
 extension = "cl"
 build_command = []
-environment = [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
-run_command = [ "/usr/local/bin/sbcl", "--script", "{file}" ]
+environment = [ "SBCL_HOME=/opt/sbcl/2.2.7/lib/sbcl", "PATH=/opt/sbcl/2.2.7:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+run_command = [ "/opt/sbcl/2.2.7/bin/sbcl", "--script", "{file}" ]
 test_file = "test.cl"
 aliases = ["clisp", "sbcl"]
 should_limit_memory = true
-memory_limit = 256
-process_limit = 256
+memory_limit = 1024
+process_limit = 1024
+allowed_entrypoints = 1

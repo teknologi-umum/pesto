@@ -31,13 +31,13 @@ var (
 	VersionDotnet  Version  = "6.0.300"
 
 	LanguageGo Language = "Go"
-	VersionGo  Version  = "1.18.3"
+	VersionGo  Version  = "1.20.2"
 
 	LanguageJava Language = "Java"
 	VersionJava  Version  = "17"
 
 	LanguageJavascript Language = "Javascript"
-	VersionJavascript  Version  = "16.15.0"
+	VersionJavascript  Version  = "18.12.1"
 
 	LanguageJulia Language = "Julia"
 	VersionJulia  Version  = "1.7.3"
@@ -49,16 +49,22 @@ var (
 	VersionPHP  Version  = "8.1"
 
 	LanguagePython Language = "Python"
-	VersionPython  Version  = "3.10.2"
+	VersionPython  Version  = "3.10.10"
 
 	LanguageRuby Language = "Ruby"
-	VersionRuby  Version  = "3.1.2"
+	VersionRuby  Version  = "3.2.1"
 
 	LanguageSQLite Language = "SQLite3"
 	VersionSQLite  Version  = "3.34.1"
 
 	LanguageV Language = "V"
 	VersionV  Version  = "0.3"
+
+	// VersionLatest tells the API to choose the latest version
+	// of the selected language. The `version` response will be a
+	// normal semver version, instead of the same "latest"
+	// string input.
+	VersionLatest Version = "latest"
 )
 
 type CodeRequest struct {

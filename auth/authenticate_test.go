@@ -43,7 +43,7 @@ func TestAuthenticate_EmptyToken(t *testing.T) {
 		t.Errorf("expected status code %d, got %d", http.StatusUnauthorized, rec.Code)
 	}
 
-	if rec.Body.String() != "Token must be supplied" {
+	if rec.Body.String() != `{"message":"Token must be supplied"}` {
 		t.Errorf("expected body %q, got %q", "Token must be supplied", rec.Body.String())
 	}
 }
@@ -66,7 +66,7 @@ func TestAuthenticate_NotRegistered(t *testing.T) {
 		t.Errorf("expected status code %d, got %d", http.StatusUnauthorized, rec.Code)
 	}
 
-	if rec.Body.String() != "Token not registered" {
+	if rec.Body.String() != `{"message":"Token not registered"}` {
 		t.Errorf("expected body %q, got %q", "Token not registered", rec.Body.String())
 	}
 }
@@ -108,7 +108,7 @@ func TestAuthenticate_Revoked(t *testing.T) {
 		t.Errorf("expected status code %d, got %d", http.StatusUnauthorized, rec.Code)
 	}
 
-	if rec.Body.String() != "Token has been revoked" {
+	if rec.Body.String() != `{"message":"Token has been revoked"}` {
 		t.Errorf("expected body %q, got %q", "Token has been revoked", rec.Body.String())
 	}
 }

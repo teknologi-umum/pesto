@@ -2,12 +2,34 @@
 import Layout from "~/layouts/Layout.astro";
 import Logo from "~/components/Logo.astro";
 import Section from "~/components/Section.astro";
+
+let errorMessage: string = "";
+
+if (Astro.url.searchParams.has("message")) {
+	errorMessage = Astro.url.searchParams.get("message");
+}
+
+if (Astro.request.headers.get("Accept") === "application/json") {
+	const responseMessages: string[] = [
+		"Internal server error",
+		errorMessage,
+		"If you think this shouldn't happen, you can help us fix this error by sending us a bug report to our Github Issue page",
+	];
+
+	return new Response(JSON.stringify({ message: responseMessages.filter((i) => i !== "").join(". ") }), {
+		status: 500,
+		headers: { "Content-Type": "application/json" },
+	});
+}
+
+Astro.response.status = 500;
 ---
 
 <Layout>
 	<Logo />
 	<Section title="500">
-		<p>Internal server error. @ERROR_MESSAGE</p>
+		<p><strong>Internal server error.</strong></p>
+		<p>{errorMessage}</p>
 		<p>
 			If you think this shouldn't happen, you can help us fix this error by sending us a bug report to our{" "}
 			<a class="url" href="https://github.com/teknologi-umum/pesto/issues"> Github Issue</a>{" "}

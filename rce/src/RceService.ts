@@ -9,6 +9,7 @@ import { Runtime as RceRuntime } from "@/runtime/runtime";
 import { SystemUsers } from "./user/user";
 import { CommandOutput, Job } from "./job/job";
 import { ClientError, ServerError } from "./Error";
+import { Files } from "./job/files";
 
 
 export class RceServiceImpl implements ICodeExecutionEngineService {
@@ -35,13 +36,22 @@ export class RceServiceImpl implements ICodeExecutionEngineService {
 
   public async execute(req: CodeRequest): Promise<CodeResponse> {
     const runtimeIndex = this._registeredRuntimes.findIndex(
-      (r) => r.language === req.language && r.version === req.version
+        (r) => r.language === req.language && (req.version === "latest" ? r.latest : r.version === req.version)
     );
+
     if (runtimeIndex < 0) {
       throw new ClientError("Runtime not found");
     }
 
     const runtime = this._registeredRuntimes[runtimeIndex];
+
+    // Convert to Files class
+    const files = new Files(req.files.map(o => ({ fileName: o.fileName, code: o.code, entrypoint: o.entrypoint })), runtime.extension);
+
+    // Validate allowed entrypoints
+    if (runtime.allowedEntrypoints !== -1 && files.files.length > 1 && files.files.filter((i) => i.entrypoint === true).length > runtime.allowedEntrypoints) {
+      throw new ClientError(`Maximum allowed entrypoint exceeded of ${runtime.allowedEntrypoints} entries`);
+    }
 
     // Acquire the available user.
     const user = this._users.acquire();
@@ -53,7 +63,7 @@ export class RceServiceImpl implements ICodeExecutionEngineService {
     const job = new Job(
       user,
       runtime,
-      req.code,
+      files,
       req.compileTimeout,
       req.runTimeout,
       req.memoryLimit

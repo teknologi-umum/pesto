@@ -2,7 +2,7 @@ language = "PHP"
 version = "8.1"
 compiled = false
 extension = "php"
-environment = []
+environment = [ "PATH=/opt/php/8.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
 build_command = []
 run_command = [ "php", "{file}" ]
 test_file = "test.php"
@@ -10,3 +10,4 @@ aliases = ["php"]
 should_limit_memory = true
 memory_limit = 512
 process_limit = 256
+allowed_entrypoints = 1

@@ -15,7 +15,8 @@ func (d *Deps) Healthz(w http.ResponseWriter, r *http.Request) {
 
 	_, err := d.Client.Ping(ctx).Result()
 	if err != nil {
-		d.Logger.CaptureException(
+		d.Console.ErrorWith(err.Error()).String("endpoint", "healthz")
+		d.Sentry.CaptureException(
 			fmt.Errorf("healthz error: %w", err),
 			&sentry.EventHint{
 				OriginalException: err,

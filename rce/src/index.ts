@@ -1,10 +1,11 @@
 import console from "console";
 import * as Sentry from "@sentry/node";
 import polka from "polka";
+import { z } from "zod";
 import { RceServiceImpl } from "@/RceService";
 import { acquireRuntime } from "@/runtime/acquire";
 import { SystemUsers } from "@/user/user";
-import { CodeRequest } from "./stub/rce";
+import { CodeRequest, CodeRequest_File } from "./stub/rce";
 import { ClientError, ServerError } from "./Error";
 
 const PORT = process.env?.PORT || "50051";
@@ -13,7 +14,25 @@ const PORT = process.env?.PORT || "50051";
   const users = new SystemUsers(64101 + 0, 64101 + 49, 64101);
 
   Sentry.init({
-    dsn: process.env.SENTRY_DSN ?? ""
+    dsn: process.env.SENTRY_DSN ?? "",
+    attachStacktrace: true,
+    autoSessionTracking: true,
+    environment: process.env.NODE_ENV ?? "development",
+    tracesSampleRate: 1.0
+  });
+
+  const executeSchema = z.object({
+    language: z.string().min(1),
+    version: z.string().default("latest"),
+    code: z.string().optional(),
+    files: z.array(z.object({
+      name: z.string().min(1),
+      code: z.string().min(1),
+      entrypoint: z.boolean().default(false)
+    })).optional(),
+    compileTimeout: z.number().max(30_000).optional(),
+    runTimeout: z.number().max(30_000).optional(),
+    memoryLimit: z.number().max(1024 * 1024 * 1024).optional()
   });
 
   const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
@@ -144,37 +163,14 @@ const PORT = process.env?.PORT || "50051";
   });
 
   server.post("/api/execute", async (req, res) => {
-    const missingParameters: string[] = [];
-    if (req.body?.language === undefined || req.body?.language === null || typeof req.body.language !== "string" || req.body.language === "") {
-      missingParameters.push("language");
-    }
+    const parsedBody = executeSchema.safeParse(req.body);
 
-    if (req.body?.version === undefined || req.body?.version === null || typeof req.body?.version !== "string" || req.body.version === "") {
-      missingParameters.push("version");
-    }
-
-    if (req.body?.code === undefined || req.body?.code === null || typeof req.body?.code !== "string" || req.body.code === "") {
-      missingParameters.push("code");
-    }
-
-    if (req.body?.compileTimeout !== undefined && req.body?.compileTimeout !== null && (typeof req.body.compileTimeout !== "number" || req.body.compileTimeout > 30_000)) {
-      missingParameters.push("compileTimeout");
-    }
-
-    if (req.body?.runTimeout !== undefined && req.body?.runTimeout !== null && (typeof req.body.runTimeout !== "number" || req.body.runTimeout > 30_000)) {
-      missingParameters.push("runTimeout");
-    }
-
-    if (req.body?.memoryLimit !== undefined && req.body?.memoryLimit !== null && (typeof req.body.memoryLimit !== "number" || req.body.memoryLimit > 1024 * 1024 * 512)) {
-      missingParameters.push("memoryLimit");
-    }
-
-    if (missingParameters.length > 0) {
+    if (!parsedBody.success) {
       switch (req.headers.accept) {
         case "application/x-www-form-urlencoded": {
           res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
             new URLSearchParams({
-              message: `Missing parameters: ${missingParameters.join(", ")}`
+              message: parsedBody.error.errors.map(o => o.message).join(", ")
             }).toString()
           );
           break;
@@ -183,7 +179,7 @@ const PORT = process.env?.PORT || "50051";
         default:
           res.writeHead(400, { "Content-Type": "application/json" }).end(
             JSON.stringify({
-              message: `Missing parameters: ${missingParameters.join(", ")}`
+              message: parsedBody.error.errors.map(o => o.message).join(", ")
             })
           );
       }
@@ -191,13 +187,36 @@ const PORT = process.env?.PORT || "50051";
       return;
     }
 
+    if (parsedBody.data.code === undefined && parsedBody.data.files === undefined) {
+      throw new ClientError("Both code and files must not be empty", 400);
+    }
+
+    if (parsedBody.data.code !== undefined && parsedBody.data.code === "" && (parsedBody.data.files !== undefined && parsedBody.data.files.length === 0)) {
+      throw new ClientError("Both code and files must not be empty", 400);
+    }
+
+    const codeRequestFiles: CodeRequest_File[] = [];
+    if (parsedBody.data.files !== undefined) {
+      for (const file of parsedBody.data.files) {
+        if (file.name === "") {
+          throw new ClientError("File name cannot be empty", 400);
+        }
+
+        codeRequestFiles.push({ fileName: file.name, code: file.code, entrypoint: file.entrypoint });
+      }
+    } else if (parsedBody.data.code !== undefined) {
+      codeRequestFiles.push({ fileName: "", code: parsedBody.data.code, entrypoint: true });
+    } else {
+      throw new ServerError("Wrong validation on our side for files and code");
+    }
+
     const codeRequest: CodeRequest = {
-      language: req.body.language,
-      version: req.body.version,
-      code: req.body.code,
-      compileTimeout: req.body?.compileTimeout ?? 5_000,
-      runTimeout: req.body?.runTimeout ?? 5_000,
-      memoryLimit: req.body?.memoryLimit ?? 1024 * 1024 * 128
+      language: parsedBody.data.language,
+      version: parsedBody.data.version,
+      files: codeRequestFiles,
+      compileTimeout: parsedBody.data.compileTimeout,
+      runTimeout: parsedBody.data.runTimeout,
+      memoryLimit: parsedBody.data.memoryLimit
     };
 
     try {
@@ -271,7 +290,6 @@ const PORT = process.env?.PORT || "50051";
         Sentry.withScope((scope) => {
           scope.setExtra("language", codeRequest.language);
           scope.setExtra("version", codeRequest.version);
-          scope.setExtra("code", codeRequest.code);
           scope.setExtra("compile_timeout", codeRequest.compileTimeout);
           scope.setExtra("run_timeout", codeRequest.runTimeout);
           scope.setExtra("memory_limit", codeRequest.memoryLimit);

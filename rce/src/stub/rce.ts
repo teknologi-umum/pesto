@@ -40,6 +40,13 @@ export type PingResponse = {
    */
   message: string;
 }
+
+export type CodeRequest_File = {
+  fileName: string,
+  code: string,
+  entrypoint: boolean
+}
+
 /**
  * @generated from protobuf message rce.CodeRequest
  */
@@ -52,22 +59,20 @@ export type CodeRequest = {
    * @generated from protobuf field: string version = 2;
    */
   version: string;
-  /**
-   * @generated from protobuf field: string code = 3;
-   */
-  code: string;
+
+  files: CodeRequest_File[]
   /**
    * @generated from protobuf field: int32 compile_timeout = 4;
    */
-  compileTimeout: number;
+  compileTimeout?: number;
   /**
    * @generated from protobuf field: int32 run_timeout = 5;
    */
-  runTimeout: number;
+  runTimeout?: number;
   /**
    * @generated from protobuf field: int32 memory_limit = 6;
    */
-  memoryLimit: number;
+  memoryLimit?: number;
 }
 
 /**

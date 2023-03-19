@@ -1,12 +1,13 @@
 language = "Ruby"
-version = "3.1.2"
+version = "3.2.1"
 compiled = false
 extension = "rb"
-environment = []
+environment = [ "PATH=/opt/ruby/3.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"]
 build_command = []
-run_command = [ "ruby", "{file}" ]
+run_command = [ "/opt/ruby/3.2/bin/ruby", "{file}" ]
 test_file = "test.rb"
 aliases = ["ruby", "rb"]
 should_limit_memory = true
 memory_limit = 256
 process_limit = 256
+allowed_entrypoints = 1
