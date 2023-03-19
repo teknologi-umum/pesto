@@ -229,7 +229,9 @@ services:
     environment:
       <<: [ *defaults ]
       PORT: 80
-      ASPNETCORE_SentryDsn: ${REGISTRATION_SENTRY_DSN}
+      ASPNETCORE_Sentry__Dsn: ${REGISTRATION_SENTRY_DSN}
+      ASPNETCORE_Sentry__Debug: false
+      ASPNETCORE_Sentry__Environment: production
       ASPNETCORE_RedisUrl: db:6379
     labels:
       - "traefik.enable=true"
