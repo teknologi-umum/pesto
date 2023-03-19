@@ -35,7 +35,7 @@ public class TrialService
         var serializedUser = JsonSerializer.Serialize(registeredUser);
 
         var db = _redis.GetDatabase();
-        var created = await db.StringSetAsync(
+        await db.StringSetAsync(
             key: token,
             value: serializedUser,
             expiry: TimeSpan.FromHours(24),
