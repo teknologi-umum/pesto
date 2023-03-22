@@ -1,28 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
 using Registration.Models;
 using Registration.Services;
-using StackExchange.Redis;
+using User = Registration.Models.User;
 
 namespace Registration.Controllers;
 
 [ApiController]
 public class RegistrationController : ControllerBase
 {
-    private readonly IConnectionMultiplexer _redis;
     private readonly WaitingListService _waitingListService;
     private readonly ApprovalService _approvalService;
+    private readonly TrialService _trialService;
 
-    public RegistrationController(IConnectionMultiplexer redis, WaitingListService waitingListService, ApprovalService approvalService)
+    public RegistrationController(WaitingListService waitingListService, ApprovalService approvalService, TrialService trialService)
     {
-        _redis = redis;
         _waitingListService = waitingListService;
         _approvalService = approvalService;
+        _trialService = trialService;
     }
 
     /// <summary>
     /// Register a user into waiting list
     /// </summary>
     /// <param name="user"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns>Nothing</returns>
     /// <response code="201">User successfully registered</response>
     /// <response code="204">User already registered, but no worries</response>
@@ -108,5 +109,19 @@ public class RegistrationController : ControllerBase
         {
             return BadRequest("User does not exists");
         }
+    }
+    
+    /// <summary>
+    /// Create a temporary token for a trial user
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("/api/trial")]
+    public async Task<IActionResult> TrialAsync(CancellationToken cancellationToken)
+    {
+        var token = await _trialService.CreateTokenAsync(cancellationToken);
+
+        return Ok(token);
     }
 }

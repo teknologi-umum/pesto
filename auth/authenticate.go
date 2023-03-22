@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/getsentry/sentry-go"
@@ -50,11 +51,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 		}
 
 		d.Console.Error(err.Error())
-		d.Sentry.CaptureException(
-			fmt.Errorf("getting token %s: %w", token, err),
-			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
-			nil,
-		)
+		sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("getting token %s: %w", token, err))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -66,11 +63,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal([]byte(resp), &tokenValue)
 	if err != nil {
 		d.Console.Error(err.Error())
-		d.Sentry.CaptureException(
-			fmt.Errorf("unmarshal token value: %w", err),
-			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
-			nil,
-		)
+		sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("unmarshal token value: %w", err))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -90,11 +83,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	limitResp, err := d.Client.Get(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		d.Console.Error(err.Error())
-		d.Sentry.CaptureException(
-			fmt.Errorf("getting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err),
-			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
-			nil,
-		)
+		sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("getting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -110,11 +99,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	v, err := strconv.ParseInt(limitResp, 10, 64)
 	if err != nil {
 		d.Console.Error(err.Error())
-		d.Sentry.CaptureException(
-			fmt.Errorf("parsing counter limit: %w", err),
-			&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
-			nil,
-		)
+		sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("parsing counter limit: %w", err))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -133,6 +118,11 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	// Increment monthly counter
 	go func(tokenValue TokenValue) {
+		// Do nothing if user email contains the secret/testing user.
+		if strings.HasPrefix(tokenValue.UserEmail, "trial") && strings.HasSuffix(tokenValue.UserEmail, "@pesto.teknologiumum.com") {
+			return
+		}
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 		defer cancel()
 
@@ -141,11 +131,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 		_, err := d.Client.Set(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10), time.Hour*24*40).Result()
 		if err != nil {
 			d.Console.Error(err.Error())
-			d.Sentry.CaptureException(
-				fmt.Errorf("putting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err),
-				&sentry.EventHint{OriginalException: err, Request: r, Context: r.Context()},
-				nil,
-			)
+			sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("putting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err))
 
 			log.Printf("error incrementing monthly counter: %v", err)
 		}
