@@ -1,3 +1,7 @@
-﻿namespace Pesto.Models; 
+﻿using System.Collections.Generic;
 
-public record RuntimeResponse(List<Runtime> Runtime);
+namespace Pesto.Models {
+    public class RuntimeResponse {
+        public IList<Runtime> Runtime { get; set; }
+    }
+}

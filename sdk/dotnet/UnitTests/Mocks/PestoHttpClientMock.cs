@@ -1,5 +1,10 @@
-﻿using System.Net;
+﻿using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Moq;
 using Moq.Protected;
 
@@ -11,7 +16,7 @@ public static class PestoHttpClientMock {
 			Mock<HttpMessageHandler> handlerMock = new();
 
 			using HttpResponseMessage responseMessage = new() {
-				StatusCode = System.Net.HttpStatusCode.OK,
+				StatusCode = HttpStatusCode.OK,
 				Content = new StringContent(
 					content: "{}",
 					encoding: Encoding.UTF8,

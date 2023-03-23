@@ -1,3 +1,5 @@
-﻿namespace Pesto.Models; 
-
-public record ErrorResponse(string Message);
+﻿namespace Pesto.Models {
+    public class ErrorResponse {
+        public string Message { get; set; }
+    }
+}
