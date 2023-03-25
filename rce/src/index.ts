@@ -1,5 +1,6 @@
 import console from "console";
 import * as Sentry from "@sentry/node";
+import "@sentry/tracing";
 import polka from "polka";
 import { z } from "zod";
 import { RceServiceImpl } from "@/RceService";
@@ -18,7 +19,17 @@ const PORT = process.env?.PORT || "50051";
     attachStacktrace: true,
     autoSessionTracking: true,
     environment: process.env.NODE_ENV ?? "development",
-    tracesSampleRate: 1.0
+    tracesSampler(samplingContext): number {
+      if (samplingContext.request?.method?.toUpperCase() === "GET" &&
+        samplingContext.request.url?.includes("/healthz")) {
+        return 0;
+      }
+
+      return 0.5;
+    },
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true })
+    ]
   });
 
   const executeSchema = z.object({
@@ -38,13 +49,8 @@ const PORT = process.env?.PORT || "50051";
   const rceServiceImpl = new RceServiceImpl(registeredRuntimes, users);
 
   const server = polka({
-    onError: (err, req, res) => {
-      Sentry.withScope((scope) => {
-        scope.setExtra("method", req.method);
-        scope.setExtra("endpoint", req.url);
-        scope.setExtra("body", req.body);
-        Sentry.captureException(err);
-      });
+    onError: (err, req, res, next) => {
+      Sentry.Handlers.errorHandler()(err as Error, req, res, next as () => void);
 
       res.writeHead(500, { "Content-Type": "application/json" })
         .end(JSON.stringify({ error: err }));
@@ -54,6 +60,8 @@ const PORT = process.env?.PORT || "50051";
         .end(JSON.stringify({ message: "Not found" }));
     }
   });
+
+  server.use(Sentry.Handlers.requestHandler({ include: { ip: true, request: true, transaction: true, user: true }}));
 
   server.use(async (req, res, next) => {
     try {

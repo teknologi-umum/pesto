@@ -63,7 +63,13 @@ func main() {
 		AttachStacktrace: true,
 		Environment:      env,
 		EnableTracing:    true,
-		TracesSampleRate: 0.75,
+		TracesSampler: func(ctx sentry.SamplingContext) float64 {
+			if ctx.Span.Op == "GET /healthz" {
+				return 0
+			}
+
+			return 0.5
+		},
 	})
 	if err != nil {
 		log.Fatalf("sentry.Init: %s", err)
