@@ -1,0 +1,21 @@
+{
+  "name": "dogfood",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "test.js",
+  "engineStrict": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "node-fetch": "^3.3.1"
+  }
+}
