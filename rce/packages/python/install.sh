@@ -16,6 +16,5 @@ make -j $(nproc)
 make install -j $(nproc)
 
 cd /tmp
-rm Python-${VERSION}.tgz
-rm -rf Python-${VERSION}
+rm -rf Python-${VERSION}*
 

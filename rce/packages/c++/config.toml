@@ -1,5 +1,5 @@
 language = "C++"
-version = "10.2.1"
+version = "12.2.0"
 compiled = true
 extension = "cpp"
 build_command = [
@@ -14,7 +14,13 @@ build_command = [
     "code",
     "{file}"
 ]
-environment = []
+environment = [
+  "PATH=/opt/gcc/12.2.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  "LD_LIBRARY_PATH=/opt/gcc/12.2.0/lib64",
+  "CC=/opt/gcc/12.2.0/bin/gcc",
+  "CXX=/opt/gcc/12.2.0/bin/g++",
+  "FC=/opt/gcc/12.2.0/bin/gfortran",
+]
 run_command = [ "./code" ]
 test_file = "test.cpp"
 aliases = ["c++", "cpp"]
