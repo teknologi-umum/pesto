@@ -349,7 +349,7 @@ jobs:
       - rce
     services:
       pesto_rce:
-        image: ghcr.io/teknologi-umum/pesto-rce:${{github.event.number}}
+        image: ghcr.io/teknologi-umum/pesto-rce:pr-${{github.event.number}}
         env:
           PORT: 50051
           ENVIRONMENT: production
