@@ -387,6 +387,8 @@ jobs:
         env:
           PORT: 50051
           ENVIRONMENT: production
+        ports:
+          - 50051:50051
         options: >-
           --health-cmd "curl -f http://localhost:50051/healthz"
           --health-interval 30s
@@ -416,7 +418,7 @@ jobs:
           node --test
         working-directory: ./dogfood
         env:
-          PESTO_URL: http://pesto_rce:50051/
+          PESTO_URL: http://localhost:50051/
 
   deploy:
     name: Deploy
