@@ -19,7 +19,7 @@ mkdir -p /opt/gcc/12.2.0
 cd ..
 mkdir build
 cd build
-../gcc-releases-gcc-12.2.0/configure -v --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --prefix=/opt/gcc/12.2.0 --enable-checking=release --enable-languages=c,c++,fortran --disable-multilib
+../gcc-releases-gcc-12.2.0/configure -v --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --prefix=/opt/gcc/12.2.0 --disable-checking --enable-stage1-checking --enable-languages=c,c++,fortran --disable-multilib
 
 make -j $(nproc)
 make install-strip -j $(nproc)

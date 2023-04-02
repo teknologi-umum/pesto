@@ -52,7 +52,7 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 720
     permissions:
       contents: read
       packages: write
