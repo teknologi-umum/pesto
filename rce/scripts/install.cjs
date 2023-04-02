@@ -32,12 +32,8 @@ function execute(command, workingDirectory = process.cwd(), env = { "PATH": proc
       {
         cwd: workingDirectory,
         env: { ...process.env, ...env },
-        maxBuffer: 1024 * 500
-      },
-      (error) => {
-        if (error) {
-          reject(error);
-        }
+        maxBuffer: 1024 * 500,
+        stdio: undefined
       }
     );
 
