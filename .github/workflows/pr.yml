@@ -379,7 +379,7 @@ jobs:
       - name: Run tests
         run: >
           npm ci &&
-          npm run test
+          node --test
         working-directory: ./dogfood
         env:
           PESTO_URL: http://pesto_rce:50051/

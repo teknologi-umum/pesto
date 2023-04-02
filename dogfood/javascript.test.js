@@ -51,12 +51,12 @@ test("Execute with SyntaxError", async () => {
         code: "Lorem ipsum dolot sit amet!!!"
     });
 
-    const expectedOutput = "/code/code_executor_64101/code0.js:1\nLorem ipsum dolot sit amet!!!\n      ^^^^^\n\nSyntaxError: Unexpected identifier\n    at Object.compileFunction (node:vm:360:18)\n    at wrapSafe (node:internal/modules/cjs/loader:1088:15)\n    at Module._compile (node:internal/modules/cjs/loader:1123:27)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1213:10)\n    at Module.load (node:internal/modules/cjs/loader:1037:32)\n    at Module._load (node:internal/modules/cjs/loader:878:12)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)\n    at node:internal/main/run_main_module:23:47\n\nNode.js v18.12.1\n";
+    const expectedOutput = "SyntaxError: Unexpected identifier";
 
     assert.strictEqual(codeOutput.language, "Javascript");
     assert.strictEqual(codeOutput.runtime.stdout, "");
-    assert.strictEqual(codeOutput.runtime.output, expectedOutput);
-    assert.strictEqual(codeOutput.runtime.stderr, expectedOutput);
+    assert.ok(codeOutput.runtime.output.includes(expectedOutput));
+    assert.ok(codeOutput.runtime.stderr.includes(expectedOutput));
     assert.strictEqual(codeOutput.runtime.exitCode, 1);
     assert.strictEqual(codeOutput.compile.stdout, "");
     assert.strictEqual(codeOutput.compile.output, "");

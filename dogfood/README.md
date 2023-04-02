@@ -34,6 +34,6 @@ mv sdk/javascript/dist/ dogfood/pesto-node
 export PESTO_URL=http://pesto_rce:50051/ # Set to your RCE API URL.
 cd dogfood
 npm ci
-npm run test
+node --test
 ```
 
