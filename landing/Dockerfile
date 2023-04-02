@@ -5,7 +5,7 @@ WORKDIR /home/app
 # Files required by pnpm install
 COPY pnpm-lock.yaml ./
 
-RUN apk add curl && npm i -i pnpm && pnpm fetch
+RUN apk add curl && npm i -g pnpm && pnpm fetch
 
 ADD . ./
 
