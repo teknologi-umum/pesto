@@ -261,7 +261,7 @@ jobs:
   build-rce:
     name: Build RCE
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 720
     needs:
       - rce
     permissions:
@@ -339,3 +339,49 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  dogfood:
+    name: Dogfood Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs:
+      - build-rce
+      - rce
+    services:
+      pesto_rce:
+        image: ghcr.io/teknologi-umum/pesto-rce:pr-${{github.event.number}}
+        env:
+          PORT: 50051
+          ENVIRONMENT: production
+        ports:
+          - 50051:50051
+        options: >-
+          --health-cmd "curl -f http://localhost:50051/healthz"
+          --health-interval 30s
+          --health-timeout 15s
+          --health-retries 10
+          --health-start-period 90s
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          check-latest: true
+
+      - name: Build Javascript SDK
+        run: >
+          cd sdk/javascript &&
+          npm ci &&
+          npm run build &&
+          cd ../.. &&
+          mv -v sdk/javascript/dist/ dogfood/pesto-node
+      
+      - name: Run tests
+        run: >
+          npm ci &&
+          node --test
+        working-directory: ./dogfood
+        env:
+          PESTO_URL: http://localhost:50051/

@@ -9,7 +9,7 @@
     "test": "c8 ava"
   },
   "author": "",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@teknologi-umum/eslint-config-base": "^0.0.10",
     "@types/node": "^18.14.1",
