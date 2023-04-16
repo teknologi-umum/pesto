@@ -64,7 +64,7 @@ func main() {
 		Environment:      env,
 		EnableTracing:    true,
 		TracesSampler: func(ctx sentry.SamplingContext) float64 {
-			if ctx.Span.Op == "GET /healthz" {
+			if ctx.Span.Name == "GET /healthz" {
 				return 0
 			}
 
