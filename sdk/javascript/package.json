@@ -60,5 +60,8 @@
   },
   "dependencies": {
     "node-fetch": "^3.3.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
