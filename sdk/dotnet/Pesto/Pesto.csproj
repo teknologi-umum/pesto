@@ -2,8 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
         <Authors>Teknologi Umum</Authors>
         <Copyright>2022 Teknologi Umum and contributors</Copyright>
         <PackageProjectUrl>https://pesto.teknologiumum.com/</PackageProjectUrl>
@@ -11,6 +10,7 @@
         <RepositoryUrl>https://github.com/teknologi-umum/pesto/</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
         <Company>TeknologiUmum</Company>
+        <LangVersion>6</LangVersion>
     </PropertyGroup>
 
 </Project>
