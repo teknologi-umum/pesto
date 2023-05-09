@@ -111,7 +111,7 @@ jobs:
       - run: npm run build
       - run: npm publish --tag nightly
         env:
-          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   dotnet-sdk:
     name: .NET Check
