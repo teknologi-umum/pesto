@@ -98,6 +98,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    defaults:
+      run:
+        working-directory: ./sdk/javascript
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
