@@ -27,7 +27,7 @@ def bump_dotnet(commit_hash: str):
         file.write(file_contents)
 
 def main():
-    current_git_commit: str = subprocess.getoutput("git rev-parse --short HEAD", encoding="utf8")
+    current_git_commit: str = subprocess.getoutput("git rev-parse --short HEAD")
     
     bump_javascript(current_git_commit)
     bump_dotnet(current_git_commit)
