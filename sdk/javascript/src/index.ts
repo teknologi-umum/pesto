@@ -145,3 +145,6 @@ export class PestoClient {
         );
     }
 }
+
+export * from "./errors";
+export * from "./responses";

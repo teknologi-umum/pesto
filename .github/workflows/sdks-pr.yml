@@ -51,7 +51,7 @@ jobs:
   js-sdk:
     name: JavaScript SDK
     runs-on: ubuntu-latest
-    container: node:18
+    container: node:lts
     timeout-minutes: 30
     defaults:
       run:
