@@ -1,6 +1,6 @@
 {
   "name": "@teknologi-umum/pesto",
-  "version": "1.0.0-2af9749-2af9749-2af9749-2af9749",
+  "version": "1.0.0",
   "description": "JavaScript SDK for Pesto",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
