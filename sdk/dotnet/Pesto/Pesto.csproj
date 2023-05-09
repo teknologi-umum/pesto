@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
-        <Authors>Teknologi Umum</Authors>
+        <Authors>TeknologiUmum</Authors>
         <Copyright>2022 Teknologi Umum and contributors</Copyright>
         <PackageProjectUrl>https://pesto.teknologiumum.com/</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/teknologi-umum/pesto/blob/master/LICENSE</PackageLicenseUrl>
@@ -11,6 +11,9 @@
         <RepositoryType>Git</RepositoryType>
         <Company>TeknologiUmum</Company>
         <LangVersion>6</LangVersion>
+        <Title>Pesto</Title>
+        <Description>.NET client SDK for Pesto, a remote code execution engine platform</Description>
+        <Version>1.0.0</Version>
     </PropertyGroup>
 
 </Project>
