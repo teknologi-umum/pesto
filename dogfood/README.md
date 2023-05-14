@@ -15,6 +15,12 @@ learn more about the term "dogfooding" here:
 This part of the code is meant to make sure that the Pesto API (most notably the RCE)
 is working as intended from the user perspective.
 
+## Source code's source
+
+Most of the code are taken from [Rosetta Code](https://rosettacode.org/).
+Content is available under GNU Free Document License 1.3. For full license,
+see [LICENSE](./LICENSE) file.
+
 ## Running the tests
 
 Running the tests requires Node.js v18 or higher. Please install that beforehand.
