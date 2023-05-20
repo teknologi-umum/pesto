@@ -2,11 +2,6 @@ name: SDK
 
 on:
   pull_request:
-    paths:
-      - sdk/**
-  push:
-    branches:
-      - master
 
 jobs:
   go-sdk:

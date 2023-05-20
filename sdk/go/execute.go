@@ -149,7 +149,7 @@ func (c *Client) Execute(ctx context.Context, codeRequest CodeRequest) (CodeResp
 		var errResponse errorResponse
 		// HACK: the error is intentionally not handled, we wanted to leave the empty errorResponse struct
 		// if there is any non-json response being sent from the server
-		json.NewDecoder(response.Body).Decode(&errResponse)
+		_ = json.NewDecoder(response.Body).Decode(&errResponse)
 		err = response.Body.Close()
 		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, io.ErrClosedPipe) && !errors.Is(err, http.ErrBodyReadAfterClose) {
 			return CodeResponse{}, fmt.Errorf("closing response body: %w", err)

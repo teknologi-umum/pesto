@@ -2,12 +2,6 @@ name: Main System
 
 on:
   pull_request:
-    paths:
-      - auth/**
-      - landing/**
-      - rce/**
-      - registration/**
-      - dogfood/**
 
 env:
   REGISTRY: ghcr.io

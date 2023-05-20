@@ -44,7 +44,7 @@ services:
         max-size: 10m
         max-file: 3
     healthcheck:
-      test: curl -f http://localhost:3000/ || exit 1
+      test: "curl -f http://localhost:3000/ || exit 1"
       interval: 15s
       timeout: 10s
       retries: 5
@@ -130,7 +130,7 @@ services:
         max-size: 10m
         max-file: 3
     healthcheck:
-      test: curl -f http://localhost:3000/healthz || exit 1
+      test: "curl -f http://localhost:3000/healthz || exit 1"
       interval: 15s
       timeout: 10s
       retries: 5
@@ -202,7 +202,7 @@ services:
         max-size: 10m
         max-file: 3
     healthcheck:
-      test: curl -f http://localhost:50051/healthz || exit 1
+      test: "curl -f http://localhost:50051/healthz || exit 1"
       interval: 15s
       timeout: 5s
       retries: 5
@@ -227,11 +227,12 @@ services:
     image: ghcr.io/teknologi-umum/pesto-registration:edge
     environment:
       <<: [ *defaults ]
-      PORT: 80
-      ASPNETCORE_Sentry__Dsn: ${REGISTRATION_SENTRY_DSN}
-      ASPNETCORE_Sentry__Debug: false
-      ASPNETCORE_Sentry__Environment: production
-      ASPNETCORE_RedisUrl: db:6379
+      PORT: "80"
+      SENTRY_DSN: ${REGISTRATION_SENTRY_DSN}
+      Sentry__Dsn: ${REGISTRATION_SENTRY_DSN}
+      Sentry__Debug: false
+      Sentry__Environment: production
+      RedisUrl: "db:6379"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.registration.entrypoints=web,websecure"
@@ -272,7 +273,7 @@ services:
         max-size: 10m
         max-file: 3
     healthcheck:
-      test: curl -f http://localhost:80/healthz || exit 1
+      test: "curl -f http://localhost:80/healthz || exit 1"
       interval: 15s
       timeout: 10s
       retries: 5

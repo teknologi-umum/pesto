@@ -68,7 +68,7 @@ func main() {
 				return 0
 			}
 
-			return 0.5
+			return 0.4
 		},
 	})
 	if err != nil {

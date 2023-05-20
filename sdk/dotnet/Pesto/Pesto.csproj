@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>netstandard2.0;netcoreapp3.1;net5.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Authors>TeknologiUmum</Authors>
         <Copyright>2022 Teknologi Umum and contributors</Copyright>
