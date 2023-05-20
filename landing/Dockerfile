@@ -1,15 +1,14 @@
-FROM node:18.6.0-alpine3.16
+FROM node:18.16.0-alpine3.17
 
 WORKDIR /home/app
 
-# Files required by pnpm install
-COPY pnpm-lock.yaml ./
-
-RUN apk add curl && npm i -g pnpm && pnpm fetch
-
 ADD . ./
 
-RUN pnpm install -r --offline && pnpm build
+RUN apk add curl && \
+    npm i -g pnpm && \
+    pnpm fetch && \
+    pnpm install -r --offline && \
+    pnpm build
 
 ENV PORT=3000
 ENV HOST=0.0.0.0
