@@ -110,7 +110,7 @@ namespace Pesto {
 
                     response.EnsureSuccessStatusCode();
 
-                    using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
                         var pingResponse = await JsonSerializer.DeserializeAsync<PingResponse>(
                             responseBody,
                             _jsonSerializerOptions,
@@ -143,7 +143,7 @@ namespace Pesto {
 
                     response.EnsureSuccessStatusCode();
 
-                    using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
                         var runtimeResponse = await JsonSerializer.DeserializeAsync<RuntimeResponse>(
                             responseBody,
                             _jsonSerializerOptions,
@@ -193,7 +193,7 @@ namespace Pesto {
                 request.Content = new StringContent(requestBody);
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
                     if (response.StatusCode != HttpStatusCode.OK) {
-                        using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
+                        using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
                             var errorResponse = await JsonSerializer.DeserializeAsync<ErrorResponse>(
                                 responseBody,
                                 _jsonSerializerOptions,
@@ -222,7 +222,7 @@ namespace Pesto {
 
                     response.EnsureSuccessStatusCode();
 
-                    using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
                         var codeResponse = await JsonSerializer.DeserializeAsync<CodeResponse>(
                             responseBody,
                             _jsonSerializerOptions,
@@ -260,7 +260,7 @@ namespace Pesto {
                 request.Content = new StringContent(requestBody);
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
                     if (response.StatusCode != HttpStatusCode.OK) {
-                        using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
+                        using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
                             var errorResponse = await JsonSerializer.DeserializeAsync<ErrorResponse>(
                                 responseBody,
                                 _jsonSerializerOptions,
@@ -289,7 +289,7 @@ namespace Pesto {
 
                     response.EnsureSuccessStatusCode();
 
-                    using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
                         var codeResponse = await JsonSerializer.DeserializeAsync<CodeResponse>(
                             responseBody,
                             _jsonSerializerOptions,
