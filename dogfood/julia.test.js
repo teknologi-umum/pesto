@@ -1,10 +1,13 @@
-import { describe, it } from "node:test";
+import {describe, it} from "node:test";
 import assert from "node:assert";
-import { PestoClient } from "@teknologi-umum/pesto";
+import {PestoClient} from "@teknologi-umum/pesto";
 
-const pestoClient = new PestoClient({ baseURL: process.env.PESTO_URL, token: "DOGFOOD" });
+const pestoClient = new PestoClient({
+    baseURL: process.env.PESTO_URL,
+    token: "DOGFOOD"
+});
 
-describe("Julia", { concurrency: true }, () => {
+describe("Julia", {concurrency: true}, () => {
     it("FizzBuzz", async () => {
         const code = `function FizzBuzz(num)
   if num % 15 == 0
@@ -92,9 +95,9 @@ print(csrcipher(text, key))`;
 
     it("Heap sort", async () => {
         const code = `function swap(a, i, j)
-    a[i], a[j] = a[j], a[i] 
+    a[i], a[j] = a[j], a[i]
 end
-    
+
 function pd!(a, first, last)
     while (c = 2 * first - 1) < last
         if c < last && a[c] < a[c + 1]
@@ -108,20 +111,20 @@ function pd!(a, first, last)
         end
     end
 end
-    
+
 function heapify!(a, n)
     f = div(n, 2)
-    while f >= 1 
+    while f >= 1
         pd!(a, f, n)
-        f -= 1 
+        f -= 1
     end
 end
-    
+
 function heapsort!(a)
     n = length(a)
     heapify!(a, n)
     l = n
-    while l > 1 
+    while l > 1
         swap(a, 1, l)
         l -= 1
         pd!(a, 1, l)

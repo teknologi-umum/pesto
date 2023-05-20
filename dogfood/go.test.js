@@ -1,10 +1,13 @@
-import { it, describe } from "node:test";
+import {it, describe} from "node:test";
 import assert from "node:assert";
-import { PestoClient } from "@teknologi-umum/pesto";
+import {PestoClient} from "@teknologi-umum/pesto";
 
-const pestoClient = new PestoClient({ baseURL: process.env.PESTO_URL, token: "DOGFOOD" });
+const pestoClient = new PestoClient({
+    baseURL: process.env.PESTO_URL,
+    token: "DOGFOOD"
+});
 
-describe("Go", { concurrency: true }, () => {
+describe("Go", {concurrency: true}, () => {
     it.skip("FizzBuzz", async () => {
         const code = `package main
 

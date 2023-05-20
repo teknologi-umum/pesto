@@ -1,10 +1,13 @@
-import { it, describe } from "node:test";
+import {it, describe} from "node:test";
 import assert from "node:assert";
-import { PestoClient } from "@teknologi-umum/pesto";
+import {PestoClient} from "@teknologi-umum/pesto";
 
-const pestoClient = new PestoClient({ baseURL: process.env.PESTO_URL, token: "DOGFOOD" });
+const pestoClient = new PestoClient({
+    baseURL: process.env.PESTO_URL,
+    token: "DOGFOOD"
+});
 
-describe("PHP", { concurrency: true }, () => {
+describe("PHP", {concurrency: true}, () => {
     it("FizzBuzz", async () => {
         const code = `<?php
     for ($i = 1; $i <= 100; $i++)
@@ -19,15 +22,15 @@ describe("PHP", { concurrency: true }, () => {
             echo "$i\n";
     }
     ?>`;
-    
+
         const codeOutput = await pestoClient.execute({
             language: "PHP",
             version: "latest",
             code: code
         });
-    
+
         const expectedOutput = "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz\nFizz\n22\n23\nFizz\nBuzz\n26\nFizz\n28\n29\nFizzBuzz\n31\n32\nFizz\n34\nBuzz\nFizz\n37\n38\nFizz\nBuzz\n41\nFizz\n43\n44\nFizzBuzz\n46\n47\nFizz\n49\nBuzz\nFizz\n52\n53\nFizz\nBuzz\n56\nFizz\n58\n59\nFizzBuzz\n61\n62\nFizz\n64\nBuzz\nFizz\n67\n68\nFizz\nBuzz\n71\nFizz\n73\n74\nFizzBuzz\n76\n77\nFizz\n79\nBuzz\nFizz\n82\n83\nFizz\nBuzz\n86\nFizz\n88\n89\nFizzBuzz\n91\n92\nFizz\n94\nBuzz\nFizz\n97\n98\nFizz\nBuzz";
-    
+
         assert.strictEqual(codeOutput.language, "PHP");
         assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
@@ -38,7 +41,7 @@ describe("PHP", { concurrency: true }, () => {
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
     })
-    
+
     it("Caesar Cipher", async () => {
         const code = `<?php
     function caesarEncode( $message, $key ){
@@ -56,18 +59,18 @@ describe("PHP", { concurrency: true }, () => {
         }
         return $ciphertext;
     }
-    
+
     echo caesarEncode( "The quick brown fox Jumped over the lazy Dog", 12 ), "\n";
     ?>`;
-    
+
         const codeOutput = await pestoClient.execute({
             language: "PHP",
             version: "latest",
             code: code
         });
-    
+
         const expectedOutput = "ftq cguow ndaiz raj vgybqp ahqd ftq xmlk pas";
-    
+
         assert.strictEqual(codeOutput.language, "PHP");
         assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
