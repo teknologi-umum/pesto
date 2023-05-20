@@ -104,13 +104,13 @@ namespace Pesto {
         public async Task<PingResponse> PingAsync(CancellationToken cancellationToken) {
             using (var request = new HttpRequestMessage(HttpMethod.Get, "api/ping")) {
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
-                    if (response.StatusCode.CompareTo(429) == 0) {
+                    if (response.StatusCode == HttpStatusCode.TooManyRequests) {
                         throw new PestoServerRateLimitedException();
                     }
 
                     response.EnsureSuccessStatusCode();
 
-                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
                         var pingResponse = await JsonSerializer.DeserializeAsync<PingResponse>(
                             responseBody,
                             _jsonSerializerOptions,
@@ -137,13 +137,13 @@ namespace Pesto {
         public async Task<RuntimeResponse> ListRuntimesAsync(CancellationToken cancellationToken) {
             using (var request = new HttpRequestMessage(HttpMethod.Get, "api/list-runtimes")) {
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
-                    if (response.StatusCode.CompareTo(429) == 0) {
+                    if (response.StatusCode == HttpStatusCode.TooManyRequests) {
                         throw new PestoServerRateLimitedException();
                     }
 
                     response.EnsureSuccessStatusCode();
 
-                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
                         var runtimeResponse = await JsonSerializer.DeserializeAsync<RuntimeResponse>(
                             responseBody,
                             _jsonSerializerOptions,
@@ -193,35 +193,36 @@ namespace Pesto {
                 request.Content = new StringContent(requestBody);
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
                     if (response.StatusCode != HttpStatusCode.OK) {
-                        using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                        using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
                             var errorResponse = await JsonSerializer.DeserializeAsync<ErrorResponse>(
                                 responseBody,
                                 _jsonSerializerOptions,
                                 cancellationToken);
 
-                            if (response.StatusCode == HttpStatusCode.BadRequest) {
-                                if (errorResponse?.Message == "Runtime not found") {
-                                    throw new PestoRuntimeNotFoundException(language);
+                            switch (response.StatusCode) {
+                                case HttpStatusCode.BadRequest: {
+                                    if (errorResponse?.Message == "Runtime not found") {
+                                        throw new PestoRuntimeNotFoundException(language);
+                                    }
+
+                                    throw new PestoAPIException(errorResponse?.Message);
                                 }
+                                case HttpStatusCode.TooManyRequests: {
+                                    if (errorResponse?.Message == "Monthly limit exceeded") {
+                                        throw new PestoMonthlyLimitExceededException();
+                                    }
 
-                                throw new PestoAPIException(errorResponse?.Message);
-                            }
-
-                            if (response.StatusCode.CompareTo(429) == 0) {
-                                if (errorResponse?.Message == "Monthly limit exceeded") {
-                                    throw new PestoMonthlyLimitExceededException();
+                                    throw new PestoServerRateLimitedException();
                                 }
-
-                                throw new PestoServerRateLimitedException();
+                                default:
+                                    throw new PestoAPIException(errorResponse?.Message);
                             }
-
-                            throw new PestoAPIException(errorResponse?.Message);
                         }
                     }
 
                     response.EnsureSuccessStatusCode();
 
-                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
                         var codeResponse = await JsonSerializer.DeserializeAsync<CodeResponse>(
                             responseBody,
                             _jsonSerializerOptions,
@@ -259,35 +260,36 @@ namespace Pesto {
                 request.Content = new StringContent(requestBody);
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
                     if (response.StatusCode != HttpStatusCode.OK) {
-                        using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                        using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
                             var errorResponse = await JsonSerializer.DeserializeAsync<ErrorResponse>(
                                 responseBody,
                                 _jsonSerializerOptions,
                                 cancellationToken);
 
-                            if (response.StatusCode == HttpStatusCode.BadRequest) {
-                                if (errorResponse?.Message == "Runtime not found") {
-                                    throw new PestoRuntimeNotFoundException(codeRequest.Language);
+                            switch (response.StatusCode) {
+                                case HttpStatusCode.BadRequest: {
+                                    if (errorResponse?.Message == "Runtime not found") {
+                                        throw new PestoRuntimeNotFoundException(codeRequest.Language);
+                                    }
+
+                                    throw new PestoAPIException(errorResponse?.Message);
                                 }
+                                case HttpStatusCode.TooManyRequests: {
+                                    if (errorResponse?.Message == "Monthly limit exceeded") {
+                                        throw new PestoMonthlyLimitExceededException();
+                                    }
 
-                                throw new PestoAPIException(errorResponse?.Message);
-                            }
-
-                            if (response.StatusCode.CompareTo(429) == 0) {
-                                if (errorResponse?.Message == "Monthly limit exceeded") {
-                                    throw new PestoMonthlyLimitExceededException();
+                                    throw new PestoServerRateLimitedException();
                                 }
-
-                                throw new PestoServerRateLimitedException();
+                                default:
+                                    throw new PestoAPIException(errorResponse?.Message);
                             }
-
-                            throw new PestoAPIException(errorResponse?.Message);
                         }
                     }
 
                     response.EnsureSuccessStatusCode();
 
-                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync(cancellationToken)) {
                         var codeResponse = await JsonSerializer.DeserializeAsync<CodeResponse>(
                             responseBody,
                             _jsonSerializerOptions,
