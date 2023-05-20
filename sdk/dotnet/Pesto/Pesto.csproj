@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
         <ImplicitUsings>disable</ImplicitUsings>
         <Authors>TeknologiUmum</Authors>
         <Copyright>2022 Teknologi Umum and contributors</Copyright>
@@ -15,5 +15,9 @@
         <Description>.NET client SDK for Pesto, a remote code execution engine platform</Description>
         <Version>1.0.0</Version>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Text.Json" Version="7.0.2"/>
+    </ItemGroup>
 
 </Project>

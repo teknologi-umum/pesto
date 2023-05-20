@@ -12,9 +12,9 @@
 // limitations under the License.
 
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -104,20 +104,24 @@ namespace Pesto {
         public async Task<PingResponse> PingAsync(CancellationToken cancellationToken) {
             using (var request = new HttpRequestMessage(HttpMethod.Get, "api/ping")) {
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
-                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                    if (response.StatusCode.CompareTo(429) == 0) {
                         throw new PestoServerRateLimitedException();
+                    }
 
                     response.EnsureSuccessStatusCode();
-                    var pingResponse =
-                        await response.Content.ReadFromJsonAsync<PingResponse>(
+
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                        var pingResponse = await JsonSerializer.DeserializeAsync<PingResponse>(
+                            responseBody,
                             _jsonSerializerOptions,
                             cancellationToken);
 
-                    if (pingResponse == null) {
-                        throw new PestoAPIException();
-                    }
+                        if (pingResponse == null) {
+                            throw new PestoAPIException();
+                        }
 
-                    return pingResponse;
+                        return pingResponse;
+                    }
                 }
             }
         }
@@ -133,20 +137,24 @@ namespace Pesto {
         public async Task<RuntimeResponse> ListRuntimesAsync(CancellationToken cancellationToken) {
             using (var request = new HttpRequestMessage(HttpMethod.Get, "api/list-runtimes")) {
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
-                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                    if (response.StatusCode.CompareTo(429) == 0) {
                         throw new PestoServerRateLimitedException();
+                    }
 
                     response.EnsureSuccessStatusCode();
-                    var runtimeResponse =
-                        await response.Content.ReadFromJsonAsync<RuntimeResponse>(
+
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                        var runtimeResponse = await JsonSerializer.DeserializeAsync<RuntimeResponse>(
+                            responseBody,
                             _jsonSerializerOptions,
                             cancellationToken);
 
-                    if (runtimeResponse == null) {
-                        throw new PestoAPIException();
-                    }
+                        if (runtimeResponse == null) {
+                            throw new PestoAPIException();
+                        }
 
-                    return runtimeResponse;
+                        return runtimeResponse;
+                    }
                 }
             }
         }
@@ -185,40 +193,46 @@ namespace Pesto {
                 request.Content = new StringContent(requestBody);
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
                     if (response.StatusCode != HttpStatusCode.OK) {
-                        var errorResponse =
-                            await response.Content.ReadFromJsonAsync<ErrorResponse>(
+                        using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                            var errorResponse = await JsonSerializer.DeserializeAsync<ErrorResponse>(
+                                responseBody,
                                 _jsonSerializerOptions,
                                 cancellationToken);
 
-                        switch (response.StatusCode) {
-                            case HttpStatusCode.TooManyRequests:
-                                if (errorResponse?.Message == "Monthly limit exceeded") {
-                                    throw new PestoMonthlyLimitExceededException();
-                                }
-
-                                throw new PestoServerRateLimitedException();
-                            case HttpStatusCode.BadRequest:
+                            if (response.StatusCode == HttpStatusCode.BadRequest) {
                                 if (errorResponse?.Message == "Runtime not found") {
                                     throw new PestoRuntimeNotFoundException(language);
                                 }
 
                                 throw new PestoAPIException(errorResponse?.Message);
-                            default:
-                                throw new PestoAPIException(errorResponse?.Message);
+                            }
+
+                            if (response.StatusCode.CompareTo(429) == 0) {
+                                if (errorResponse?.Message == "Monthly limit exceeded") {
+                                    throw new PestoMonthlyLimitExceededException();
+                                }
+
+                                throw new PestoServerRateLimitedException();
+                            }
+
+                            throw new PestoAPIException(errorResponse?.Message);
                         }
                     }
 
                     response.EnsureSuccessStatusCode();
-                    var codeResponse =
-                        await response.Content.ReadFromJsonAsync<CodeResponse>(
+
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                        var codeResponse = await JsonSerializer.DeserializeAsync<CodeResponse>(
+                            responseBody,
                             _jsonSerializerOptions,
                             cancellationToken);
 
-                    if (codeResponse == null) {
-                        throw new PestoAPIException();
-                    }
+                        if (codeResponse == null) {
+                            throw new PestoAPIException();
+                        }
 
-                    return codeResponse;
+                        return codeResponse;
+                    }
                 }
             }
         }
@@ -245,40 +259,46 @@ namespace Pesto {
                 request.Content = new StringContent(requestBody);
                 using (HttpResponseMessage response = await _httpClient.SendAsync(request, cancellationToken)) {
                     if (response.StatusCode != HttpStatusCode.OK) {
-                        var errorResponse =
-                            await response.Content.ReadFromJsonAsync<ErrorResponse>(
+                        using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                            var errorResponse = await JsonSerializer.DeserializeAsync<ErrorResponse>(
+                                responseBody,
                                 _jsonSerializerOptions,
                                 cancellationToken);
 
-                        switch (response.StatusCode) {
-                            case HttpStatusCode.TooManyRequests:
-                                if (errorResponse?.Message == "Monthly limit exceeded") {
-                                    throw new PestoMonthlyLimitExceededException();
-                                }
-
-                                throw new PestoServerRateLimitedException();
-                            case HttpStatusCode.BadRequest:
+                            if (response.StatusCode == HttpStatusCode.BadRequest) {
                                 if (errorResponse?.Message == "Runtime not found") {
                                     throw new PestoRuntimeNotFoundException(codeRequest.Language);
                                 }
 
                                 throw new PestoAPIException(errorResponse?.Message);
-                            default:
-                                throw new PestoAPIException(errorResponse?.Message);
+                            }
+
+                            if (response.StatusCode.CompareTo(429) == 0) {
+                                if (errorResponse?.Message == "Monthly limit exceeded") {
+                                    throw new PestoMonthlyLimitExceededException();
+                                }
+
+                                throw new PestoServerRateLimitedException();
+                            }
+
+                            throw new PestoAPIException(errorResponse?.Message);
                         }
                     }
 
                     response.EnsureSuccessStatusCode();
-                    var codeResponse =
-                        await response.Content.ReadFromJsonAsync<CodeResponse>(
+
+                    using (Stream responseBody = await response.Content.ReadAsStreamAsync()) {
+                        var codeResponse = await JsonSerializer.DeserializeAsync<CodeResponse>(
+                            responseBody,
                             _jsonSerializerOptions,
                             cancellationToken);
 
-                    if (codeResponse == null) {
-                        throw new PestoAPIException();
-                    }
+                        if (codeResponse == null) {
+                            throw new PestoAPIException();
+                        }
 
-                    return codeResponse;
+                        return codeResponse;
+                    }
                 }
             }
         }

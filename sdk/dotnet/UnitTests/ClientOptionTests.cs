@@ -1,30 +1,24 @@
 ﻿using FluentAssertions;
 using Pesto;
 
-namespace UnitTests; 
+namespace UnitTests;
 
 public class ClientOptionTests {
     [Fact]
     public void ThrowExceptionForEmptyToken() {
-        new Action(() => {
-            _ = new PestoClient("");
-        }).Should().Throw<ArgumentNullException>();
+        new Action(() => { _ = new PestoClient(""); }).Should().Throw<ArgumentNullException>();
 
-        new Action(() => {
-            _ = new PestoClient("", "https://pesto.teknologiumum.com");
-        }).Should().Throw<ArgumentNullException>();
+        new Action(() => { _ = new PestoClient("", "https://pesto.teknologiumum.com"); }).Should()
+            .Throw<ArgumentNullException>();
 
-        new Action(() => {
-            _ = new PestoClient("", new Uri("https://pesto.teknologiumum.com"));
-        }).Should().Throw<ArgumentNullException>();
+        new Action(() => { _ = new PestoClient("", new Uri("https://pesto.teknologiumum.com")); }).Should()
+            .Throw<ArgumentNullException>();
 
-        new Action(() => {
-            _ = new PestoClient("", new Uri("https://pesto.teknologiumum.com"), TimeSpan.FromMinutes(1));
-        }).Should().Throw<ArgumentNullException>();
+        new Action(
+                () => { _ = new PestoClient("", new Uri("https://pesto.teknologiumum.com"), TimeSpan.FromMinutes(1)); })
+            .Should().Throw<ArgumentNullException>();
 
-        new Action(() => {
-            _ = new PestoClient("", new HttpClient());
-        }).Should().Throw<ArgumentNullException>();
+        new Action(() => { _ = new PestoClient("", new HttpClient()); }).Should().Throw<ArgumentNullException>();
     }
 
     [Fact]
