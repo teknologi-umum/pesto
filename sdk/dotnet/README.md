@@ -27,7 +27,7 @@ Console.WriteLine(listRuntimesResult.Runtime);
 var executeCodeResult = await pestoClient.ExecuteAsync("Python", "print('Hello world!')", CancellationToken.None);
 Console.WriteLine(executeCodeResult.Runtime.Output);
 
-# Or..
+// Or..
 
 var executeCodeResult = await pestoClient.ExecuteAsync(new CodeRequest("Python", "print('Hello world!')"), CancellationToken.None);
 Console.WriteLine(executeCodeResult.Runtime.Output);

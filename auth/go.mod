@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/francoispqt/onelog v0.0.0-20190306043706-8c2bb31b10a4
-	github.com/getsentry/sentry-go v0.20.0
+	github.com/getsentry/sentry-go v0.21.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 )
 

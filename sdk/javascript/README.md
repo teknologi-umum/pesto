@@ -20,7 +20,7 @@ const pestoClient = new PestoClient({ token: "YOUR_TOKEN_GOES_HERE" });
 
 // API check
 const pingResponse = await pestoClient.ping();
-console.log(pingResponse.messa[RealPestoClientTests.cs](..%2Fdotnet%2FUnitTests%2FRealPestoClientTests.cs)ge); // Should returns "OK"
+console.log(pingResponse.message); // Should returns "OK"
 
 // List available runtimes
 const listRuntimesResponse = await pestoClient.listRuntimes();
