@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { PestoClient } from "./pesto-node/index.mjs";
+import { PestoClient } from "@teknologi-umum/pesto";
 
 const pestoClient = new PestoClient({ baseURL: process.env.PESTO_URL, token: "DOGFOOD" });
 

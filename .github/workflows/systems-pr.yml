@@ -370,14 +370,6 @@ jobs:
         with:
           node-version: latest
           check-latest: true
-
-      - name: Build Javascript SDK
-        run: >
-          cd sdk/javascript &&
-          npm ci &&
-          npm run build &&
-          cd ../.. &&
-          mv -v sdk/javascript/dist/ dogfood/pesto-node
       
       - name: Run tests
         run: >
