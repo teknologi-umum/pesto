@@ -11,14 +11,15 @@ See [our website](https://pesto.teknologiumum.com) for details.
 
 ## Who uses Pesto
 
-* Sadly, we don't know yet
+* [Teknologi Umum Bot](https://github.com/teknologi-umum/bot)
+* You?
 
 Are you using Pesto on your project, if so, please put it here!
 
 ## Structure
 
 | Codebase     | Description                               |
-| ------------ | ----------------------------------------- |
+|--------------|-------------------------------------------|
 | auth         | Authentication middleware for Pesto's API |
 | landing      | Frontend service and entrypoint           |
 | rce          | Remote code execution engine service      |

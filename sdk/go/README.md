@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-    client, err := pesto.NewClient(YOUR_TOKEN_GOES_HERE)
+    client, err := pesto.NewClient("YOUR_TOKEN_GOES_HERE")
     if err != nil {
         // Handle the error
         // It will return ErrEmptyToken if you provide no token
@@ -21,7 +21,7 @@ func main() {
 
     codeResult, err := client.Execute(context.TODO(), pesto.CodeRequest{
         Language: pesto.LanguagePython,
-        Version: pesto.LanguagePython,
+        Version: pesto.VersionPython,
         Code: "print('Hello world!')",
     })
     if err != nil {

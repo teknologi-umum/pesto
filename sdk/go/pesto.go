@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Pesto provides client SDK for Pesto, a remote code execution engine.
+// Package pesto provides client SDK for Pesto, a remote code execution engine.
 // To learn more about pesto, please visit https://pesto.teknologiumum.com/
 package pesto
 

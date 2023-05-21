@@ -25,7 +25,7 @@ const PORT = process.env?.PORT || "50051";
         return 0;
       }
 
-      return 0.5;
+      return 0.4;
     },
     integrations: [
       new Sentry.Integrations.Http({ tracing: true })
@@ -62,6 +62,8 @@ const PORT = process.env?.PORT || "50051";
   });
 
   server.use(Sentry.Handlers.requestHandler({ include: { ip: true, request: true, transaction: true, user: true }}));
+
+  server.use(Sentry.Handlers.tracingHandler());
 
   server.use(async (req, res, next) => {
     try {
@@ -295,7 +297,7 @@ const PORT = process.env?.PORT || "50051";
       }
 
       if (err instanceof ServerError) {
-        Sentry.withScope((scope) => {
+        Sentry.getCurrentHub().withScope((scope) => {
           scope.setExtra("language", codeRequest.language);
           scope.setExtra("version", codeRequest.version);
           scope.setExtra("compile_timeout", codeRequest.compileTimeout);

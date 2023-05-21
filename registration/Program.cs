@@ -1,5 +1,6 @@
 using StackExchange.Redis;
 using Registration.Services;
+using Sentry;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,20 +8,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables("ASPNETCORE_");
+    .AddEnvironmentVariables();
 
 var redisMultiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisUrl"));
 builder.Services.AddSingleton<IConnectionMultiplexer>(redisMultiplexer);
 builder.Services.AddSingleton<WaitingListService>();
 builder.Services.AddSingleton<ApprovalService>();
 
+builder.Services.AddRouting();
+builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLogging();
 
-builder.WebHost.UseSentry();
+builder.WebHost.UseSentry(
+    options => {
+        options.TracesSampler = context => {
+            return context.TransactionContext.Name switch {
+                "GET /healthz" => 0,
+                _              => 0.4
+            };
+
+        };
+        options.StackTraceMode = StackTraceMode.Enhanced;
+    });
 
 var app = builder.Build();
 
@@ -30,6 +43,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseRouting();
 
 app.UseSentryTracing();
 

@@ -9,10 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.10.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-        <PackageReference Include="Moq" Version="4.18.4" />
-        <PackageReference Include="xunit" Version="2.4.2" />
+        <PackageReference Include="FluentAssertions" Version="6.10.0"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2"/>
+        <PackageReference Include="Moq" Version="4.18.4"/>
+        <PackageReference Include="System.Text.Json" Version="7.0.2"/>
+        <PackageReference Include="xunit" Version="2.4.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -21,27 +22,27 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Xunit.SkippableFact" Version="1.4.13" />
+        <PackageReference Include="Xunit.SkippableFact" Version="1.4.13"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Pesto\Pesto.csproj" />
+        <ProjectReference Include="..\Pesto\Pesto.csproj"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <EmbeddedResource Include="Responses\SuccessfulPingResponse.json" />
-        <None Remove="Responses\SuccessfulExecuteCode.json" />
-        <EmbeddedResource Include="Responses\SuccessfulExecuteCode.json" />
-        <None Remove="Responses\SuccessfulListRuntimes.json" />
-        <EmbeddedResource Include="Responses\SuccessfulListRuntimes.json" />
-        <None Remove="Responses\BadRequestError.json" />
-        <EmbeddedResource Include="Responses\BadRequestError.json" />
-        <None Remove="Responses\InvalidResponse.json" />
-        <EmbeddedResource Include="Responses\InvalidResponse.json" />
-        <None Remove="Responses\MonthlyLimitExceededError.json" />
-        <EmbeddedResource Include="Responses\MonthlyLimitExceededError.json" />
-        <None Remove="Responses\RuntimeNotFoundError.json" />
-        <EmbeddedResource Include="Responses\RuntimeNotFoundError.json" />
+        <EmbeddedResource Include="Responses\SuccessfulPingResponse.json"/>
+        <None Remove="Responses\SuccessfulExecuteCode.json"/>
+        <EmbeddedResource Include="Responses\SuccessfulExecuteCode.json"/>
+        <None Remove="Responses\SuccessfulListRuntimes.json"/>
+        <EmbeddedResource Include="Responses\SuccessfulListRuntimes.json"/>
+        <None Remove="Responses\BadRequestError.json"/>
+        <EmbeddedResource Include="Responses\BadRequestError.json"/>
+        <None Remove="Responses\InvalidResponse.json"/>
+        <EmbeddedResource Include="Responses\InvalidResponse.json"/>
+        <None Remove="Responses\MonthlyLimitExceededError.json"/>
+        <EmbeddedResource Include="Responses\MonthlyLimitExceededError.json"/>
+        <None Remove="Responses\RuntimeNotFoundError.json"/>
+        <EmbeddedResource Include="Responses\RuntimeNotFoundError.json"/>
     </ItemGroup>
 
 </Project>

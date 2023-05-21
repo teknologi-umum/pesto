@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Pesto.Exceptions;
 
-namespace UnitTests; 
+namespace UnitTests;
 
 public class ExceptionTests {
     [Fact]
