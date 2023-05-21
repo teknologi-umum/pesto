@@ -21,7 +21,7 @@ var pestoClient = new PestoClient("YOUR_TOKEN_GOES_HERE");
 var pingResult = await pestoClient.PingAsync(CancellationToken.None);
 Console.WriteLine(pingResult.Message); // Should return "OK"
 
-var listRuntimesResult = await pestoClient.ListRUntimesAsync(CancellationToken.None);
+var listRuntimesResult = await pestoClient.ListRuntimesAsync(CancellationToken.None);
 Console.WriteLine(listRuntimesResult.Runtime);
 
 var executeCodeResult = await pestoClient.ExecuteAsync("Python", "print('Hello world!')", CancellationToken.None);
