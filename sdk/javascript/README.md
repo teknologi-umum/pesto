@@ -91,7 +91,7 @@ try {
     }
 
     if (error instanceof RuntimeNotFoundError) {
-        // Provided language-version combination does not exists on Pesto's API.
+        // Provided language-version combination does not exist on Pesto's API.
         return;
     }
 
