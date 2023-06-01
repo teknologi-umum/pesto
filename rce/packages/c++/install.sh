@@ -4,8 +4,7 @@ if [ -d "/opt/gcc/12.2.0/" ]; then
   exit 0
 fi
 
-apt-get update
-apt-get install -y gcc build-essential libc6-dev dpkg-dev autoconf flex curl tar gzip
+apt-get install -y libc6-dev dpkg-dev
 
 cd ~
 
@@ -27,5 +26,3 @@ make install-strip -j $(nproc)
 cd ..
 
 rm -rf build gcc*
-
-apt-get remove -y gcc

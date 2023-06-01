@@ -2,7 +2,6 @@
 
 VERSION="6.0.300"
 
-apt-get update \
 apt-get install -y --no-install-recommends \
     libc6 \
     libgcc1 \

@@ -2,8 +2,6 @@
 
 VERSION="1.27.0"
 
-apt-get install -y gcc
-
 curl -LO https://github.com/janet-lang/janet/archive/refs/tags/v${VERSION}.tar.gz
 tar -zxf v${VERSION}.tar.gz
 cd janet-${VERSION}/
