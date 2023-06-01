@@ -112,7 +112,7 @@ export class Job implements JobPrerequisites {
     try {
       const buildCommand: string[] = [
         "/usr/bin/nice",
-        "prlimit",
+        "/usr/bin/prlimit",
         "--nproc=" + this.runtime.processLimit.toString(),
         "--nofile=2048",
         "--fsize=10000000", // 10MB
@@ -151,7 +151,7 @@ export class Job implements JobPrerequisites {
 
       const runCommand: string[] = [
         "/usr/bin/nice",
-        "prlimit",
+        "/usr/bin/prlimit",
         "--nproc=" + this.runtime.processLimit.toString(),
         "--nofile=2048",
         "--fsize=30000000", // 30MB

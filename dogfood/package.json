@@ -21,6 +21,6 @@
     "eslint": "^8.41.0"
   },
   "dependencies": {
-    "@teknologi-umum/pesto": "^1.0.0-274ffc9"
+    "@teknologi-umum/pesto": "^1.0.0-b75bbaa"
   }
 }
