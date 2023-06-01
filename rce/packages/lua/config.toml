@@ -2,7 +2,7 @@ language = "Lua"
 version = "5.4.4"
 compiled = false
 extension = "lua"
-environment = [ "PATH=/opt/lua/5.4/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+environment = [ "PATH=/opt/lua/5.4/bin" ]
 build_command = []
 run_command = [ "/opt/lua/5.4/bin/lua", "{file}" ]
 test_file = "test.lua"

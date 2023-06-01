@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 cd ~
-apt-get install -y unzip
 curl -LO https://www.sqlite.org/2022/sqlite-autoconf-3390400.tar.gz
 tar -zxf sqlite-autoconf-3390400.tar.gz
 cd sqlite-autoconf-3390400

@@ -4,9 +4,7 @@ compiled = false
 extension = "janet"
 build_command = []
 run_command = [ "janet", "{file}" ]
-environment = [
-  "PATH=/opt/janet/v1.27.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-]
+environment = [ "PATH=/opt/janet/v1.27.0/bin" ]
 test_file = "test.janet"
 aliases = ["janet"]
 should_limit_memory = true

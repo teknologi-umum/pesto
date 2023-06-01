@@ -11,7 +11,8 @@ If you are 100% new to Github, you can go to Google or Youtube and lookup about 
 collaborate with people in Github. Some of our favorites are:
 
 * [Git It? How to use Git and Github](https://www.youtube.com/watch?v=HkdAHXoRtos) by Fireship (Youtube)
-* [Git and GitHub for Beginners - Crash Course](https://www.youtube.com/watch?v=RGOj5yH7evk) by freeCodeCamp.org (Youtube)
+* [Git and GitHub for Beginners - Crash Course](https://www.youtube.com/watch?v=RGOj5yH7evk) by freeCodeCamp.org (
+  Youtube)
 * [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/) by Open Source Guide (article)
 * [Learn Git & GitHub](https://www.codecademy.com/learn/learn-git) by Codecademy (Paid online course)
 
@@ -47,8 +48,8 @@ whether the idea has already been proposed on the [issue list](https://github.co
 This is basically the hardest contribution you can do, because writing technical or non-technical documentation
 is always a challenge for us developers.
 
-You can help by documenting everything. Create how-tos, create in-code documentation (what the function does, why X is here, etc),
-or even fixing some typos (including some that may exist on this document). But, please bear in mind that 
+You can help by documenting everything. Create how-tos, create in-code documentation (what the function does, why X is
+here, etc), or even fixing some typos (including some that may exist on this document). But, please bear in mind that
 documentation should be easy to understand (by using simple English) and should be accessible to everyone.
 You don't want people to ask you over and over again for something that only some people understand.
 
@@ -59,8 +60,8 @@ Finally, this is what most developers can help, by code.
 We use multiple programming language to bring Pesto to life. Please read each README on the submodule that
 you are interested in to have detailed explanation on how to contribute to each specific module.
 
-All services (or modules) are deployed on a cloud VPS using Docker. The Docker images are built on Github Actions and pushed
-to the Github Contianer Registry. On each commit push to master, it will trigger a deployment action that will SSH to the VPS
-and trigger a pull for new image.
+All services (or modules) are deployed on a cloud VPS using Docker. The Docker images are built on GitHub Actions and
+pushed to the Github Contianer Registry. On each commit push to master, it will trigger a deployment action that will
+SSH to the VPS and trigger a pull for new image.
 
 We are waiting for your contribution!
