@@ -18,8 +18,7 @@ RUN apt-get update && \
   # We install packages here
   node ./scripts/install.cjs && \
   # Remove installed build steps via apt just to lessen the image size more \
-  apt-get remove -y gcc tar gzip bzip2 make cmake zip unzip autoconf pkg-config \
-    flex perl sed clang && \
+  apt-get remove -y gzip bzip2 make cmake zip unzip flex clang gcc apt-utils && \
   # Create OS users
   node ./scripts/register-users.cjs && \
   # Build the application
