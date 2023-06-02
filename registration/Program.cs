@@ -14,6 +14,7 @@ var redisMultiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetVa
 builder.Services.AddSingleton<IConnectionMultiplexer>(redisMultiplexer);
 builder.Services.AddSingleton<WaitingListService>();
 builder.Services.AddSingleton<ApprovalService>();
+builder.Services.AddSingleton<TrialService>();
 
 builder.Services.AddRouting();
 builder.Services.AddHttpClient();
