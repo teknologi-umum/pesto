@@ -11,14 +11,15 @@ RUN apt-get update && \
   apt-get upgrade -y && \
   apt-get install -y coreutils binutils build-essential libseccomp-dev gcc \
     apt-utils curl tar bzip2 gzip make cmake zip unzip autoconf pkg-config \
-    flex perl sed clang && \
+    flex perl sed clang libc6-dev libc6 && \
   # Prohibits network access
   make -C ./nosocket/ all && make -C ./nosocket/ install && \
   npm ci && \
   # We install packages here
   node ./scripts/install.cjs && \
   # Remove installed build steps via apt just to lessen the image size more \
-  apt-get remove -y gzip bzip2 make cmake zip unzip flex clang gcc apt-utils && \
+  apt-get remove -y bzip2 make cmake zip unzip flex clang gcc g++ apt-utils \
+    build-essential binutils && \
   # Create OS users
   node ./scripts/register-users.cjs && \
   # Build the application
