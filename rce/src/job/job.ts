@@ -118,14 +118,14 @@ export class Job implements JobPrerequisites {
         "--fsize=10000000", // 10MB
         "--rttime=" + this.compileTimeout.toString(),
         "--as=" + this.memoryLimit.toString(),
-        "nosocket",
+        "/usr/local/bin/nosocket",
         ...this.runtime.buildCommand.map(arg => arg.replace("{file}", this._entrypointsPath.join(" ")))
       ];
 
       const buildCommandOutput = await this.executeCommand(buildCommand);
 
       if (buildCommandOutput.exitCode !== 0) {
-        this.cleanup();
+        await this.cleanup();
       }
 
       this._builtFilePath = path.join(this._baseFilePath, "code");
@@ -163,7 +163,7 @@ export class Job implements JobPrerequisites {
       }
 
       runCommand.push(
-        "nosocket",
+        "/usr/local/bin/nosocket",
         ...this.runtime.runCommand.map((arg) =>
           arg.replace("{file}", finalFileName.join(" "))
         )
@@ -203,7 +203,7 @@ export class Job implements JobPrerequisites {
 
       const cmd = childProcess.spawn(command[0], command.slice(1), {
         env: {
-          PATH: process.env?.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          PATH: process.env?.PATH ?? "",
           LOGGER_TOKEN: "",
           LOGGER_SERVER_ADDRESS: "",
           ENVIRONMENT: "",
