@@ -23,7 +23,7 @@ from pesto.ping_response import *
 from typing import Sequence
 
 __all__: Sequence[str] = [
-    "Client", 
+    "Client",
     "CodeRequest",
     "CodeResponse",
     "CodeOutput",
