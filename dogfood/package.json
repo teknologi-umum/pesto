@@ -1,0 +1,26 @@
+{
+  "name": "dogfood",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "test.js",
+  "engineStrict": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@teknologi-umum/eslint-config-base": "^0.0.10",
+    "@types/node": "^18.15.11",
+    "eslint": "^8.41.0"
+  },
+  "dependencies": {
+    "@teknologi-umum/pesto": "^1.0.0-274ffc9"
+  }
+}

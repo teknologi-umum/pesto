@@ -27,13 +27,14 @@ const toml = require("toml");
 
 function execute(command, workingDirectory = process.cwd(), env = { "PATH": process.env?.PATH ?? "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" }) {
   return new Promise((resolve, reject) => {
-    const cmd = cp.exec(
+    const cmd = cp.spawn(
       command,
-      { cwd: workingDirectory, env: { ...process.env, ...env } },
-      (error) => {
-        if (error) {
-          reject(error);
-        }
+      {
+        cwd: workingDirectory,
+        env: { ...process.env, ...env },
+        maxBuffer: 1024 * 500,
+        stdio: undefined,
+        shell: true
       }
     );
 
@@ -76,8 +77,7 @@ function execute(command, workingDirectory = process.cwd(), env = { "PATH": proc
 
     const packagePath = path.join(__dirname, "..", "packages", pkg.name);
     await execute("chmod +x install.sh", packagePath);
-    const installResult = await execute("./install.sh", packagePath);
-    console.log(installResult);
+    await execute("./install.sh", packagePath);
 
     const configPath = path.join(packagePath, "config.toml");
     const configFile = await fs.readFile(configPath, "utf8");

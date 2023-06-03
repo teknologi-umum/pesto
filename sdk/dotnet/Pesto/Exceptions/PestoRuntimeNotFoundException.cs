@@ -1,6 +1,8 @@
-﻿namespace Pesto.Exceptions; 
+﻿using System;
 
-public class PestoRuntimeNotFoundException : Exception {
-    public PestoRuntimeNotFoundException(string? runtime) 
-        : base($"Runtime not found for {runtime ?? "current request"}") {	}
+namespace Pesto.Exceptions {
+    public class PestoRuntimeNotFoundException : Exception {
+        public PestoRuntimeNotFoundException(string runtime)
+            : base($"Runtime not found for {runtime ?? "current request"}") { }
+    }
 }

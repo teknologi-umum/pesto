@@ -43,7 +43,7 @@ func TestMain(m *testing.M) {
 		}
 	}()
 
-	logger, err := sentry.NewClient(sentry.ClientOptions{
+	err = sentry.Init(sentry.ClientOptions{
 		Dsn:   sentryDsn,
 		Debug: false,
 	})
@@ -52,7 +52,6 @@ func TestMain(m *testing.M) {
 	}
 
 	deps = &main.Deps{
-		Sentry:  logger,
 		Client:  cli,
 		Console: onelog.New(os.Stdout, onelog.ALL),
 	}

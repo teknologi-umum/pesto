@@ -11,12 +11,12 @@ import (
 
 	"github.com/francoispqt/onelog"
 	"github.com/getsentry/sentry-go"
+	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/go-redis/redis/v9"
 )
 
 type Deps struct {
 	Client  *redis.Client
-	Sentry  *sentry.Client
 	Console *onelog.Logger
 }
 
@@ -57,23 +57,32 @@ func main() {
 		}
 	}()
 
-	logger, err := sentry.NewClient(sentry.ClientOptions{
+	err = sentry.Init(sentry.ClientOptions{
 		Dsn:              sentryDsn,
 		Debug:            env != "production",
 		AttachStacktrace: true,
 		Environment:      env,
+		EnableTracing:    true,
+		TracesSampler: func(ctx sentry.SamplingContext) float64 {
+			if ctx.Span.Name == "GET /healthz" {
+				return 0
+			}
+
+			return 0.4
+		},
 	})
 	if err != nil {
 		log.Fatalf("sentry.Init: %s", err)
 	}
 	// Flush buffered events before the program terminates.
-	defer logger.Flush(2 * time.Second)
+	defer sentry.Flush(time.Minute)
 
 	dependencies := &Deps{
-		Sentry:  logger,
 		Client:  cli,
 		Console: onelog.New(os.Stdout, onelog.ALL),
 	}
+
+	sentryMiddleware := sentryhttp.New(sentryhttp.Options{Repanic: false})
 
 	mux := http.NewServeMux()
 
@@ -82,7 +91,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:         ":" + port,
-		Handler:      mux,
+		Handler:      sentryMiddleware.Handle(mux),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  10 * time.Second,

@@ -1,12 +1,9 @@
 name: Main System
 
 on:
-  pull_request:
-    paths:
-      - auth/**
-      - landing/**
-      - rce/**
-      - registration/**
+  push:
+    branches:
+      - master
 
 env:
   REGISTRY: ghcr.io
@@ -156,6 +153,9 @@ jobs:
     defaults:
       run:
         working-directory: ./registration
+    services:
+      db:
+        image: redis:7-bullseye
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -207,7 +207,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=ref,event=pr
+            type=edge
+            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -216,6 +217,16 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: pesto-auth
+        with:
+          environment: production
+          ignore_empty: true
 
   build-landing:
     name: Build Landing
@@ -248,7 +259,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=ref,event=pr
+            type=edge
+            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -261,7 +273,7 @@ jobs:
   build-rce:
     name: Build RCE
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 720
     needs:
       - rce
     permissions:
@@ -289,7 +301,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=ref,event=pr
+            type=edge
+            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -298,6 +311,16 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: pesto-rce
+        with:
+          environment: production
+          ignore_empty: true
 
   build-registration:
     name: Build Registration
@@ -330,7 +353,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=ref,event=pr
+            type=edge
+            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -339,3 +363,104 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: pesto-registration
+        with:
+          environment: production
+          ignore_empty: true
+
+  dogfood:
+    name: Dogfood Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs:
+      - build-rce
+      - rce
+    services:
+      pesto_rce:
+        image: ghcr.io/teknologi-umum/pesto-rce:edge
+        env:
+          PORT: 50051
+          ENVIRONMENT: production
+        ports:
+          - 50051:50051
+        options: >-
+          --health-cmd "curl -f http://localhost:50051/healthz"
+          --health-interval 30s
+          --health-timeout 15s
+          --health-retries 10
+          --health-start-period 90s
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          check-latest: true
+
+      - name: Run tests
+        run: >
+          npm ci &&
+          node --test
+        working-directory: ./dogfood
+        env:
+          PESTO_URL: http://localhost:50051/
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    container: debian:bullseye
+    timeout-minutes: 120
+    needs:
+      - build-auth
+      - build-rce
+      - build-landing
+      - build-registration
+    steps:
+      - name: Install required packages
+        run: apt-get update && apt-get upgrade -y && apt-get install -y tar gzip curl ssh
+
+      - name: Register SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          name: id_ed25519
+          known_hosts: ${{ secrets.SSH_IP }}
+          if_key_exists: replace
+
+      - name: SSH Keyscan
+        run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_IP }} >> /root/.ssh/known_hosts
+
+      - name: Pull latest code
+        run: >
+          ssh
+          -i /root/.ssh/id_ed25519 
+          -p ${{ secrets.SSH_PORT }}
+          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 
+          'ssh pesto "cd ${{ secrets.SSH_WORKDIR }}/pesto && git pull" '
+
+      - name: Build Docker images
+        run: >
+          ssh 
+          -i /root/.ssh/id_ed25519
+          -p ${{ secrets.SSH_PORT }}
+          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
+          "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S bash -c '\"'cd ${{ secrets.SSH_WORKDIR }}/pesto &&
+          docker compose pull &&
+          docker compose up -d --pull always registration rce landing auth '\"' ' "
+
+      - name: Clean up docker artifacts
+        run: >
+          ssh 
+          -i /root/.ssh/id_ed25519
+          -p ${{ secrets.SSH_PORT }}
+          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
+          "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S bash -c '\"'docker container prune -f &&
+          docker image prune -f &&
+          docker builder prune -f '\"' ' "
