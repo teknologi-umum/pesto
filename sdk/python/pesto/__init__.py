@@ -20,22 +20,23 @@ from pesto.execute_request import *
 from pesto.execute_response import *
 from pesto.list_runtimes_response import *
 from pesto.ping_response import *
+from typing import Sequence
 
-__all__ = [
-    Client,
-    CodeRequest,
-    CodeResponse,
-    CodeOutput,
-    ListRuntimesResponse,
-    Runtime,
-    PingResponse,
-    InternalServerError,
-    MissingTokenError,
-    TokenNotRegisteredError,
-    TokenRevokedError,
-    MonthlyLimitExceededError,
-    ServerRateLimitedError,
-    RuntimeNotFoundError,
-    MissingParameterError,
-    MaximumAllowedEntrypointsExceededError,
+__all__: Sequence[str] = [
+    "Client", 
+    "CodeRequest",
+    "CodeResponse",
+    "CodeOutput",
+    "ListRuntimesResponse",
+    "Runtime",
+    "PingResponse",
+    "InternalServerError",
+    "MissingTokenError",
+    "TokenNotRegisteredError",
+    "TokenRevokedError",
+    "MonthlyLimitExceededError",
+    "ServerRateLimitedError",
+    "RuntimeNotFoundError",
+    "MissingParameterError",
+    "MaximumAllowedEntrypointsExceededError",
 ]
