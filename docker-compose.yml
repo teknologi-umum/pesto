@@ -35,6 +35,7 @@ services:
       - "traefik.http.middlewares.landing-header.headers.customResponseHeaders.server=Teknologi Umum"
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.landing-redirectscheme.redirectscheme.permanent=true"
+      - "com.centurylinklabs.watchtower.enable=true"
     platform: linux/amd64
     storage_opt:
       size: '1G'
@@ -50,11 +51,10 @@ services:
       retries: 5
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       restart_policy:
-        condition: on-failure
+        condition: unless-stopped
         delay: 30s
-        max_attempts: 10
         window: 120s
       resources:
         limits:
@@ -77,9 +77,8 @@ services:
       mode: replicated
       replicas: 1
       restart_policy:
-        condition: on-failure
+        condition: unless-stopped
         delay: 30s
-        max_attempts: 20
         window: 60s
       resources:
         limits:
@@ -121,6 +120,7 @@ services:
       - "traefik.http.middlewares.auth-header.headers.browserXssFilter=true"
       - "traefik.http.middlewares.auth-header.headers.contentTypeNosniff=true"
       - "traefik.http.middlewares.auth-header.headers.customResponseHeaders.server=Teknologi Umum"
+      - "com.centurylinklabs.watchtower.enable=true"
     platform: linux/amd64
     storage_opt:
       size: '1G'
@@ -138,9 +138,8 @@ services:
       mode: replicated
       replicas: 2
       restart_policy:
-        condition: on-failure
+        condition: unless-stopped
         delay: 30s
-        max_attempts: 10
         window: 120s
       resources:
         limits:
@@ -193,6 +192,7 @@ services:
       - "traefik.http.middlewares.rce-header.headers.customResponseHeaders.server=Teknologi Umum"
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.rce-redirectscheme.redirectscheme.permanent=true"
+      - "com.centurylinklabs.watchtower.enable=true"
     platform: linux/amd64
     storage_opt:
       size: '5G'
@@ -210,9 +210,8 @@ services:
       mode: replicated
       replicas: 3
       restart_policy:
-        condition: on-failure
+        condition: unless-stopped
         delay: 30s
-        max_attempts: 10
         window: 120s
       resources:
         limits:
@@ -264,6 +263,7 @@ services:
       - "traefik.http.middlewares.registration-redirectscheme.redirectscheme.scheme=https"
       - "traefik.http.middlewares.registration-redirectscheme.redirectscheme.permanent=true"
       - "traefik.http.middlewares.registration-inflightreq.inflightreq.amount=50"
+      - "com.centurylinklabs.watchtower.enable=true"
     platform: linux/amd64
     storage_opt:
       size: '1G'
@@ -284,9 +284,8 @@ services:
       mode: replicated
       replicas: 1
       restart_policy:
-        condition: on-failure
+        condition: unless-stopped
         delay: 30s
-        max_attempts: 10
         window: 120s
       resources:
         limits:
