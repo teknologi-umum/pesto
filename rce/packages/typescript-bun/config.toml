@@ -1,0 +1,13 @@
+language = "Typescript"
+version = "0.6.5"
+compiled = false
+extension = "ts"
+environment = [ "PATH=/opt/bun/0.6.5"]
+build_command = []
+run_command = [ "/opt/bun/0.6.5/bun", "{file}" ]
+test_file = "test.ts"
+aliases = ["typescript", "ts"]
+should_limit_memory = false
+memory_limit = 1024
+process_limit = 2048
+allowed_entrypoints = 1
