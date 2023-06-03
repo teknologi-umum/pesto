@@ -40,7 +40,13 @@ class CodeOutput:
 
 
 class CodeResponse:
-    def __init__(self, language: str, version: str, compile_output: CodeOutput, runtime_output: CodeOutput):
+    def __init__(
+        self,
+        language: str,
+        version: str,
+        compile_output: CodeOutput,
+        runtime_output: CodeOutput,
+    ):
         self.__language = language
         self.__version = version
         self.__compile_output = compile_output

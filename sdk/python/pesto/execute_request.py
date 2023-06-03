@@ -25,15 +25,19 @@ class File:
         self.entrypoint = entrypoint
 
     def to_dict(self) -> dict:
-        return {
-            'name': self.filename,
-            'code': self.code,
-            'entrypoint': self.entrypoint
-        }
+        return {"name": self.filename, "code": self.code, "entrypoint": self.entrypoint}
 
 
 class CodeRequest:
-    def __init__(self, language: str, version: str, files: list[File], compile_timeout: int = 10000, run_timeout: int = 10000, memory_limit: int = 0):
+    def __init__(
+        self,
+        language: str,
+        version: str,
+        files: list[File],
+        compile_timeout: int = 10000,
+        run_timeout: int = 10000,
+        memory_limit: int = 0,
+    ):
         self.language = language
         self.version = version
         self.files = files
@@ -42,11 +46,13 @@ class CodeRequest:
         self.memory_limit = memory_limit
 
     def to_json(self) -> str:
-        return json.dumps({
-            'language': self.language,
-            'version': self.version,
-            'files': [file.to_dict() for file in self.files],
-            'compileTimeout': self.compile_timeout,
-            'runTimeout': self.run_timeout,
-            'memoryLimit': self.memory_limit
-        })
+        return json.dumps(
+            {
+                "language": self.language,
+                "version": self.version,
+                "files": [file.to_dict() for file in self.files],
+                "compileTimeout": self.compile_timeout,
+                "runTimeout": self.run_timeout,
+                "memoryLimit": self.memory_limit,
+            }
+        )
