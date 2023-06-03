@@ -15,7 +15,7 @@ make install -j $(nproc)
 cd ..
 rm -rf sqlite-autoconf-3390400.tar.gz sqlite-autoconf-3390400
 cat <<EOF > /opt/sqlite3/exec_sqlite3
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 /opt/sqlite3/bin/sqlite3 < \$1
 EOF
