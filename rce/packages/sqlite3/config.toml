@@ -3,7 +3,7 @@ version = "3.34.1"
 compiled = false
 extension = "sql"
 environment = [
-  "PATH=/opt/sqlite3/bin",
+  "PATH=/opt/sqlite3/bin:/usr/bin",
   "LD_RUN_PATH=/opt/sqlite3/lib",
   "LD_LIBRARY_PATH=/opt/sqlite3/lib"
 ]

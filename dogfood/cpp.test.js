@@ -42,12 +42,12 @@ void fizzbuzz(int num)
         const expectedOutput = "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz\nFizz\n22\n23\nFizz\nBuzz\n26\nFizz\n28\n29\nFizzBuzz\n31\n32\nFizz\n34\nBuzz\nFizz\n37\n38\nFizz\nBuzz\n41\nFizz\n43\n44\nFizzBuzz\n46\n47\nFizz\n49\nBuzz\nFizz\n52\n53\nFizz\nBuzz\n56\nFizz\n58\n59\nFizzBuzz\n61\n62\nFizz\n64\nBuzz\nFizz\n67\n68\nFizz\nBuzz\n71\nFizz\n73\n74\nFizzBuzz\n76\n77\nFizz\n79\nBuzz\nFizz\n82\n83\nFizz\nBuzz\n86\nFizz\n88\n89\nFizzBuzz\n91\n92\nFizz\n94\nBuzz\nFizz\n97\n98\nFizz\nBuzz";
 
         assert.strictEqual(codeOutput.language, "C++");
-        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.stderr, "");
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
-        assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
     });
@@ -118,12 +118,12 @@ int main() {
         const expectedOutput = "{ (1 3 ) (1 4 ) (2 3 ) (2 4 ) }\n{ (3 1 ) (3 2 ) (4 1 ) (4 2 ) }\n{ }\n{ }\n{ (1776 7 4 0 ) (1776 7 4 1 ) (1776 7 14 0 ) (1776 7 14 1 ) (1776 7 23 0 ) (1776 7 23 1 ) (1776 12 4 0 ) (1776 12 4 1 ) (1776 12 14 0 ) (1776 12 14 1 ) (1776 12 23 0 ) (1776 12 23 1 ) (1789 7 4 0 ) (1789 7 4 1 ) (1789 7 14 0 ) (1789 7 14 1 ) (1789 7 23 0 ) (1789 7 23 1 ) (1789 12 4 0 ) (1789 12 4 1 ) (1789 12 14 0 ) (1789 12 14 1 ) (1789 12 23 0 ) (1789 12 23 1 ) }\n{ (1 30 500 ) (1 30 100 ) (2 30 500 ) (2 30 100 ) (3 30 500 ) (3 30 100 ) }\n{ }";
 
         assert.strictEqual(codeOutput.language, "C++");
-        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.stderr, "");
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
-        assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
     });

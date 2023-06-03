@@ -19,7 +19,7 @@ RUN apt-get update && \
   node ./scripts/install.cjs && \
   # Remove installed build steps via apt just to lessen the image size more \
   apt-get remove -y bzip2 make cmake zip unzip flex clang gcc g++ apt-utils \
-    build-essential binutils && \
+    build-essential && \
   # Create OS users
   node ./scripts/register-users.cjs && \
   # Build the application
