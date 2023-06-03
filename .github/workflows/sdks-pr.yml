@@ -169,3 +169,5 @@ jobs:
 
       - name: Code Coverage Report
         uses: codecov/codecov-action@v3
+        with:
+          flags: sdk-python

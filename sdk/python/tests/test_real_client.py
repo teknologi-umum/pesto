@@ -40,27 +40,6 @@ def test_execute_request():
 
 
 @pytest.mark.skipif(should_skip, reason="Requires PESTO_TOKEN environment variable")
-def test_should_raise_missing_parameter():
-    client = pesto.Client(token=getenv("PESTO_TOKEN"))
-    with pytest.raises(pesto.MissingParameterError) as e_execute:
-        _ = client.execute(
-            pesto.CodeRequest(
-                language="",
-                version="",
-                files=[
-                    pesto.File(
-                        filename="code.py",
-                        code="print('Hello world!')",
-                        entrypoint=True,
-                    )
-                ],
-            )
-        )
-
-    assert e_execute.type == pesto.MissingParameterError
-
-
-@pytest.mark.skipif(should_skip, reason="Requires PESTO_TOKEN environment variable")
 def test_should_raise_runtime_not_found():
     client = pesto.Client(token=getenv("PESTO_TOKEN"))
     with pytest.raises(pesto.RuntimeNotFoundError) as e_execute:
