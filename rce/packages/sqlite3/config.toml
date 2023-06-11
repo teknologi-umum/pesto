@@ -8,7 +8,7 @@ environment = [
   "LD_LIBRARY_PATH=/opt/sqlite3/lib"
 ]
 build_command = []
-run_command = [ "/opt/sqlite3/exec_sqlite3", "{file}" ]
+run_command = [ "/usr/bin/bash", "-c", "/opt/sqlite3/bin/sqlite3 {file}" ]
 test_file = "test.sql"
 aliases = [ "sqlite3", "sql" ]
 should_limit_memory = true
