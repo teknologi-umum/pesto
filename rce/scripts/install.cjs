@@ -87,6 +87,8 @@ function execute(
         await execute("chmod +x install.sh", packagePath);
         await execute("./install.sh", packagePath);
 
+        console.log(`Package installation for ${pkg.name} done, reading the configuration file`);
+
         const configPath = path.join(packagePath, "config.toml");
         const configFile = await fs.readFile(configPath, "utf8");
         const config = toml.parse(configFile, {joiner: "\n", bigint: false});
@@ -96,6 +98,8 @@ function execute(
             acc[key] = value.join("=");
             return acc;
         }, {}) || undefined;
+
+        console.log(`Environment for ${pkg.name}: ${environment}`)
 
         // Run the Hello World file.
         if (config.compiled) {

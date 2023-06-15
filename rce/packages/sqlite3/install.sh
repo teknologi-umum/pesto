@@ -28,8 +28,6 @@ rm -rf sqlite-autoconf-3390400.tar.gz sqlite-autoconf-3390400
 
 echo "Registering exec_sqlite3"
 cat <<EOF > /opt/sqlite3/exec_sqlite3
-#!/usr/bin/bash
-
 /opt/sqlite3/bin/sqlite3 < \$1
 EOF
 
@@ -37,3 +35,5 @@ chmod +x /opt/sqlite3/exec_sqlite3
 
 echo "Let's take a look at what's inside /opt/sqlite3"
 ls /opt/sqlite3
+
+echo "SQLite installation finished"
