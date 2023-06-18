@@ -99,7 +99,7 @@ function execute(
             return acc;
         }, {}) || undefined;
 
-        console.log(`Environment for ${pkg.name}: ${environment}`)
+        console.log(`Environment for ${pkg.name}: ${JSON.stringify(environment, null, 2)}`);
 
         // Run the Hello World file.
         if (config.compiled) {
