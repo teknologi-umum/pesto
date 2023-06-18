@@ -29,6 +29,7 @@ builder.WebHost.UseSentry(
         options.TracesSampler = context => {
             return context.TransactionContext.Name switch {
                 "GET /healthz" => 0,
+                "GET healthz" => 0,
                 _              => 0.4
             };
 
