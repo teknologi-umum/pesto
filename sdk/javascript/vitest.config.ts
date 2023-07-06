@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
     test: {
         coverage: {
-            provider: "c8"
+            provider: "v8"
         },
         testTimeout: 10_000,
         teardownTimeout: 10_000
