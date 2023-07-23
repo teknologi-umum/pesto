@@ -47,7 +47,7 @@ describe("Integration test against real API", () => {
     it.skipIf(shouldSkip)("should throw missing parameters", () => {
         expect(client.execute({ code: "print('asdf')", language: "", version: "" }))
             .rejects
-            .toThrowError(new MissingParameterError("Missing parameters"));
+            .toThrowError(new MissingParameterError("Missing parameters: String must contain at least 1 character(s)"));
     });
 
     it.skipIf(shouldSkip)("should throw runtime not found", () => {
