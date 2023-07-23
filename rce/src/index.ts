@@ -180,7 +180,7 @@ const PORT = process.env?.PORT || "50051";
         case "application/x-www-form-urlencoded": {
           res.writeHead(400, { "Content-Type": "application/x-www-form-urlencoded" }).end(
             new URLSearchParams({
-              message: parsedBody.error.errors.map(o => o.message).join(", ")
+              message: "Missing parameters: " + parsedBody.error.errors.map(o => o.message).join(", ")
             }).toString()
           );
           break;
@@ -189,7 +189,7 @@ const PORT = process.env?.PORT || "50051";
         default:
           res.writeHead(400, { "Content-Type": "application/json" }).end(
             JSON.stringify({
-              message: parsedBody.error.errors.map(o => o.message).join(", ")
+              message: "Missing parameters: " + parsedBody.error.errors.map(o => o.message).join(", ")
             })
           );
       }
