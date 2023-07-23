@@ -70,12 +70,12 @@ describe("Javascript", {concurrency: true}, () => {
 
     it("FizzBuzz", async () => {
         const code = `let i, output;
-    for (i = 1; i < 101; i += 1) {
-        output = '';
-        if (!(i % 3)) { output += 'Fizz'; }
-        if (!(i % 5)) { output += 'Buzz'; }
-        console.log(output || i);
-    }`;
+for (i = 1; i < 101; i += 1) {
+    output = '';
+    if (!(i % 3)) { output += 'Fizz'; }
+    if (!(i % 5)) { output += 'Buzz'; }
+    console.log(output || i);
+}`;
 
         const codeOutput = await pestoClient.execute({
             language: "Javascript",
@@ -86,13 +86,231 @@ describe("Javascript", {concurrency: true}, () => {
         const expectedOutput = "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz\nFizz\n22\n23\nFizz\nBuzz\n26\nFizz\n28\n29\nFizzBuzz\n31\n32\nFizz\n34\nBuzz\nFizz\n37\n38\nFizz\nBuzz\n41\nFizz\n43\n44\nFizzBuzz\n46\n47\nFizz\n49\nBuzz\nFizz\n52\n53\nFizz\nBuzz\n56\nFizz\n58\n59\nFizzBuzz\n61\n62\nFizz\n64\nBuzz\nFizz\n67\n68\nFizz\nBuzz\n71\nFizz\n73\n74\nFizzBuzz\n76\n77\nFizz\n79\nBuzz\nFizz\n82\n83\nFizz\nBuzz\n86\nFizz\n88\n89\nFizzBuzz\n91\n92\nFizz\n94\nBuzz\nFizz\n97\n98\nFizz\nBuzz";
 
         assert.strictEqual(codeOutput.language, "Javascript");
-        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
-        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
-        assert.strictEqual(codeOutput.runtime.stderr, "");
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
-        assert.strictEqual(codeOutput.compile.stdout, "");
-        assert.strictEqual(codeOutput.compile.output, "");
-        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
-    })
-})
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+    });
+
+    it("Sieve of Erastosthenes", async () => {
+        const code = `function eratosthenes(limit) {
+    var primes = [];
+    if (limit >= 2) {
+        var sqrtlmt = Math.sqrt(limit) - 2;
+        var nums = new Array(); // start with an empty Array...
+        for (var i = 2; i <= limit; i++) // and
+            nums.push(i); // only initialize the Array once...
+        for (var i = 0; i <= sqrtlmt; i++) {
+            var p = nums[i]
+            if (p)
+                for (var j = p * p - 2; j < nums.length; j += p)
+                    nums[j] = 0;
+        }
+        for (var i = 0; i < nums.length; i++) {
+            var p = nums[i];
+            if (p)
+                primes.push(p);
+        }
+    }
+    return primes;
+}
+
+var primes = eratosthenes(100);
+
+console.log(primes.join(" "));`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Javascript",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97";
+
+        assert.strictEqual(codeOutput.language, "Javascript");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+    });
+
+    it("99 Bottles", async () => {
+        const code = `let beer = 99;
+while (beer > 0) {
+    let verse = \`\${beer} bottles of beer on the wall, \${beer} bottles of beer.\\n\` +
+    \`Take one down, pass it around, \${beer-1} bottles of beer on the wall\\n\`;
+
+    console.log(verse);
+    beer--;
+}`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Javascript",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "99 bottles of beer on the wall, 99 bottles of beer.\nTake one down, pass it around, 98 bottles of beer on the wall\n\n98 bottles of beer on the wall, 98 bottles of beer.\nTake one down, pass it around, 97 bottles of beer on the wall\n\n97 bottles of beer on the wall, 97 bottles of beer.\nTake one down, pass it around, 96 bottles of beer on the wall\n\n96 bottles of beer on the wall, 96 bottles of beer.\nTake one down, pass it around, 95 bottles of beer on the wall\n\n95 bottles of beer on the wall, 95 bottles of beer.\nTake one down, pass it around, 94 bottles of beer on the wall\n\n94 bottles of beer on the wall, 94 bottles of beer.\nTake one down, pass it around, 93 bottles of beer on the wall\n\n93 bottles of beer on the wall, 93 bottles of beer.\nTake one down, pass it around, 92 bottles of beer on the wall\n\n92 bottles of beer on the wall, 92 bottles of beer.\nTake one down, pass it around, 91 bottles of beer on the wall\n\n91 bottles of beer on the wall, 91 bottles of beer.\nTake one down, pass it around, 90 bottles of beer on the wall\n\n90 bottles of beer on the wall, 90 bottles of beer.\nTake one down, pass it around, 89 bottles of beer on the wall\n\n89 bottles of beer on the wall, 89 bottles of beer.\nTake one down, pass it around, 88 bottles of beer on the wall\n\n88 bottles of beer on the wall, 88 bottles of beer.\nTake one down, pass it around, 87 bottles of beer on the wall\n\n87 bottles of beer on the wall, 87 bottles of beer.\nTake one down, pass it around, 86 bottles of beer on the wall\n\n86 bottles of beer on the wall, 86 bottles of beer.\nTake one down, pass it around, 85 bottles of beer on the wall\n\n85 bottles of beer on the wall, 85 bottles of beer.\nTake one down, pass it around, 84 bottles of beer on the wall\n\n84 bottles of beer on the wall, 84 bottles of beer.\nTake one down, pass it around, 83 bottles of beer on the wall\n\n83 bottles of beer on the wall, 83 bottles of beer.\nTake one down, pass it around, 82 bottles of beer on the wall\n\n82 bottles of beer on the wall, 82 bottles of beer.\nTake one down, pass it around, 81 bottles of beer on the wall\n\n81 bottles of beer on the wall, 81 bottles of beer.\nTake one down, pass it around, 80 bottles of beer on the wall\n\n80 bottles of beer on the wall, 80 bottles of beer.\nTake one down, pass it around, 79 bottles of beer on the wall\n\n79 bottles of beer on the wall, 79 bottles of beer.\nTake one down, pass it around, 78 bottles of beer on the wall\n\n78 bottles of beer on the wall, 78 bottles of beer.\nTake one down, pass it around, 77 bottles of beer on the wall\n\n77 bottles of beer on the wall, 77 bottles of beer.\nTake one down, pass it around, 76 bottles of beer on the wall\n\n76 bottles of beer on the wall, 76 bottles of beer.\nTake one down, pass it around, 75 bottles of beer on the wall\n\n75 bottles of beer on the wall, 75 bottles of beer.\nTake one down, pass it around, 74 bottles of beer on the wall\n\n74 bottles of beer on the wall, 74 bottles of beer.\nTake one down, pass it around, 73 bottles of beer on the wall\n\n73 bottles of beer on the wall, 73 bottles of beer.\nTake one down, pass it around, 72 bottles of beer on the wall\n\n72 bottles of beer on the wall, 72 bottles of beer.\nTake one down, pass it around, 71 bottles of beer on the wall\n\n71 bottles of beer on the wall, 71 bottles of beer.\nTake one down, pass it around, 70 bottles of beer on the wall\n\n70 bottles of beer on the wall, 70 bottles of beer.\nTake one down, pass it around, 69 bottles of beer on the wall\n\n69 bottles of beer on the wall, 69 bottles of beer.\nTake one down, pass it around, 68 bottles of beer on the wall\n\n68 bottles of beer on the wall, 68 bottles of beer.\nTake one down, pass it around, 67 bottles of beer on the wall\n\n67 bottles of beer on the wall, 67 bottles of beer.\nTake one down, pass it around, 66 bottles of beer on the wall\n\n66 bottles of beer on the wall, 66 bottles of beer.\nTake one down, pass it around, 65 bottles of beer on the wall\n\n65 bottles of beer on the wall, 65 bottles of beer.\nTake one down, pass it around, 64 bottles of beer on the wall\n\n64 bottles of beer on the wall, 64 bottles of beer.\nTake one down, pass it around, 63 bottles of beer on the wall\n\n63 bottles of beer on the wall, 63 bottles of beer.\nTake one down, pass it around, 62 bottles of beer on the wall\n\n62 bottles of beer on the wall, 62 bottles of beer.\nTake one down, pass it around, 61 bottles of beer on the wall\n\n61 bottles of beer on the wall, 61 bottles of beer.\nTake one down, pass it around, 60 bottles of beer on the wall\n\n60 bottles of beer on the wall, 60 bottles of beer.\nTake one down, pass it around, 59 bottles of beer on the wall\n\n59 bottles of beer on the wall, 59 bottles of beer.\nTake one down, pass it around, 58 bottles of beer on the wall\n\n58 bottles of beer on the wall, 58 bottles of beer.\nTake one down, pass it around, 57 bottles of beer on the wall\n\n57 bottles of beer on the wall, 57 bottles of beer.\nTake one down, pass it around, 56 bottles of beer on the wall\n\n56 bottles of beer on the wall, 56 bottles of beer.\nTak";
+
+        assert.strictEqual(codeOutput.language, "Javascript");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+    });
+
+    it("Factorial", async () => {
+        const code = `function factorial(n) {
+    //check our edge case
+    if (n < 0) { throw "Number must be non-negative"; }
+
+    var result = 1;
+    //we skip zero and one since both are 1 and are identity
+    while (n > 1) {
+        result *= n;
+        n--;
+    }
+    return result;
+}
+
+console.log(factorial(10));`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Javascript",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "3628800";
+
+        assert.strictEqual(codeOutput.language, "Javascript");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+    });
+
+    it("Merge sort", async () => {
+        const code = `function mergeSort(v) {
+    if (v.length <= 1) {
+        return v;
+    }
+
+    let m = Math.floor(v.length / 2);
+    let l = mergeSort(v.slice(0, m));
+    let r = mergeSort(v.slice(m));
+    return merge(l, r);
+
+    function merge(a, b) {
+        let i = 0, j = 0;
+        let n = a.length + b.length;
+        let c = [];
+        while (c.length < n) {
+            if (i < a.length && (j >= b.length || a[i] < b[j])) {
+                c.push(a[i++]);
+            } else {
+                c.push(b[j++]);
+            }
+        }
+        return c;
+    }
+}
+
+console.log(mergeSort([2, 8, 3, 10, 13, 6, 11, 9, 19, 15, 5, 4, 12, 14, 20, 1, 17, 18, 16, 7]).join(" "));`;
+
+
+        const codeOutput = await pestoClient.execute({
+            language: "Javascript",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20";
+
+        assert.strictEqual(codeOutput.language, "Javascript");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+    });
+
+    it("Heap sort", async () => {
+        const code = `function heapSort(arr) {
+    heapify(arr)
+    end = arr.length - 1
+    while (end > 0) {
+        [arr[end], arr[0]] = [arr[0], arr[end]]
+        end--
+        siftDown(arr, 0, end)
+    }
+}
+
+function heapify(arr) {
+    start = Math.floor(arr.length/2) - 1
+
+    while (start >= 0) {
+        siftDown(arr, start, arr.length - 1)
+        start--
+    }
+}
+
+function siftDown(arr, startPos, endPos) {
+    let rootPos = startPos
+
+    while (rootPos * 2 + 1 <= endPos) {
+        childPos = rootPos * 2 + 1
+        if (childPos + 1 <= endPos && arr[childPos] < arr[childPos + 1]) {
+            childPos++
+        }
+        if (arr[rootPos] < arr[childPos]) {
+            [arr[rootPos], arr[childPos]] = [arr[childPos], arr[rootPos]]
+            rootPos = childPos
+        } else {
+            return
+        }
+    }
+}
+
+const arr = [2, 8, 3, 10, 13, 6, 11, 9, 19, 15, 5, 4, 12, 14, 20, 1, 17, 18, 16, 7];
+heapSort(arr);
+console.log(arr.join(" "));`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Javascript",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20";
+
+        assert.strictEqual(codeOutput.language, "Javascript");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+    });
+});

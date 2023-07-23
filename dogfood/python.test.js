@@ -36,7 +36,7 @@ describe("Python", {concurrency: true}, () => {
         assert.strictEqual(codeOutput.compile.output, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
-    })
+    });
 
     // https://rosettacode.org/wiki/Cartesian_product_of_two_or_more_lists#Python
     it("Cartesian Equation", async () => {
@@ -72,7 +72,7 @@ if __name__ == '__main__':
         assert.strictEqual(codeOutput.compile.output, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
-    })
+    });
 
     it("Caesar Cipher", async () => {
         const code = `from string import ascii_uppercase as abc
@@ -82,7 +82,7 @@ def caesar(s, k, decode = False):
     return ''.join(trans[L] for L in s.upper() if L in abc)
 
 msg = "The quick brown fox jumped over the lazy dogs"
-print(caesar(msg, 11))`
+print(caesar(msg, 11))`;
 
         const codeOutput = await pestoClient.execute({
             language: "Python",
@@ -210,5 +210,5 @@ if __name__ == '__main__':
         assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
-    })
-})
+    });
+});

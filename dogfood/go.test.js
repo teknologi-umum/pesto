@@ -31,7 +31,7 @@ func main() {
     for i := 1; i < 100; i++ {
         fizzbuzz(i)
     }
-}`
+}`;
 
         const codeOutput = await pestoClient.execute({
             language: "Go",
@@ -50,7 +50,7 @@ func main() {
         assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
-    })
+    });
 
     it.skip("Cartesian equation", async () => {
         const code = `package main
@@ -95,7 +95,7 @@ func main() {
         assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
-    })
+    });
 
     it.skip("Erdős-Nicolas numbers", async () => {
         const code = `package main
@@ -119,7 +119,7 @@ func main() {
             dcount[j]++
         }
     }
-}`
+}`;
 
         const codeOutput = await pestoClient.execute({
             language: "Go",
@@ -174,9 +174,11 @@ func heapSort(a sort.Interface) {
 }
 
 func main() {
-    a := []int{170, 45, 75, -90, -802, 24, 2, 66}
+    a := []int{2, 8, 3, 10, 13, 6, 11, 9, 19, 15, 5, 4, 12, 14, 20, 1, 17, 18, 16, 7}
     heapSort(sort.IntSlice(a))
-    fmt.Println(a)
+    for i := 0; i < len(a); i++ {
+		fmt.Printf("%d ", a[i])
+	}
 }`;
 
         const codeOutput = await pestoClient.execute({
@@ -185,16 +187,169 @@ func main() {
             code: code
         });
 
-        const expectedOutput = "[-802 -90 2 24 45 66 75 170]"
+        const expectedOutput = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20";
 
         assert.strictEqual(codeOutput.language, "Go");
+        assert.strictEqual(codeOutput.compile.output, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.stdout, "");
-        assert.strictEqual(codeOutput.compile.output, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
-        assert.strictEqual(codeOutput.runtime.stderr, "");
-        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
     });
-})
+
+    it("Merge sort", async () => {
+        const code = `package main
+
+import "fmt"
+
+var a = []int{2, 8, 3, 10, 13, 6, 11, 9, 19, 15, 5, 4, 12, 14, 20, 1, 17, 18, 16, 7}
+var s = make([]int, len(a)/2+1) // scratch space for merge step
+
+func main() {
+    mergeSort(a)
+    for i := 0; i < len(a); i++ {
+		fmt.Printf("%d ", a[i])
+	}
+}
+
+func mergeSort(a []int) {
+    if len(a) < 2 {
+        return
+    }
+    mid := len(a) / 2
+    mergeSort(a[:mid])
+    mergeSort(a[mid:])
+    if a[mid-1] <= a[mid] {
+        return
+    }
+    // merge step, with the copy-half optimization
+    copy(s, a[:mid])
+    l, r := 0, mid
+    for i := 0; ; i++ {
+        if s[l] <= a[r] {
+            a[i] = s[l]
+            l++
+            if l == mid {
+                break
+            }
+        } else {
+            a[i] = a[r]
+            r++
+            if r == len(a) {
+                copy(a[i+1:], s[l:mid])
+                break
+            }
+        }
+    }
+    return
+}`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Go",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20";
+
+        assert.strictEqual(codeOutput.language, "Go");
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+    });
+
+    it("99 Bottles", async () => {
+        const code = `package main
+
+import "fmt"
+
+func main() {
+    bottles := func(i int) string {
+        switch i {
+        case 0:
+            return "No more bottles"
+        case 1:
+            return "1 bottle"
+        default:
+            return fmt.Sprintf("%d bottles", i)
+        }
+    }
+
+    for i := 99; i > 0; i-- {
+        fmt.Printf("%s of beer on the wall, ", bottles(i))
+        fmt.Printf("%s of beer.\\n", bottles(i))
+        fmt.Printf("Take one down, pass it around,")
+        fmt.Printf("%s of beer on the wall\\n\\n", bottles(i-1))
+    }
+}`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Go",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "99 bottles of beer on the wall, 99 bottles of beer.\nTake one down, pass it around, 98 bottles of beer on the wall\n\n98 bottles of beer on the wall, 98 bottles of beer.\nTake one down, pass it around, 97 bottles of beer on the wall\n\n97 bottles of beer on the wall, 97 bottles of beer.\nTake one down, pass it around, 96 bottles of beer on the wall\n\n96 bottles of beer on the wall, 96 bottles of beer.\nTake one down, pass it around, 95 bottles of beer on the wall\n\n95 bottles of beer on the wall, 95 bottles of beer.\nTake one down, pass it around, 94 bottles of beer on the wall\n\n94 bottles of beer on the wall, 94 bottles of beer.\nTake one down, pass it around, 93 bottles of beer on the wall\n\n93 bottles of beer on the wall, 93 bottles of beer.\nTake one down, pass it around, 92 bottles of beer on the wall\n\n92 bottles of beer on the wall, 92 bottles of beer.\nTake one down, pass it around, 91 bottles of beer on the wall\n\n91 bottles of beer on the wall, 91 bottles of beer.\nTake one down, pass it around, 90 bottles of beer on the wall\n\n90 bottles of beer on the wall, 90 bottles of beer.\nTake one down, pass it around, 89 bottles of beer on the wall\n\n89 bottles of beer on the wall, 89 bottles of beer.\nTake one down, pass it around, 88 bottles of beer on the wall\n\n88 bottles of beer on the wall, 88 bottles of beer.\nTake one down, pass it around, 87 bottles of beer on the wall\n\n87 bottles of beer on the wall, 87 bottles of beer.\nTake one down, pass it around, 86 bottles of beer on the wall\n\n86 bottles of beer on the wall, 86 bottles of beer.\nTake one down, pass it around, 85 bottles of beer on the wall\n\n85 bottles of beer on the wall, 85 bottles of beer.\nTake one down, pass it around, 84 bottles of beer on the wall\n\n84 bottles of beer on the wall, 84 bottles of beer.\nTake one down, pass it around, 83 bottles of beer on the wall\n\n83 bottles of beer on the wall, 83 bottles of beer.\nTake one down, pass it around, 82 bottles of beer on the wall\n\n82 bottles of beer on the wall, 82 bottles of beer.\nTake one down, pass it around, 81 bottles of beer on the wall\n\n81 bottles of beer on the wall, 81 bottles of beer.\nTake one down, pass it around, 80 bottles of beer on the wall\n\n80 bottles of beer on the wall, 80 bottles of beer.\nTake one down, pass it around, 79 bottles of beer on the wall\n\n79 bottles of beer on the wall, 79 bottles of beer.\nTake one down, pass it around, 78 bottles of beer on the wall\n\n78 bottles of beer on the wall, 78 bottles of beer.\nTake one down, pass it around, 77 bottles of beer on the wall\n\n77 bottles of beer on the wall, 77 bottles of beer.\nTake one down, pass it around, 76 bottles of beer on the wall\n\n76 bottles of beer on the wall, 76 bottles of beer.\nTake one down, pass it around, 75 bottles of beer on the wall\n\n75 bottles of beer on the wall, 75 bottles of beer.\nTake one down, pass it around, 74 bottles of beer on the wall\n\n74 bottles of beer on the wall, 74 bottles of beer.\nTake one down, pass it around, 73 bottles of beer on the wall\n\n73 bottles of beer on the wall, 73 bottles of beer.\nTake one down, pass it around, 72 bottles of beer on the wall\n\n72 bottles of beer on the wall, 72 bottles of beer.\nTake one down, pass it around, 71 bottles of beer on the wall\n\n71 bottles of beer on the wall, 71 bottles of beer.\nTake one down, pass it around, 70 bottles of beer on the wall\n\n70 bottles of beer on the wall, 70 bottles of beer.\nTake one down, pass it around, 69 bottles of beer on the wall\n\n69 bottles of beer on the wall, 69 bottles of beer.\nTake one down, pass it around, 68 bottles of beer on the wall\n\n68 bottles of beer on the wall, 68 bottles of beer.\nTake one down, pass it around, 67 bottles of beer on the wall\n\n67 bottles of beer on the wall, 67 bottles of beer.\nTake one down, pass it around, 66 bottles of beer on the wall\n\n66 bottles of beer on the wall, 66 bottles of beer.\nTake one down, pass it around, 65 bottles of beer on the wall\n\n65 bottles of beer on the wall, 65 bottles of beer.\nTake one down, pass it around, 64 bottles of beer on the wall\n\n64 bottles of beer on the wall, 64 bottles of beer.\nTake one down, pass it around, 63 bottles of beer on the wall\n\n63 bottles of beer on the wall, 63 bottles of beer.\nTake one down, pass it around, 62 bottles of beer on the wall\n\n62 bottles of beer on the wall, 62 bottles of beer.\nTake one down, pass it around, 61 bottles of beer on the wall\n\n61 bottles of beer on the wall, 61 bottles of beer.\nTake one down, pass it around, 60 bottles of beer on the wall\n\n60 bottles of beer on the wall, 60 bottles of beer.\nTake one down, pass it around, 59 bottles of beer on the wall\n\n59 bottles of beer on the wall, 59 bottles of beer.\nTake one down, pass it around, 58 bottles of beer on the wall\n\n58 bottles of beer on the wall, 58 bottles of beer.\nTake one down, pass it around, 57 bottles of beer on the wall\n\n57 bottles of beer on the wall, 57 bottles of beer.\nTake one down, pass it around, 56 bottles of beer on the wall\n\n56 bottles of beer on the wall, 56 bottles of beer.\nTak";
+
+        assert.strictEqual(codeOutput.language, "Go");
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+    });
+
+    it("Factorial", async () => {
+        const code = `package main
+
+import (
+    "fmt"
+    "math/big"
+)
+
+func main() {
+    fmt.Println(factorial(10))
+}
+
+func factorial(n int64) *big.Int {
+    if n < 0 {
+        return nil
+    }
+    r := big.NewInt(1)
+    var f big.Int
+    for i := int64(2); i <= n; i++ {
+        r.Mul(r, f.SetInt64(i))
+    }
+    return r
+}`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Go",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "3628800";
+
+        assert.strictEqual(codeOutput.language, "Go");
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+    });
+});
