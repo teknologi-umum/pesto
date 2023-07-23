@@ -20,7 +20,7 @@ jobs:
         working-directory: ./auth
     services:
       db:
-        image: redis:7-bullseye
+        image: redis:7-bookworm
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -53,7 +53,7 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    container: node:18.14.2-bullseye
+    container: node:18.17.0-bookworm
     timeout-minutes: 30
     defaults:
       run:
@@ -155,7 +155,7 @@ jobs:
         working-directory: ./registration
     services:
       db:
-        image: redis:7-bullseye
+        image: redis:7-bookworm
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -415,7 +415,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    container: debian:bullseye
+    container: debian:bookworm
     timeout-minutes: 120
     needs:
       - build-auth

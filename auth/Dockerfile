@@ -1,4 +1,4 @@
-FROM golang:1.20.1-bullseye AS builder
+FROM golang:1.20.1-bookworm AS builder
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY . .
 
 RUN go build -o pesto_auth .
 
-FROM debian:bullseye
+FROM debian:bookworm
 
 WORKDIR /app
 
