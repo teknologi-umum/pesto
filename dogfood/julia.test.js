@@ -155,12 +155,28 @@ println(heapsort!(a))`;
         assert.strictEqual(codeOutput.compile.exitCode, 0);
     });
 
-    it("Polynomial regression", async () => {
-        const code = `polyfit(x::Vector, y::Vector, deg::Int) = collect(v ^ p for v in x, p in 0:deg) \\ y
+    it("Sieve of Erastosthenes", async () => {
+        const code = `function sieve(lim :: Int)
+    if lim < 2 return [] end
+    limi :: Int = (lim - 1) ÷ 2 # calculate the required array size
+    isprime :: Array{Bool} = trues(limi)
+    llimi :: Int = (isqrt(lim) - 1) ÷ 2 # and calculate maximum root prime index
+    result :: Array{Int} = [2]  #Initial array
+    for i in 1:limi
+        if isprime[i]
+            p = i + i + 1 # 2i + 1
+            if i <= llimi
+                for j = (p*p-1)>>>1:p:limi # quick shift/divide in case LLVM doesn't optimize divide by 2 away
+                    isprime[j] = false
+                end
+            end
+            push!(result, p)
+        end
+    end
+    return result
+end
 
-x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-y = [1, 6, 17, 34, 57, 86, 121, 162, 209, 262, 321]
-@show polyfit(x, y, 2)`;
+println(sieve(100))`;
 
         const codeOutput = await pestoClient.execute({
             language: "Julia",
@@ -168,16 +184,16 @@ y = [1, 6, 17, 34, 57, 86, 121, 162, 209, 262, 321]
             code,
         });
 
-        const expectedOutput = "polyfit(x, y, 2) = [0.9999999999999526, 2.0000000000000164, 2.9999999999999982]";
+        const expectedOutput = "[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]";
 
         assert.strictEqual(codeOutput.language, "Julia");
-        assert.strictEqual(codeOutput.compile.exitCode, 0);
-        assert.strictEqual(codeOutput.compile.output, "");
-        assert.strictEqual(codeOutput.compile.stderr, "");
-        assert.strictEqual(codeOutput.compile.stdout, "");
-        assert.strictEqual(codeOutput.runtime.stderr, "");
         assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
-    });
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+    })
 })

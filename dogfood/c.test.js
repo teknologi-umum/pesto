@@ -51,14 +51,14 @@ void fizzbuzz(int num)
         const expectedOutput = "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n17\nFizz\n19\nBuzz\nFizz\n22\n23\nFizz\nBuzz\n26\nFizz\n28\n29\nFizzBuzz\n31\n32\nFizz\n34\nBuzz\nFizz\n37\n38\nFizz\nBuzz\n41\nFizz\n43\n44\nFizzBuzz\n46\n47\nFizz\n49\nBuzz\nFizz\n52\n53\nFizz\nBuzz\n56\nFizz\n58\n59\nFizzBuzz\n61\n62\nFizz\n64\nBuzz\nFizz\n67\n68\nFizz\nBuzz\n71\nFizz\n73\n74\nFizzBuzz\n76\n77\nFizz\n79\nBuzz\nFizz\n82\n83\nFizz\nBuzz\n86\nFizz\n88\n89\nFizzBuzz\n91\n92\nFizz\n94\nBuzz\nFizz\n97\n98\nFizz\nBuzz";
 
         assert.strictEqual(codeOutput.language, "C");
-        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
-        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
-        assert.strictEqual(codeOutput.runtime.stderr, "");
-        assert.strictEqual(codeOutput.runtime.exitCode, 0);
-        assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
     });
 
 
@@ -111,13 +111,84 @@ int main () {
         const expectedOutput = "4 65 2 -31 0 99 2 83 782 1\n-31 0 1 2 2 4 65 83 99 782";
 
         assert.strictEqual(codeOutput.language, "C");
-        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
-        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
-        assert.strictEqual(codeOutput.runtime.stderr, "");
-        assert.strictEqual(codeOutput.runtime.exitCode, 0);
-        assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+    });
+
+    it("Sieve of Erastosthenes", async () => {
+        const code = `#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
+
+char*
+eratosthenes(int n, int *c)
+{
+    char* sieve;
+    int i, j, m;
+
+    if(n < 2) {
+        return NULL;
+    }
+
+    *c = n-1;     /* primes count */
+    m = (int) sqrt((double) n);
+
+    /* calloc initializes to zero */
+    sieve = calloc(n+1,sizeof(char));
+    sieve[0] = 1;
+    sieve[1] = 1;
+    for(i = 2; i <= m; i++) {
+        if(!sieve[i]) {
+            for (j = i*i; j <= n; j += i) {
+                if(!sieve[j]) {
+                    sieve[j] = 1; 
+                    --(*c);
+                }
+            }
+        }
+        return sieve;
+    }
+
+    return sieve;
+}
+
+int main() {
+    int n = 100;
+    int count;
+    char* sieve = eratosthenes(n, &count);
+    printf("[");
+    for (int i = 2; i <= n; i++) {
+      if (!sieve[i]) {
+        printf("%d, ", i);
+      }
+    }
+    printf("]\\n");
+    free(sieve);
+    return 0;
+}`
+
+        const codeOutput = await pestoClient.execute({
+            language: "C",
+            version: "latest",
+            code: code,
+        });
+
+        const expectedOutput = "[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, ]";
+
+        assert.strictEqual(codeOutput.language, "C");
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
     })
 })
