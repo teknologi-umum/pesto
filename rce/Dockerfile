@@ -1,4 +1,4 @@
-FROM node:18.14.2-bullseye
+FROM node:18.17.0-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 
