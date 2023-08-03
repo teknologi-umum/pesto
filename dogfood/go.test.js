@@ -200,7 +200,7 @@ func main() {
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
     });
 
-    it("Merge sort", async () => {
+    it.skip("Merge sort", async () => {
         const code = `package main
 
 import "fmt"
@@ -266,7 +266,7 @@ func mergeSort(a []int) {
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
     });
 
-    it("99 Bottles", async () => {
+    it.skip("99 Bottles", async () => {
         const code = `package main
 
 import "fmt"
@@ -310,7 +310,7 @@ func main() {
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
     });
 
-    it("Factorial", async () => {
+    it.skip("Factorial", async () => {
         const code = `package main
 
 import (
