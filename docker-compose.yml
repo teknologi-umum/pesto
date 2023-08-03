@@ -10,6 +10,7 @@ services:
       PORT: 3000
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=pesto"
       - "traefik.http.routers.landing.entrypoints=web,websecure"
       - "traefik.http.routers.landing.rule=Host(`pesto.teknologiumum.com`)"
       - "traefik.http.routers.landing.priority=1"
@@ -65,6 +66,7 @@ services:
           cpus: '0.10'
     networks:
       - pesto
+
   db:
     build: ./redis
     platform: linux/amd64
@@ -88,7 +90,7 @@ services:
           memory: 100MB
           cpus: '0.25'
     networks:
-      - pesto
+      - internal
     volumes:
       - ../redis:/data
   auth:
@@ -100,6 +102,7 @@ services:
       REDIS_URL: redis://@db:6379/
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=pesto"
       - "traefik.http.routers.auth.entrypoints=web,websecure"
       - "traefik.http.routers.auth.middlewares=auth-error,auth-header,auth-rate"
       - "traefik.http.services.auth.loadbalancer.server.port=3000"
@@ -153,6 +156,8 @@ services:
         condition: service_healthy
     networks:
       - pesto
+      - internal
+
   rce:
     image: ghcr.io/teknologi-umum/pesto-rce:edge
     environment:
@@ -161,6 +166,7 @@ services:
       SENTRY_DSN: ${RCE_SENTRY_DSN}
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=pesto"
       - "traefik.http.routers.rce.entrypoints=web,websecure"
       - "traefik.http.routers.rce.rule=Host(`pesto.teknologiumum.com`) && PathPrefix(`/api`)"
       - "traefik.http.routers.rce.priority=3"
@@ -222,6 +228,8 @@ services:
           cpus: '0.10'
     networks:
       - pesto
+      - internal
+
   registration:
     image: ghcr.io/teknologi-umum/pesto-registration:edge
     environment:
@@ -234,6 +242,7 @@ services:
       RedisUrl: "db:6379"
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=pesto"
       - "traefik.http.routers.registration.entrypoints=web,websecure"
       - "traefik.http.routers.registration.rule=Host(`pesto.teknologiumum.com`) && Path(`/api/register`)"
       - "traefik.http.routers.registration.priority=5"
@@ -296,8 +305,18 @@ services:
           cpus: '0.10'
     networks:
       - pesto
+      - internal
 
 networks:
   pesto:
     driver: bridge
     external: true
+    ipam:
+      config:
+        - subnet: 10.32.50.0/27
+  internal:
+    driver: bridge
+    external: false
+    ipam:
+      config:
+        - subnet: 10.32.51.0/27
