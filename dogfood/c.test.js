@@ -189,53 +189,90 @@ int main () {
     });
 
     it("Sieve of Erastosthenes", async () => {
-        const code = `#include <stdlib.h>
+        const code = `#include <stdio.h>
+#include <string.h>
 #include <math.h>
-#include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
 
-char*
-eratosthenes(int n, int *c)
-{
-    char* sieve;
-    int i, j, m;
+#define true (1)
+#define false (0)
+typedef unsigned char bool;
 
-    if(n < 2) {
-        return NULL;
+#define MAX 10000000
+
+/* to_int: converts a character array to an integer, returns -1 on error, -2 on out of limits */
+int to_int(char* inp) {
+    int len = strlen(inp);
+    unsigned int out = 0, prev_out = 0, mult = 1;
+
+    if (len == 0) {
+        return -1;
     }
 
-    *c = n-1;     /* primes count */
-    m = (int) sqrt((double) n);
-
-    /* calloc initializes to zero */
-    sieve = calloc(n+1,sizeof(char));
-    sieve[0] = 1;
-    sieve[1] = 1;
-    for(i = 2; i <= m; i++) {
-        if(!sieve[i]) {
-            for (j = i*i; j <= n; j += i) {
-                if(!sieve[j]) {
-                    sieve[j] = 1;
-                    --(*c);
-                }
-            }
+    for (int i = len - 1; i >= 0; i--) {
+        if (inp[i] < 48 || inp[i] > 57) {
+            return -1;
         }
-        return sieve;
+
+        prev_out = out;
+        out += (inp[i] - 48) * mult;
+        mult *= 10;
+
+        /* detect wrapping */
+        if (out < prev_out) {
+            return -2;
+        }
     }
 
-    return sieve;
+    return out;
 }
 
-int main() {
-    int n = 100;
-    int count;
-    char* sieve = eratosthenes(n, &count);
-    for (int i = 2; i <= n; i++) {
-      if (!sieve[i]) {
-        printf("%d ", i);
-      }
+int main(int argc, char **argv) {
+    unsigned int max = 100;
+
+    if (max == -1) {
+        fprintf(stderr, "Syntax: number to find primes up to (you typed %s, which is not a valid number)\n", argv[1]);
+        return EXIT_FAILURE;
     }
-    free(sieve);
-    return 0;
+
+    if (max > MAX || max == -2) {
+        printf("Warning: the number you typed was outside of the limit. It has been set to %d.\nPress the return key to continue...\n", MAX);
+        max = MAX;
+        getchar();
+    }
+
+    max++;
+
+    /* Set up the list */
+    bool *list = NULL;
+    if ((list = malloc(max)) == NULL) {
+        fprintf(stderr, "Error! Could not allocate the requested amount of memory: %s\nExiting...\n", strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    memset(list, true, max);
+
+    int iteration = 0;
+    int max_sqrt = sqrt(max);
+
+    for (int i = 2; i <= max_sqrt; i++) {
+        if (list[i]) {
+            for (int j = i*i; j <= max; j += i) {
+                list[j] = false;
+            }
+        }
+    }
+
+    for (int i = 1; i < max; i++) {
+        if (list[i]) {
+            printf("%d ", i);
+        }
+    }
+
+    free(list);
+
+    return EXIT_SUCCESS;
 }`;
 
         const codeOutput = await pestoClient.execute({
