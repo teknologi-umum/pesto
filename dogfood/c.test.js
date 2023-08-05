@@ -228,26 +228,13 @@ int to_int(char* inp) {
     return out;
 }
 
-int main(int argc, char **argv) {
-    unsigned int max = 100;
-
-    if (max == -1) {
-        fprintf(stderr, "Syntax: number to find primes up to (you typed %s, which is not a valid number)\n", argv[1]);
-        return EXIT_FAILURE;
-    }
-
-    if (max > MAX || max == -2) {
-        printf("Warning: the number you typed was outside of the limit. It has been set to %d.\nPress the return key to continue...\n", MAX);
-        max = MAX;
-        getchar();
-    }
-
-    max++;
+int main() {
+    int max = 100;
 
     /* Set up the list */
     bool *list = NULL;
     if ((list = malloc(max)) == NULL) {
-        fprintf(stderr, "Error! Could not allocate the requested amount of memory: %s\nExiting...\n", strerror(errno));
+        fprintf(stderr, "Error! Could not allocate the requested amount of memory: %s\\nExiting...\\n", strerror(errno));
         return EXIT_FAILURE;
     }
 
@@ -272,7 +259,7 @@ int main(int argc, char **argv) {
 
     free(list);
 
-    return EXIT_SUCCESS;
+    return 0;
 }`;
 
         const codeOutput = await pestoClient.execute({
