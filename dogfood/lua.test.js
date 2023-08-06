@@ -90,7 +90,7 @@ describe("Lua", {concurrency: true}, () => {
         local text = "The quick brown fox jumped over the lazy dogs"
         local encrypted = caesar.encrypt(text, 11)
         print(encrypted)
-    end`
+    end`;
 
         const codeOutput = await pestoClient.execute({
             language: "Lua",
@@ -109,5 +109,92 @@ describe("Lua", {concurrency: true}, () => {
         assert.strictEqual(codeOutput.compile.output, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
-    })
-})
+    });
+
+    it("Sieve of Erastosthenes", async () => {
+        const code = `function erato(n)
+    if n < 2 then return {} end
+    local t = {0} -- clears '1'
+    local sqrtlmt = math.sqrt(n)
+    for i = 2, n do t[i] = 1 end
+    for i = 2, sqrtlmt do if t[i] ~= 0 then for j = i*i, n, i do t[j] = 0 end end end
+    local primes = {}
+    for i = 2, n do if t[i] ~= 0 then table.insert(primes, i) end end
+    return primes
+end
+
+print(table.concat(erato(100), " "))`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Lua",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97";
+
+        assert.strictEqual(codeOutput.language, "Lua");
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+    });
+
+    it("99 Bottles", async () => {
+        const code = `verse = [[%i bottles of beer on the wall, %i bottles of beer.
+Take one down, pass it around, %i bottles of beer on the wall
+]]
+
+for i = 99, 1, -1 do
+    print(verse:format(i, i, i-1))
+end`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Lua",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "99 bottles of beer on the wall, 99 bottles of beer.\nTake one down, pass it around, 98 bottles of beer on the wall\n\n98 bottles of beer on the wall, 98 bottles of beer.\nTake one down, pass it around, 97 bottles of beer on the wall\n\n97 bottles of beer on the wall, 97 bottles of beer.\nTake one down, pass it around, 96 bottles of beer on the wall\n\n96 bottles of beer on the wall, 96 bottles of beer.\nTake one down, pass it around, 95 bottles of beer on the wall\n\n95 bottles of beer on the wall, 95 bottles of beer.\nTake one down, pass it around, 94 bottles of beer on the wall\n\n94 bottles of beer on the wall, 94 bottles of beer.\nTake one down, pass it around, 93 bottles of beer on the wall\n\n93 bottles of beer on the wall, 93 bottles of beer.\nTake one down, pass it around, 92 bottles of beer on the wall\n\n92 bottles of beer on the wall, 92 bottles of beer.\nTake one down, pass it around, 91 bottles of beer on the wall\n\n91 bottles of beer on the wall, 91 bottles of beer.\nTake one down, pass it around, 90 bottles of beer on the wall\n\n90 bottles of beer on the wall, 90 bottles of beer.\nTake one down, pass it around, 89 bottles of beer on the wall\n\n89 bottles of beer on the wall, 89 bottles of beer.\nTake one down, pass it around, 88 bottles of beer on the wall\n\n88 bottles of beer on the wall, 88 bottles of beer.\nTake one down, pass it around, 87 bottles of beer on the wall\n\n87 bottles of beer on the wall, 87 bottles of beer.\nTake one down, pass it around, 86 bottles of beer on the wall\n\n86 bottles of beer on the wall, 86 bottles of beer.\nTake one down, pass it around, 85 bottles of beer on the wall\n\n85 bottles of beer on the wall, 85 bottles of beer.\nTake one down, pass it around, 84 bottles of beer on the wall\n\n84 bottles of beer on the wall, 84 bottles of beer.\nTake one down, pass it around, 83 bottles of beer on the wall\n\n83 bottles of beer on the wall, 83 bottles of beer.\nTake one down, pass it around, 82 bottles of beer on the wall\n\n82 bottles of beer on the wall, 82 bottles of beer.\nTake one down, pass it around, 81 bottles of beer on the wall\n\n81 bottles of beer on the wall, 81 bottles of beer.\nTake one down, pass it around, 80 bottles of beer on the wall\n\n80 bottles of beer on the wall, 80 bottles of beer.\nTake one down, pass it around, 79 bottles of beer on the wall\n\n79 bottles of beer on the wall, 79 bottles of beer.\nTake one down, pass it around, 78 bottles of beer on the wall\n\n78 bottles of beer on the wall, 78 bottles of beer.\nTake one down, pass it around, 77 bottles of beer on the wall\n\n77 bottles of beer on the wall, 77 bottles of beer.\nTake one down, pass it around, 76 bottles of beer on the wall\n\n76 bottles of beer on the wall, 76 bottles of beer.\nTake one down, pass it around, 75 bottles of beer on the wall\n\n75 bottles of beer on the wall, 75 bottles of beer.\nTake one down, pass it around, 74 bottles of beer on the wall\n\n74 bottles of beer on the wall, 74 bottles of beer.\nTake one down, pass it around, 73 bottles of beer on the wall\n\n73 bottles of beer on the wall, 73 bottles of beer.\nTake one down, pass it around, 72 bottles of beer on the wall\n\n72 bottles of beer on the wall, 72 bottles of beer.\nTake one down, pass it around, 71 bottles of beer on the wall\n\n71 bottles of beer on the wall, 71 bottles of beer.\nTake one down, pass it around, 70 bottles of beer on the wall\n\n70 bottles of beer on the wall, 70 bottles of beer.\nTake one down, pass it around, 69 bottles of beer on the wall\n\n69 bottles of beer on the wall, 69 bottles of beer.\nTake one down, pass it around, 68 bottles of beer on the wall\n\n68 bottles of beer on the wall, 68 bottles of beer.\nTake one down, pass it around, 67 bottles of beer on the wall\n\n67 bottles of beer on the wall, 67 bottles of beer.\nTake one down, pass it around, 66 bottles of beer on the wall\n\n66 bottles of beer on the wall, 66 bottles of beer.\nTake one down, pass it around, 65 bottles of beer on the wall\n\n65 bottles of beer on the wall, 65 bottles of beer.\nTake one down, pass it around, 64 bottles of beer on the wall\n\n64 bottles of beer on the wall, 64 bottles of beer.\nTake one down, pass it around, 63 bottles of beer on the wall\n\n63 bottles of beer on the wall, 63 bottles of beer.\nTake one down, pass it around, 62 bottles of beer on the wall\n\n62 bottles of beer on the wall, 62 bottles of beer.\nTake one down, pass it around, 61 bottles of beer on the wall\n\n61 bottles of beer on the wall, 61 bottles of beer.\nTake one down, pass it around, 60 bottles of beer on the wall\n\n60 bottles of beer on the wall, 60 bottles of beer.\nTake one down, pass it around, 59 bottles of beer on the wall\n\n59 bottles of beer on the wall, 59 bottles of beer.\nTake one down, pass it around, 58 bottles of beer on the wall\n\n58 bottles of beer on the wall, 58 bottles of beer.\nTake one down, pass it around, 57 bottles of beer on the wall\n\n57 bottles of beer on the wall, 57 bottles of beer.\nTake one down, pass it around, 56 bottles of beer on the wall\n\n56 bottles of beer on the wall, 56 bottles of beer.\nTak";
+
+        assert.strictEqual(codeOutput.language, "Lua");
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+    });
+
+    it("Factorial", async () => {
+        const code = `function fact(n)
+    return n > 0 and n * fact(n-1) or 1
+end
+
+print(fact(10))`;
+
+        const codeOutput = await pestoClient.execute({
+            language: "Lua",
+            version: "latest",
+            code: code
+        });
+
+        const expectedOutput = "3628800";
+
+        assert.strictEqual(codeOutput.language, "Lua");
+        assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
+        assert.strictEqual(codeOutput.runtime.stderr, "");
+        assert.strictEqual(codeOutput.runtime.exitCode, 0);
+        assert.strictEqual(codeOutput.compile.output, "");
+        assert.strictEqual(codeOutput.compile.stdout, "");
+        assert.strictEqual(codeOutput.compile.stderr, "");
+        assert.strictEqual(codeOutput.compile.exitCode, 0);
+    });
+});
