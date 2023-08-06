@@ -40,7 +40,7 @@ describe("PHP", {concurrency: true}, () => {
         assert.strictEqual(codeOutput.compile.output, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
-    })
+    });
 
     it("Caesar Cipher", async () => {
         const code = `<?php
@@ -137,5 +137,5 @@ echo implode(',',$arr);`;
         assert.strictEqual(codeOutput.runtime.stdout?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.output?.trim(), expectedOutput);
         assert.strictEqual(codeOutput.runtime.exitCode, 0);
-    })
-})
+    });
+});
