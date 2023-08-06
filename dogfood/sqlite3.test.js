@@ -61,5 +61,5 @@ describe("SQLite3", {concurrency: true}, () => {
         assert.strictEqual(codeOutput.compile.stdout, "");
         assert.strictEqual(codeOutput.compile.stderr, "");
         assert.strictEqual(codeOutput.compile.exitCode, 0);
-    })
-})
+    });
+});

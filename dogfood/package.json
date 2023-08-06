@@ -10,15 +10,16 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "lint": "eslint --fix --ignore-path .gitignore ."
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@teknologi-umum/eslint-config-base": "^0.0.10",
-    "@types/node": "^18.15.11",
-    "eslint": "^8.41.0"
+    "@teknologi-umum/eslint-config-base": "^0.0.11",
+    "@types/node": "^18.17.0",
+    "eslint": "^8.43.0"
   },
   "dependencies": {
     "@teknologi-umum/pesto": "^1.0.0-b75bbaa"

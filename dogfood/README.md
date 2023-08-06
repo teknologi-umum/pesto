@@ -52,3 +52,20 @@ npm ci
 node --test
 ```
 
+## Running your own RCE instance
+
+To bypass the token limit at have a local (or nearby) running instance of Pesto's RCE,
+you can set up your own by running these Docker commands:
+
+```bash
+docker pull ghcr.io/teknologi-umum/pesto-rce:edge
+
+docker run -p 50051:50051 -e ENVIRONMENT=production ghcr.io/teknologi-umum/pesto-rce:edge
+```
+
+Then, you should set your RCE API URL to `http://localhost:50051`.
+
+Beware that the RCE Docker image is around 4 GB. That being said, it is highly recommended
+if you pull the Docker image from a device that have high internet speed. For us, we use
+a virtual machine that runs the Docker image, expose it to private Wireguard network,
+and call the RCE image through private IP address.

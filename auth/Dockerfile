@@ -1,4 +1,4 @@
-FROM golang:1.20.1-bullseye AS builder
+FROM golang:1.20.6-bookworm AS builder
 
 WORKDIR /app
 
@@ -6,11 +6,15 @@ COPY . .
 
 RUN go build -o pesto_auth .
 
-FROM debian:bullseye
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y curl ca-certificates
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y curl ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/pesto_auth .
 

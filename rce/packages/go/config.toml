@@ -9,5 +9,5 @@ environment = [ "GOPATH=/opt/go/1.20/go", "PATH=/opt/go/1.20/go/bin" ]
 aliases = [ "go", "golang" ]
 should_limit_memory = false
 memory_limit = 0
-process_limit = 1024
+process_limit = 2048
 allowed_entrypoints = -1

@@ -18,7 +18,7 @@ jobs:
         working-directory: ./auth
     services:
       db:
-        image: redis:7-bullseye
+        image: redis:7-bookworm
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -51,7 +51,7 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    container: node:18.14.2-bullseye
+    container: node:18.17.0
     timeout-minutes: 30
     defaults:
       run:
@@ -109,7 +109,7 @@ jobs:
   landing:
     name: Landing
     runs-on: ubuntu-latest
-    container: node:18.6.0
+    container: node:18.17.0
     timeout-minutes: 30
     defaults:
       run:
