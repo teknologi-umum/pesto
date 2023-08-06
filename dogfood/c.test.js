@@ -250,7 +250,7 @@ int main() {
         }
     }
 
-    for (int i = 1; i < max; i++) {
+    for (int i = 2; i < max; i++) {
         if (list[i]) {
             printf("%d ", i);
         }
