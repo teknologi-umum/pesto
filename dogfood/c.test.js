@@ -240,7 +240,6 @@ int main() {
 
     memset(list, true, max);
 
-    int iteration = 0;
     int max_sqrt = sqrt(max);
 
     for (int i = 2; i <= max_sqrt; i++) {
