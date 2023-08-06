@@ -10,6 +10,7 @@ build_command = [
     "-O2",
     "-std=c99",
     "-pedantic",
+    "-lm",
     "-o",
     "code",
     "{file}"
