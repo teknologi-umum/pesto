@@ -2,6 +2,7 @@
 
 VERSION="18.12.1"
 
+cd ~
 curl -LO https://nodejs.org/dist/v${VERSION}/node-v${VERSION}-linux-x64.tar.gz
 tar -zxf node-v${VERSION}-linux-x64.tar.gz
 

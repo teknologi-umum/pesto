@@ -2,7 +2,7 @@ language = "PHP"
 version = "8.1"
 compiled = false
 extension = "php"
-environment = [ "PATH=/opt/php/8.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+environment = [ "PATH=/opt/php/8.1/bin" ]
 build_command = []
 run_command = [ "php", "{file}" ]
 test_file = "test.php"

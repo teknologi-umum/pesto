@@ -2,6 +2,7 @@
 
 VERSION="16.15.0"
 
+cd ~
 curl -LO https://nodejs.org/dist/v16.15.0/node-v${VERSION}-linux-x64.tar.gz
 tar -zxf node-v${VERSION}-linux-x64.tar.gz
 

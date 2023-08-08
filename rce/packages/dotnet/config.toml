@@ -2,7 +2,7 @@ language = ".NET"
 version = "6.0.300"
 compiled = true
 extension = "cs"
-environment = [ "DOTNET_ROOT=/opt/dotnet/6.0.300", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/dotnet/6.0.300" ]
+environment = [ "DOTNET_ROOT=/opt/dotnet/6.0.300", "PATH=/opt/dotnet/6.0.300" ]
 build_command = [
   """bash -c 'cat <<EOF > Application.csproj
 <Project Sdk="Microsoft.NET.Sdk">

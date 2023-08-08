@@ -8,7 +8,7 @@ build_command = [
 ]
 run_command = [ "java", "-Xms64m", "-Xmx256m", "{file}" ]
 environment = [
-  "PATH=/opt/java/17/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  "PATH=/opt/java/17/bin",
   "JAVA_HOME=/opt/java/17",
   "JAVA_VERSION=17.0.5",
   "LIBC=gnu"

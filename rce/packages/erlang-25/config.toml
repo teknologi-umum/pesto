@@ -2,7 +2,7 @@ language = "Erlang"
 version = "25.1.2"
 compiled = false
 extension = "erl"
-environment = [ "PATH=/opt/erlang/25/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+environment = [ "PATH=/opt/erlang/25/bin" ]
 build_command = []
 run_command = [ "escript", "{file}" ]
 test_file = "test.erl"
