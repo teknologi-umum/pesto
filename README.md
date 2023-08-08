@@ -1,11 +1,18 @@
 # Pesto - Remote Code Execution Engine
 
-**Pesto** is a Remote Code Execution Engine that lets you execute any piece of code on a remote server via REST API. It is heavily inspired by [Piston](https://github.com/engineer-man/piston). Pesto is not a fork of Piston, it's an entire rewrite from scratch and therefore it's not compatible with Piston but should be similar if you're already familiar with Piston.
+**Pesto** is a Remote Code Execution Engine that lets you execute any piece of code on a remote server via REST API. It
+is heavily inspired by [Piston](https://github.com/engineer-man/piston). Pesto is not a fork of Piston, it's an entire
+rewrite from scratch and therefore it's not compatible with Piston but should be similar if you're already familiar with
+Piston.
 
-Pesto was written with a fresh start, minimizing the dependencies needed, and system controlled for limited resources usage. Hence, users will need to register in order to gain access to Pesto's API.
+Pesto was written with a fresh start, minimizing the dependencies needed, and system controlled for limited resources
+usage. Hence, users will need to register in order to gain access to Pesto's API.
 
-Pesto API itself is hosted on our cloud VPS in Singapore, backed by the contributions on our donators from [Saweria](https://saweria.co/teknologiumum) (Indonesian only) and [Github Sponsors](https://github.com/sponsors/teknologi-umum) (Worldwide). The API is 100% free to use. However, if you are using Pesto API on a commercial project or on a project that makes money to you, please consider donating to keep the API running.
-
+Pesto API itself is hosted on our cloud VPS in Singapore, backed by the contributions on our donators
+from [Saweria](https://saweria.co/teknologiumum) (Indonesian only)
+and [Github Sponsors](https://github.com/sponsors/teknologi-umum) (Worldwide). The API is 100% free to use. However, if
+you are using Pesto API on a commercial project or on a project that makes money to you, please consider donating to
+keep the API running.
 
 See [our website](https://pesto.teknologiumum.com) for details.
 
@@ -28,9 +35,17 @@ Are you using Pesto on your project, if so, please put it here!
 
 ## Contributing
 
-General contribution guidelines are on [CONTRIBUTING.md](./CONTRIBUTING.md), yet if you choose to do a code contribution, please refer to the README file on each submodule that you are interested in. We are looking forward for your contribution.
+General contribution guidelines are on [CONTRIBUTING.md](./CONTRIBUTING.md), yet if you choose to do a code
+contribution, please refer to the README file on each submodule that you are interested in. This repository may seem
+daunting for newcomers, but rest assured, we're all friendly and we welcome any contributions whether it's just a typo
+fix, a package version bump, or a security enhancement for one of Pesto's package. We are looking forward for your
+contribution.
 
-Please use [issues](https://github.com/teknologi-umum/pesto/issues) to file a bug or discuss any matter before contributing to the source code.
+Please use [issues](https://github.com/teknologi-umum/pesto/issues) to file a bug or discuss any matter before
+contributing to the source code.
+
+If you need additional help, you can always talk to us via [Telegram](https://t.me/teknologi_umum_v2)
+or [Discord](https://discord.gg/b3JRrGuxR6).
 
 ## License
 

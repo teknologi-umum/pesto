@@ -5,7 +5,7 @@ extension = "go"
 build_command = [ "/opt/go/1.20/go/bin/go", "build", "-o", "code", "{file}"]
 run_command = [ "./code" ]
 test_file = "test.go"
-environment = [ "GOPATH=/opt/go/1.20/go", "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/go/1.20/go/bin" ]
+environment = [ "GOPATH=/opt/go/1.20/go", "PATH=/opt/go/1.20/go/bin" ]
 aliases = [ "go", "golang" ]
 should_limit_memory = false
 memory_limit = 0
