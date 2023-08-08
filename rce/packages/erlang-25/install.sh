@@ -5,8 +5,7 @@ if [[ -d "/opt/erlang/25" ]]; then
 fi
 
 cd ~
-apt-get update
-apt-get install -y ncurses-bin libncurses-dev perl sed gcc make clang
+apt-get install -y ncurses-bin libncurses-dev
 curl -LO https://github.com/erlang/otp/releases/download/OTP-25.1.2/otp_src_25.1.2.tar.gz
 tar -zxf otp_src_25.1.2.tar.gz
 mkdir -p /opt/erlang/25/

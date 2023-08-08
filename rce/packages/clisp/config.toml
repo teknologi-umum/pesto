@@ -3,7 +3,7 @@ version = "2.2.7"
 compiled = false
 extension = "cl"
 build_command = []
-environment = [ "SBCL_HOME=/opt/sbcl/2.2.7/lib/sbcl", "PATH=/opt/sbcl/2.2.7:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ]
+environment = [ "SBCL_HOME=/opt/sbcl/2.2.7/lib/sbcl", "PATH=/opt/sbcl/2.2.7" ]
 run_command = [ "/opt/sbcl/2.2.7/bin/sbcl", "--script", "{file}" ]
 test_file = "test.cl"
 aliases = ["clisp", "sbcl"]

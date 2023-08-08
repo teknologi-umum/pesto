@@ -16,7 +16,7 @@ build_command = [
     "{file}"
 ]
 environment = [
-  "PATH=/opt/gcc/12.2.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  "PATH=/opt/gcc/12.2.0/bin:/usr/bin",
   "LD_LIBRARY_PATH=/opt/gcc/12.2.0/lib64:$LD_LIBRARY_PATH",
   "CC=/opt/gcc/12.2.0/bin/gcc",
   "CXX=/opt/gcc/12.2.0/bin/g++",
