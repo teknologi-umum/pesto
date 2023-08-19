@@ -129,10 +129,9 @@ jobs:
           extra_args: --debug --only-verified
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.2
+        uses: pnpm/action-setup@v2
         with:
-          version: 7
-          run_install: false
+          version: latest
 
       - name: Install dependencies
         run: pnpm install
