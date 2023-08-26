@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs/promises";
 import console from "console";
 import childProcess from "child_process";
+import * as Sentry from "@sentry/node";
 import { Runtime } from "@/runtime/runtime";
 import { User } from "@/user/user";
 import { Files } from "./files";
@@ -77,24 +78,32 @@ export class Job implements JobPrerequisites {
   }
 
   async createFile(): Promise<void> {
-    this._baseFilePath = path.join("/code", `/${this.user.username}`);
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+        op: "job.create_file"
+    });
 
-    for await (const file of this.files.files) {
-      const filePath = path.join("/code", `/${this.user.username}`, file.fileName);
-      await fs.writeFile(filePath, file.code, { encoding: "utf-8" });
-      await fs.chmod(filePath, 0o700);
-      await fs.chown(filePath, this.user.uid, this.user.gid);
+    try {
+        this._baseFilePath = path.join("/code", `/${this.user.username}`);
 
-      // Make sure the file is written properly.
-      const stat = await fs.stat(filePath);
-      console.log(`File path: ${filePath}`);
-      console.log(`File stat: UID: ${stat.uid}, GID: ${stat.gid}, Mode: ${stat.mode}, Size: ${stat.size}`);
+        for await (const file of this.files.files) {
+          const filePath = path.join("/code", `/${this.user.username}`, file.fileName);
+          await fs.writeFile(filePath, file.code, { encoding: "utf-8" });
+          await fs.chmod(filePath, 0o700);
+          await fs.chown(filePath, this.user.uid, this.user.gid);
 
-      if (file.entrypoint === true) {
-        this._entrypointsPath.push(file.fileName);
-      }
+          // Make sure the file is written properly.
+          const stat = await fs.stat(filePath);
+          console.log(`File path: ${filePath}`);
+          console.log(`File stat: UID: ${stat.uid}, GID: ${stat.gid}, Mode: ${stat.mode}, Size: ${stat.size}`);
 
-      this._sourceFilePath.push(filePath);
+          if (file.entrypoint === true) {
+            this._entrypointsPath.push(file.fileName);
+          }
+
+          this._sourceFilePath.push(filePath);
+        }
+    } finally {
+        span?.finish();
     }
   }
 
@@ -108,6 +117,10 @@ export class Job implements JobPrerequisites {
         signal: ""
       };
     }
+
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+        op: "job.compile"
+    });
 
     try {
       const buildCommand: string[] = [
@@ -134,10 +147,16 @@ export class Job implements JobPrerequisites {
     } catch (error) {
       await this.cleanup();
       throw error;
+    } finally {
+        span?.finish();
     }
   }
 
   async run(): Promise<CommandOutput> {
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+      op: "job.run"
+    });
+
     try {
       const finalFileName: string[] = [];
       for (const file of this._entrypointsPath) {
@@ -174,20 +193,29 @@ export class Job implements JobPrerequisites {
       return result;
     } catch (error) {
       await this.cleanup();
+      span?.finish();
       throw error;
     }
   }
 
   private async cleanup(): Promise<void> {
-    // Crawl the directory and delete all files.
-    const files = await fs.readdir(this._baseFilePath, { withFileTypes: false });
-
-    const promises = files.map((file) => {
-      return fs.rm(path.join(this._baseFilePath, file), { force: true, recursive: true, maxRetries: 3, retryDelay: 100 });
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+      op: "job.cleanup"
     });
 
-    await Promise.allSettled(promises);
-    console.log(`Cleaned files: ${files.join(", ")}`);
+    try {
+        // Crawl the directory and delete all files.
+        const files = await fs.readdir(this._baseFilePath, { withFileTypes: false });
+
+        const promises = files.map((file) => {
+            return fs.rm(path.join(this._baseFilePath, file), { force: true, recursive: true, maxRetries: 3, retryDelay: 100 });
+        });
+
+        await Promise.allSettled(promises);
+        console.log(`Cleaned files: ${files.join(", ")}`);
+    } finally {
+        span?.finish();
+    }
   }
 
   private executeCommand(command: string[]): Promise<CommandOutput> {
