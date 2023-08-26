@@ -14,7 +14,7 @@ public class WaitingListService
     }
 
     /// <summary>
-    /// Put a user into the waiting list.
+    ///     Put a user into the waiting list.
     /// </summary>
     /// <param name="user">User</param>
     /// <param name="cancellationToken"></param>
@@ -37,14 +37,14 @@ public class WaitingListService
     }
 
     /// <summary>
-    /// Get all users from the waiting list
+    ///     Get all users from the waiting list
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     public async Task<IEnumerable<User>> GetUsersAsync(CancellationToken cancellationToken)
     {
         var db = _redis.GetDatabase();
-        var waitingList = await db.ListRangeAsync("waiting-list", 0, -1);
+        var waitingList = await db.ListRangeAsync("waiting-list");
 
         var users = new List<User>();
         foreach (var value in waitingList)
@@ -64,7 +64,7 @@ public class WaitingListService
     }
 
     /// <summary>
-    /// Removes a user from the waiting list.
+    ///     Removes a user from the waiting list.
     /// </summary>
     /// <param name="user"></param>
     /// <param name="cancellationToken"></param>

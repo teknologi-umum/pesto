@@ -1,5 +1,4 @@
-﻿
-[*]
+﻿[*]
 charset = utf-8
 end_of_line = crlf
 trim_trailing_whitespace = false
@@ -11,7 +10,7 @@ indent_size = 4
 csharp_new_line_before_else = false
 csharp_new_line_before_finally = false
 csharp_new_line_before_members_in_object_initializers = false
-csharp_new_line_before_open_brace = control_blocks,local_functions,methods,types
+csharp_new_line_before_open_brace = control_blocks, local_functions, methods, types
 csharp_preferred_modifier_order = public, private, protected, internal, file, new, static, abstract, virtual, sealed, readonly, override, extern, unsafe, volatile, async, required:suggestion
 csharp_style_prefer_utf8_string_literals = true:suggestion
 csharp_style_var_elsewhere = true:suggestion
@@ -25,7 +24,7 @@ dotnet_naming_rule.unity_serialized_field_rule.style = lower_camel_case_style
 dotnet_naming_rule.unity_serialized_field_rule.symbols = unity_serialized_field_symbols
 dotnet_naming_style.lower_camel_case_style.capitalization = camel_case
 dotnet_naming_symbols.unity_serialized_field_symbols.applicable_accessibilities = *
-dotnet_naming_symbols.unity_serialized_field_symbols.applicable_kinds = 
+dotnet_naming_symbols.unity_serialized_field_symbols.applicable_kinds =
 dotnet_naming_symbols.unity_serialized_field_symbols.resharper_applicable_kinds = unity_serialised_field
 dotnet_naming_symbols.unity_serialized_field_symbols.resharper_required_modifiers = instance
 dotnet_style_parentheses_in_arithmetic_binary_operators = never_if_unnecessary:none
@@ -57,7 +56,7 @@ resharper_csharp_remove_blank_lines_near_braces_in_declarations = false
 resharper_csharp_wrap_after_invocation_lpar = true
 resharper_csharp_wrap_arguments_style = chop_if_long
 resharper_force_attribute_style = join
-resharper_instance_members_qualify_declared_in = 
+resharper_instance_members_qualify_declared_in =
 resharper_keep_existing_declaration_block_arrangement = true
 resharper_place_accessorholder_attribute_on_same_line = false
 resharper_place_simple_embedded_statement_on_same_line = true

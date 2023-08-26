@@ -8,10 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Sentry" Version="3.31.0" />
-        <PackageReference Include="Sentry.AspNetCore" Version="3.31.0" />
-        <PackageReference Include="StackExchange.Redis" Version="2.6.111" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+        <PackageReference Include="Sentry" Version="3.36.0" />
+        <PackageReference Include="Sentry.AspNetCore" Version="3.36.0" />
+        <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
     </ItemGroup>
 
 </Project>

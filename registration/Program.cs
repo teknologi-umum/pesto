@@ -1,6 +1,6 @@
-using StackExchange.Redis;
 using Registration.Services;
 using Sentry;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,10 +30,10 @@ builder.WebHost.UseSentry(
             return context.TransactionContext.Name switch {
                 "GET /healthz" => 0,
                 "GET healthz" => 0,
-                _              => 0.4
+                _ => 0.4
             };
-
         };
+
         options.StackTraceMode = StackTraceMode.Enhanced;
     });
 

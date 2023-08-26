@@ -9,6 +9,7 @@ In the future, we hope to send the email and token generation process automatica
 ## Development
 
 Assuming you have [.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/visual-studio-sdks) installed manually or
-via IDE (either via [Visual Studio 2022 Community](https://visualstudio.microsoft.com/) or [JetBrains Rider](https://www.jetbrains.com/rider/)).
+via IDE (either via [Visual Studio 2022 Community](https://visualstudio.microsoft.com/)
+or [JetBrains Rider](https://www.jetbrains.com/rider/)).
 
 Open `Registration.sln` from current working directory.
