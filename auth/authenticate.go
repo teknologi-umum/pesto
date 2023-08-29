@@ -21,6 +21,8 @@ type TokenValue struct {
 	Revoked      bool   `json:"Revoked"`
 }
 
+var ErrTokenNotRegistered = errors.New("token not registered")
+
 func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// Terminate if the request is not a GET
 	if r.Method != http.MethodGet {
@@ -37,13 +39,13 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// The token should be exists as a key on redis
+	// The token should be existed as a key on redis
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
 	defer cancel()
 
-	resp, err := d.Client.Get(ctx, token).Result()
+	tokenValue, err := d.acquireTokenValue(ctx, token)
 	if err != nil {
-		if errors.Is(err, redis.Nil) {
+		if errors.Is(err, ErrTokenNotRegistered) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(`{"message":"Token not registered"}`))
@@ -51,19 +53,7 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 		}
 
 		d.Console.Error(err.Error())
-		sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("getting token %s: %w", token, err))
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message":` + strconv.Quote(err.Error()) + "}"))
-		return
-	}
-
-	var tokenValue TokenValue
-	err = json.Unmarshal([]byte(resp), &tokenValue)
-	if err != nil {
-		d.Console.Error(err.Error())
-		sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("unmarshal token value: %w", err))
+		sentry.GetHubFromContext(r.Context()).CaptureException(err)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -79,35 +69,16 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Acquire monthly counter limit
-	formattedDate := time.Now().UTC().Format("2006-01")
-	limitResp, err := d.Client.Get(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail).Result()
-	if err != nil && !errors.Is(err, redis.Nil) {
-		d.Console.Error(err.Error())
-		sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("getting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err))
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message":` + strconv.Quote(err.Error()) + "}"))
-		return
-	}
-
-	if errors.Is(err, redis.Nil) {
-		limitResp = "0"
-	}
-
-	var counterLimit int64
-	v, err := strconv.ParseInt(limitResp, 10, 64)
+	counterLimit, err := d.acquireCounterLimit(ctx, tokenValue)
 	if err != nil {
 		d.Console.Error(err.Error())
-		sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("parsing counter limit: %w", err))
+		sentry.GetHubFromContext(r.Context()).CaptureException(err)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"message":` + strconv.Quote(err.Error()) + "}"))
 		return
 	}
-
-	counterLimit += v
 
 	if counterLimit > tokenValue.MonthlyLimit {
 		w.Header().Set("Content-Type", "application/json")
@@ -117,25 +88,77 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Increment monthly counter
-	go func(tokenValue TokenValue) {
-		// Do nothing if user email contains the secret/testing user.
-		if strings.HasPrefix(tokenValue.UserEmail, "trial") && strings.HasSuffix(tokenValue.UserEmail, "@pesto.teknologiumum.com") {
-			return
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-		defer cancel()
-
-		formattedDate := time.Now().UTC().Format("2006-01")
-
-		_, err := d.Client.Set(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10), time.Hour*24*40).Result()
-		if err != nil {
-			d.Console.Error(err.Error())
-			sentry.GetHubFromContext(r.Context()).CaptureException(fmt.Errorf("putting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err))
-
-			log.Printf("error incrementing monthly counter: %v", err)
-		}
-	}(tokenValue)
+	go d.incrementMonthlyCounter(r.Context(), tokenValue, counterLimit)
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (d *Deps) acquireTokenValue(ctx context.Context, token string) (TokenValue, error) {
+	span := sentry.StartSpan(ctx, "authenticate.acquire_token_value")
+	defer span.Finish()
+
+	resp, err := d.Client.Get(ctx, token).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return TokenValue{}, ErrTokenNotRegistered
+		}
+
+		return TokenValue{}, err
+	}
+
+	var tokenValue TokenValue
+	err = json.Unmarshal([]byte(resp), &tokenValue)
+	if err != nil {
+		return TokenValue{}, err
+	}
+
+	return tokenValue, nil
+}
+
+func (d *Deps) acquireCounterLimit(ctx context.Context, tokenValue TokenValue) (int64, error) {
+	span := sentry.StartSpan(ctx, "authenticate.acquire_counter_limit")
+	defer span.Finish()
+
+	formattedDate := time.Now().UTC().Format("2006-01")
+	limitResp, err := d.Client.Get(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail).Result()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return 0, fmt.Errorf("getting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err)
+	}
+
+	if errors.Is(err, redis.Nil) {
+		limitResp = "0"
+	}
+
+	var counterLimit int64
+	v, err := strconv.ParseInt(limitResp, 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parsing counter limit: %w", err)
+	}
+
+	counterLimit += v
+
+	return counterLimit, nil
+}
+
+func (d *Deps) incrementMonthlyCounter(ctx context.Context, tokenValue TokenValue, counterLimit int64) {
+	span := sentry.StartSpan(ctx, "authenticate.increase_limit")
+	defer span.Finish()
+
+	// Do nothing if user email contains the secret/testing user.
+	if strings.HasPrefix(tokenValue.UserEmail, "trial") && strings.HasSuffix(tokenValue.UserEmail, "@pesto.teknologiumum.com") {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	formattedDate := time.Now().UTC().Format("2006-01")
+
+	_, err := d.Client.Set(ctx, "counter/"+formattedDate+"/"+tokenValue.UserEmail, strconv.FormatInt(counterLimit+1, 10), time.Hour*24*40).Result()
+	if err != nil {
+		d.Console.Error(err.Error())
+		sentry.GetHubFromContext(ctx).CaptureException(fmt.Errorf("putting counter %s: %w", "counter/"+formattedDate+"/"+tokenValue.UserEmail, err))
+
+		log.Printf("error incrementing monthly counter: %v", err)
+	}
 }

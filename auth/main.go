@@ -101,18 +101,18 @@ func main() {
 	signal.Notify(sig, os.Interrupt)
 
 	go func() {
-		log.Printf("listening on %s", server.Addr)
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Println(err)
+		<-sig
+
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), time.Second*30)
+		defer shutdownCancel()
+
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			log.Fatal(err)
 		}
 	}()
 
-	<-sig
-
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer shutdownCancel()
-
-	if err := server.Shutdown(shutdownCtx); err != nil {
-		log.Fatal(err)
+	log.Printf("listening on %s", server.Addr)
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Println(err)
 	}
 }
