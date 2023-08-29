@@ -16,6 +16,8 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+COPY . .
+
 COPY --from=builder /app/pesto_auth .
 
 ENV PORT=3000
