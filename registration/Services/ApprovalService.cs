@@ -14,47 +14,47 @@ public class ApprovalService
     }
 
     /// <summary>
-    /// Approve the user from the waiting list into the proper registered user.
+    ///     Approve the user from the waiting list into the proper registered user.
     /// </summary>
     /// <param name="userToken">User object including the generated token</param>
     /// <param name="cancellationToken"></param>
     public async Task ApproveUserAsync(UserToken userToken, CancellationToken cancellationToken)
     {
         var registeredUser = new RegisteredUser(
-            userEmail: userToken.Email,
-            monthlyLimit: userToken.Limit,
+            userToken.Email,
+            userToken.Limit,
             revoked: false);
 
         var serializedUser = JsonSerializer.Serialize(registeredUser);
         var db = _redis.GetDatabase();
         await db.StringSetAsync(
-            key: userToken.Token,
-            value: serializedUser,
+            userToken.Token,
+            serializedUser,
             expiry: null);
     }
 
     /// <summary>
-    /// Revoke a user from the list of registered users.
+    ///     Revoke a user from the list of registered users.
     /// </summary>
     /// <param name="userToken">User object including the generated token</param>
     /// <param name="cancellationToken"></param>
     public async Task RevokeUserAsync(UserToken userToken, CancellationToken cancellationToken)
     {
         var registeredUser = new RegisteredUser(
-            userEmail: userToken.Email,
-            monthlyLimit: userToken.Limit,
+            userToken.Email,
+            userToken.Limit,
             revoked: true);
 
         var serializedUser = JsonSerializer.Serialize(registeredUser);
         var db = _redis.GetDatabase();
         await db.StringSetAsync(
-            key: userToken.Token,
-            value: serializedUser,
+            userToken.Token,
+            serializedUser,
             expiry: null);
     }
 
     /// <summary>
-    /// Get a user by their token.
+    ///     Get a user by their token.
     /// </summary>
     /// <param name="token"></param>
     /// <param name="cancellationToken"></param>

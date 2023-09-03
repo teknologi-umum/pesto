@@ -14,12 +14,11 @@ public class StatusController : ControllerBase
     }
 
     /// <summary>
-    /// Health check
+    ///     Health check
     /// </summary>
     /// <returns>Empty body</returns>
     /// <response code="200"></response>
-    [HttpGet]
-    [Route("/healthz")]
+    [HttpGet, Route("/healthz")]
     public async Task<IActionResult> Status(CancellationToken cancellationToken)
     {
         var db = _redis.GetDatabase();
