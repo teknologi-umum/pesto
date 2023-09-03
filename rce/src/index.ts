@@ -19,6 +19,8 @@ const PORT = process.env?.PORT || "50051";
     attachStacktrace: true,
     autoSessionTracking: true,
     environment: process.env.NODE_ENV ?? "development",
+    sampleRate: 0.75,
+    enableTracing: true,
     tracesSampler(samplingContext): number {
       if (samplingContext.request?.method?.toUpperCase() === "GET" &&
         samplingContext.request.url?.includes("/healthz")) {
@@ -28,6 +30,7 @@ const PORT = process.env?.PORT || "50051";
       return 0.4;
     },
     integrations: [
+      ...Sentry.defaultIntegrations,
       new Sentry.Integrations.Http({ tracing: true })
     ]
   });
