@@ -26,7 +26,7 @@ export interface CommandOutput {
 export class Job implements JobPrerequisites {
   private _sourceFilePath: string[];
   private _builtFilePath: string;
-  private _entrypointsPath: string[];
+  private readonly _entrypointsPath: string[];
   private _baseFilePath: string;
   public readonly compileTimeout: number;
   public readonly runTimeout: number;
@@ -148,7 +148,7 @@ export class Job implements JobPrerequisites {
       await this.cleanup();
       throw error;
     } finally {
-        span?.finish();
+      span?.finish();
     }
   }
 
@@ -193,8 +193,9 @@ export class Job implements JobPrerequisites {
       return result;
     } catch (error) {
       await this.cleanup();
-      span?.finish();
       throw error;
+    } finally {
+      span?.finish();
     }
   }
 
@@ -219,72 +220,83 @@ export class Job implements JobPrerequisites {
   }
 
   private executeCommand(command: string[]): Promise<CommandOutput> {
-    const { gid, uid, username } = this.user;
-    const timeout = this.compileTimeout;
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+      op: "job.execute_command",
+      data: {
+        command
+      }
+    });
 
-    return new Promise((resolve, reject) => {
-      let stdout = "";
-      let stderr = "";
-      let output = "";
-      let exitCode = 0;
-      let exitSignal = "";
+    try {
+      const { gid, uid, username } = this.user;
+      const timeout = this.compileTimeout;
 
-      const cmd = childProcess.spawn(command[0], command.slice(1), {
-        env: {
-          PATH: process.env?.PATH ?? "",
-          LOGGER_TOKEN: "",
-          LOGGER_SERVER_ADDRESS: "",
-          ENVIRONMENT: "",
-          ...this.runtime.environment
-        },
-        cwd: "/code/" + username,
-        gid: gid,
-        uid: uid,
-        timeout: timeout ?? 5_000,
-        stdio: "pipe",
-        detached: true
-      });
+      return new Promise((resolve, reject) => {
+        let stdout = "";
+        let stderr = "";
+        let output = "";
+        let exitCode = 0;
+        let exitSignal = "";
 
-      cmd.stdout.on("data", (data) => {
-        stdout += data.toString();
-        output += data.toString();
+        const cmd = childProcess.spawn(command[0], command.slice(1), {
+          env: {
+            PATH: process.env?.PATH ?? "",
+            LOGGER_TOKEN: "",
+            LOGGER_SERVER_ADDRESS: "",
+            ENVIRONMENT: "",
+            ...this.runtime.environment
+          },
+          cwd: "/code/" + username,
+          gid: gid,
+          uid: uid,
+          timeout: timeout ?? 5_000,
+          stdio: "pipe",
+          detached: true
+        });
 
-        if (process.env.ENVIRONMENT === "development") {
-          console.log(data.toString());
-        }
-      });
+        cmd.stdout.on("data", (data) => {
+          stdout += data.toString();
+          output += data.toString();
 
-      cmd.stderr.on("data", (data) => {
-        stderr += data.toString();
-        output += data.toString();
+          if (process.env.ENVIRONMENT === "development") {
+            console.log(data.toString());
+          }
+        });
 
-        if (process.env.ENVIRONMENT === "development") {
-          console.log(data.toString());
-        }
-      });
+        cmd.stderr.on("data", (data) => {
+          stderr += data.toString();
+          output += data.toString();
 
-      cmd.on("error", (error) => {
-        cmd.stdout.destroy();
-        cmd.stderr.destroy();
+          if (process.env.ENVIRONMENT === "development") {
+            console.log(data.toString());
+          }
+        });
 
-        reject(error.message);
-      });
+        cmd.on("error", (error) => {
+          cmd.stdout.destroy();
+          cmd.stderr.destroy();
 
-      cmd.on("close", (code, signal) => {
-        cmd.stdout.destroy();
-        cmd.stderr.destroy();
+          reject(error.message);
+        });
 
-        exitCode = code ?? 0;
-        exitSignal = signal ?? "";
+        cmd.on("close", (code, signal) => {
+          cmd.stdout.destroy();
+          cmd.stderr.destroy();
 
-        resolve({
-          stdout: stdout.slice(0, 5000),
-          stderr: stderr.slice(0, 5000),
-          output: output.slice(0, 5000),
-          exitCode,
-          signal: exitSignal
+          exitCode = code ?? 0;
+          exitSignal = signal ?? "";
+
+          resolve({
+            stdout: stdout.slice(0, 5000),
+            stderr: stderr.slice(0, 5000),
+            output: output.slice(0, 5000),
+            exitCode,
+            signal: exitSignal
+          });
         });
       });
-    });
+    } finally {
+      span?.finish();
+    }
   }
 }
