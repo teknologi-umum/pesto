@@ -68,7 +68,7 @@ services:
       - pesto
 
   db:
-    build: ./redis
+    image: ghcr.io/teknologi-umum/pesto-redis:edge
     platform: linux/amd64
     healthcheck:
       test: "redis-cli ping | grep PONG"
