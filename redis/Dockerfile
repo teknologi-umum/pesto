@@ -1,4 +1,4 @@
-FROM redis:7.0.5-bookworm
+FROM redis:7.2.1-bookworm
 
 COPY redis.conf /home/redis/redis.conf
 
