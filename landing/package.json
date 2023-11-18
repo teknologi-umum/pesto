@@ -2,6 +2,7 @@
 	"name": "pesto-landing",
 	"version": "1.0.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"dev": "astro dev",
 		"start": "astro dev",

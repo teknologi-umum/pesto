@@ -53,12 +53,12 @@ const responseExample = `
 	<Section title="What is Pesto?">
 		<p>
 			<strong>Pesto</strong>{" "}
-			is a Remote Code Execution Engine that lets you execute any piece of code on a remote server via REST API. It is heavily
-			inspired by{" "}
+			 is a Remote Code Execution Engine that lets you execute any piece of code on a remote server via REST API. It is
+			heavily inspired by{" "}
 			<a class="url" href="https://github.com/engineer-man/piston"> Piston.</a>{" "}
-			Pesto is <strong>not</strong>{" "}
-			a fork of Piston, it's an entire rewrite from scratch and therefore it's not compatible with Piston but should be similar
-			if you're already familiar with Piston.
+			 Pesto is <strong>not</strong>{" "}
+			 a fork of Piston, it's an entire rewrite from scratch and therefore it's not compatible with Piston but should be
+			similar if you're already familiar with Piston.
 		</p>
 	</Section>
 	<Section title="How is it different from Piston?">
@@ -110,7 +110,7 @@ const responseExample = `
 					<FieldList
 						items={[
 							{ key: "language", value: "The language of the code that you want to execute." },
-							{ key: "version", value: "The version of the language (or just fill in with \"latest\")." },
+							{ key: "version", value: 'The version of the language (or just fill in with "latest").' },
 							{ key: "code", value: "The code that you want to execute." },
 						]}
 					/>
@@ -163,13 +163,13 @@ const responseExample = `
 				<div class="example-item">
 					<div class="example-label">Request</div>
 					<div class="code">
-						<pre set:html={requestExample}></pre>
+						<pre set:html={requestExample} />
 					</div>
 				</div>
 				<div class="example-item">
 					<div class="example-label">Response</div>
 					<div class="code">
-						<pre set:html={responseExample}></pre>
+						<pre set:html={responseExample} />
 					</div>
 				</div>
 			</div>
