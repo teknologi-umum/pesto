@@ -12,7 +12,7 @@ import (
 	"github.com/francoispqt/onelog"
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 )
 
 type Deps struct {
