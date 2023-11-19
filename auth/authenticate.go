@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 )
 
 type TokenValue struct {
