@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="3.10.10"
+VERSION="3.12.0"
 
 cd /tmp
 # Acquire the Python tar.gz file from the source repository

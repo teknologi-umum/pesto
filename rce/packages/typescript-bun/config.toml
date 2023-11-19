@@ -1,10 +1,10 @@
 language = "Typescript"
-version = "0.6.5"
+version = "1.0.13"
 compiled = false
 extension = "ts"
-environment = [ "PATH=/opt/bun/0.6.5"]
+environment = [ "PATH=/opt/bun/1.0.13"]
 build_command = []
-run_command = [ "/opt/bun/0.6.5/bun", "{file}" ]
+run_command = [ "/opt/bun/1.0.13/bun", "{file}" ]
 test_file = "test.ts"
 aliases = ["typescript", "ts"]
 should_limit_memory = false
