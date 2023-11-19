@@ -109,7 +109,7 @@ jobs:
   landing:
     name: Landing
     runs-on: ubuntu-latest
-    container: node:18.18.0
+    container: node:20.9.0
     timeout-minutes: 30
     defaults:
       run:
