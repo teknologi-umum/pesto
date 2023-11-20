@@ -1,0 +1,13 @@
+language = "Javascript"
+version = "20.9.0"
+compiled = false
+extension = "js"
+environment = [ "PATH=/opt/node/20.9.0/bin"]
+build_command = []
+run_command = [ "/opt/node/20.9.0/bin/node", "{file}" ]
+test_file = "test.js"
+aliases = ["javascript", "js"]
+should_limit_memory = true
+memory_limit = 1024
+process_limit = 1024
+allowed_entrypoints = 1
