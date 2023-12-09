@@ -6,16 +6,5 @@ import node from "@astrojs/node";
 export default defineConfig({
 	output: "server",
 	integrations: [solid()],
-	vite: {
-		build: {
-			rollupOptions: {
-				output: {
-					entryFileNames: "entries/entry.[hash].js",
-					chunkFileNames: "chunks/chunk.[hash].js",
-					assetFileNames: "assets/asset.[hash][extname]",
-				},
-			},
-		},
-	},
 	adapter: node({ mode: "standalone" }),
 });
