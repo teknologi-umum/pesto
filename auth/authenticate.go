@@ -90,6 +90,10 @@ func (d *Deps) Authenticate(w http.ResponseWriter, r *http.Request) {
 	// Increment monthly counter
 	go d.incrementMonthlyCounter(r.Context(), tokenValue, counterLimit)
 
+	if span := sentry.SpanFromContext(r.Context()); span != nil {
+		w.Header().Set("Sentry-Trace", span.ToSentryTrace())
+		w.Header().Set("Baggage", span.ToBaggage())
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
