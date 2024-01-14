@@ -1,6 +1,5 @@
 import console from "console";
 import * as Sentry from "@sentry/node";
-import "@sentry/tracing";
 import polka from "polka";
 import { z } from "zod";
 import { RceServiceImpl } from "@/RceService";
