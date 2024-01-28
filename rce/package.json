@@ -6,7 +6,7 @@
     "start": "node -r dotenv/config ./dist/index.js",
     "build": "node build.js",
     "lint": "eslint --fix --ext .ts,.js,.cjs .",
-    "test": "c8 ava"
+    "test": "vitest --run --coverage.enabled true --coverage.include=src/**/*"
   },
   "author": "",
   "license": "Apache-2.0",
@@ -15,14 +15,13 @@
     "@types/node": "^20.11.0",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.1",
-    "ava": "^5.3.1",
-    "c8": "^8.0.1",
+    "@vitest/coverage-v8": "^1.2.2",
     "dotenv": "^16.3.1",
     "esbuild": "^0.19.11",
     "eslint": "^8.56.0",
-    "eslint-plugin-ava": "^14.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
   },
   "dependencies": {
     "@sentry/node": "^7.93.0",

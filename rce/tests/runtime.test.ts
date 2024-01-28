@@ -1,47 +1,39 @@
-import test from "ava";
+import { test, expect } from "vitest";
 import { Runtime } from "../src/runtime/runtime.js";
 
-test("should throw error on invalid runtime parameters", (t) => {
-  t.throws(
+test("should throw error on invalid runtime parameters", () => {
+  expect(
     () => {
       new Runtime("", "", false, "", true, [], [], [], {}, false, 0, 0, -1);
-    },
-    {
-      instanceOf: TypeError,
-      message: "Invalid runtime parameters"
-    }
-  );
+    })
+      .toThrowError(new TypeError("Invalid runtime parameters"));
 });
 
-test("should throw error on invalid buildCommand parameters whilist being a compiled runtime", (t) => {
-  t.throws(
+test("should throw error on invalid buildCommand parameters whilist being a compiled runtime", () => {
+  expect(
     () => {
       new Runtime("Maven", "1.0.0", true, ".xml", true, [], ["mvn", "war:explode"], ["mvn"], { "JAVA_HOME": "/usr/lib/jvm/java-8-openjdk-amd64", "PATH": "/usr/local/bin:/usr/bin:/bin" }, false, 0, 0, 1);
-    },
-    {
-      instanceOf: TypeError,
-      message: "Invalid runtime parameters: buildCommand is empty yet compiled is true"
-    }
-  );
+    })
+      .toThrowError(new TypeError("Invalid runtime parameters: buildCommand is empty yet compiled is true"));
 });
 
-test("should throw error on invalid memoryLimit parameters", (t) => {
-  t.throws(
+test("should throw error on invalid memoryLimit parameters", () => {
+  expect(
     () => {
       new Runtime("C", "11", true, "c", true, ["gcc", "./a.out"], ["./a.out"], ["c"], { "PATH": "/usr/local/bin:/usr/bin:/bin" }, true, -1, 0, 1);
     }
-  );
+  ).toThrow();
 });
 
-test("should throw error on invalid processLimit parameters", (t) => {
-  t.throws(
+test("should throw error on invalid processLimit parameters", () => {
+  expect(
     () => {
       new Runtime("C", "11", true, "c", true, ["gcc", "./a.out"], ["./a.out"], ["c"], { "PATH": "/usr/local/bin:/usr/bin:/bin" }, true, 256, -1, 1);
     }
-  );
+  ).toThrow();
 });
 
-test("should be able to parse semver", (t) => {
+test("should be able to parse semver", () => {
   type Semver = {
     major: number,
     minor: number,
@@ -103,12 +95,12 @@ test("should be able to parse semver", (t) => {
     return semver;
   }
 
-  t.deepEqual(parseSemver(["3"]), { major: 3, minor: 0, patch: 0, edition: "latest" });
-  t.deepEqual(parseSemver(["16", "15", "8", "rc-8"]), { major: 16, minor: 15, patch: 8, edition: "rc" });
-  t.deepEqual(parseSemver(["lorem", "ipsum", "dolor", "sit", "amet"]), { major: 0, minor: 0, patch: 0, edition: "nightly" });
+  expect(parseSemver(["3"])).toMatchObject({ major: 3, minor: 0, patch: 0, edition: "latest" });
+  expect(parseSemver(["16", "15", "8", "rc-8"])).toMatchObject({ major: 16, minor: 15, patch: 8, edition: "rc" });
+  expect(parseSemver(["lorem", "ipsum", "dolor", "sit", "amet"])).toMatchObject({ major: 0, minor: 0, patch: 0, edition: "nightly" });
 });
 
-test("should be able to search for latest tag", (t) => {
+test("should be able to search for latest tag", () => {
   type LanguageVersion = {
     language: string,
     versions: Array<
@@ -258,12 +250,12 @@ test("should be able to search for latest tag", (t) => {
     runtimes[latestIndex].markAsLatest();
   }
 
-  t.assert(runtimes[0].latest === true);
-  t.assert(runtimes[1].latest === false);
-  t.assert(runtimes[2].latest === false);
-  t.assert(runtimes[3].latest === false);
-  t.assert(runtimes[4].latest === false);
-  t.assert(runtimes[5].latest === true);
-  t.assert(runtimes[6].latest === false);
-  t.assert(runtimes[7].latest === false);
+  expect(runtimes[0].latest).toStrictEqual(true);
+  expect(runtimes[1].latest).toStrictEqual(false);
+  expect(runtimes[2].latest).toStrictEqual(false);
+  expect(runtimes[3].latest).toStrictEqual(false);
+  expect(runtimes[4].latest).toStrictEqual(false);
+  expect(runtimes[5].latest).toStrictEqual(true);
+  expect(runtimes[6].latest).toStrictEqual(false);
+  expect(runtimes[7].latest).toStrictEqual(false);
 });
