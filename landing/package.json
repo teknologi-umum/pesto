@@ -11,20 +11,20 @@
 		"fmt:check": "prettier --ignore-path .gitignore --check ./**/*.{astro,ts,tsx,mjs}"
 	},
 	"devDependencies": {
-		"@astrojs/node": "^3.1.0",
-		"@astrojs/solid-js": "^0.4.0",
-		"@babel/core": "^7",
-		"astro": "^1.6.10",
+		"@astrojs/node": "^8.2.0",
+		"@astrojs/solid-js": "^4.0.1",
+		"@babel/core": "^7.23.9",
+		"astro": "^4.3.5",
 		"polka": "^0.5.2",
-		"prettier": "^2.7.1",
-		"prettier-plugin-astro": "^0.1.1",
-		"sass": "^1.53.0",
-		"sirv": "^2.0.2",
-		"solid-js": "^1.4.3"
+		"prettier": "^3.2.5",
+		"prettier-plugin-astro": "^0.13.0",
+		"sass": "^1.70.0",
+		"sirv": "^2.0.4",
+		"solid-js": "^1.8.14"
 	},
 	"dependencies": {
-		"@fontsource/ibm-plex-mono": "^4.5.10",
-		"@fontsource/ibm-plex-sans": "^4.5.11",
-		"@fontsource/ibm-plex-serif": "^4.5.10"
+		"@fontsource/ibm-plex-mono": "^5.0.8",
+		"@fontsource/ibm-plex-sans": "^5.0.18",
+		"@fontsource/ibm-plex-serif": "^5.0.8"
 	}
 }
