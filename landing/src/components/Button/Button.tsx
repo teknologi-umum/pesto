@@ -6,6 +6,7 @@ type ButtonProps = {
 	variant: "green" | "yellow-green" | "pale-red";
 	isDisabled?: boolean;
 	children?: JSX.Element;
+	umamiEvent?: string;
 };
 
 export function Button(props: ButtonProps) {
@@ -18,7 +19,7 @@ export function Button(props: ButtonProps) {
 	}
 
 	return (
-		<button class={`button ${props.variant}`} type="submit" disabled={props.isDisabled}>
+		<button class={`button ${props.variant}`} type="submit" disabled={props.isDisabled} data-umami-event={props.umamiEvent}>
 			{props.children}
 		</button>
 	);
