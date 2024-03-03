@@ -79,7 +79,7 @@ test.sequential("should be able to run a file - NodeJS", async (t) => {
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, false, 512 * 1024 * 1024, 4096, 1);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
@@ -235,7 +235,7 @@ test.sequential("should be able to run multiple files - NodeJS", async (t) => {
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, false, 512 * 1024 * 1024, 4096, 1);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
