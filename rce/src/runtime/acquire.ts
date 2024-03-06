@@ -31,7 +31,7 @@ type Semver = {
  * If the length of the array is 4, we should examine the 3rd index and check if it's compatible with our edition.
  * We'll ignore every value that comes after the 3rd index.
  */
-function parseSemver(tags: string[]): Semver {
+export function parseSemver(tags: string[]): Semver {
   const semver: Semver = {
     major: 0,
     minor: 0,
@@ -85,42 +85,7 @@ function parseSemver(tags: string[]): Semver {
   return semver;
 }
 
-export async function acquireRuntime() {
-  const runtimes: Runtime[] = [];
-  const packagesDir = await fs.readdir(
-    path.resolve(fileURLToPath(import.meta.url), "../../packages"),
-    { withFileTypes: true }
-  );
-
-  for await (const packageDir of packagesDir) {
-    if (packageDir.isDirectory()) {
-      const packageDirPath = path.resolve(
-        fileURLToPath(import.meta.url),
-        "../../packages",
-        packageDir.name
-      );
-      const configFilePath = path.resolve(packageDirPath, "config.toml");
-      const configFile = await fs.readFile(configFilePath, "utf8");
-      const configObject = toml.parse(configFile);
-      const runtime = new Runtime(
-        configObject.language,
-        configObject.version,
-        false,
-        configObject.extension,
-        configObject.compiled,
-        configObject.build_command,
-        configObject.run_command,
-        configObject.aliases,
-        Object.fromEntries(configObject.environment.map((o: string) => o.split("="))),
-        configObject.should_limit_memory,
-        configObject.memory_limit * 1024 * 1024,
-        configObject.process_limit,
-        configObject.allowed_entrypoints
-      );
-      runtimes.push(runtime);
-    }
-  }
-
+export function attemptToSetLatestForRuntimes(runtimes: Runtime[]): Runtime[] {
   // Attempt to set the "latest" tag to true for each language
   const languageVersions: LanguageVersion[] = [];
   for (let i = 0; i < runtimes.length; i++) {
@@ -172,4 +137,43 @@ export async function acquireRuntime() {
   }
 
   return runtimes;
+}
+
+export async function acquireRuntime() {
+  const runtimes: Runtime[] = [];
+  const packagesDir = await fs.readdir(
+    path.resolve(fileURLToPath(import.meta.url), "../../packages"),
+    { withFileTypes: true }
+  );
+
+  for await (const packageDir of packagesDir) {
+    if (packageDir.isDirectory()) {
+      const packageDirPath = path.resolve(
+        fileURLToPath(import.meta.url),
+        "../../packages",
+        packageDir.name
+      );
+      const configFilePath = path.resolve(packageDirPath, "config.toml");
+      const configFile = await fs.readFile(configFilePath, "utf8");
+      const configObject = toml.parse(configFile);
+      const runtime = new Runtime(
+        configObject.language,
+        configObject.version,
+        false,
+        configObject.extension,
+        configObject.compiled,
+        configObject.build_command,
+        configObject.run_command,
+        configObject.aliases,
+        Object.fromEntries(configObject.environment.map((o: string) => o.split("="))),
+        configObject.should_limit_memory,
+        configObject.memory_limit * 1024 * 1024,
+        configObject.process_limit,
+        configObject.allowed_entrypoints
+      );
+      runtimes.push(runtime);
+    }
+  }
+
+  return attemptToSetLatestForRuntimes(runtimes);
 }

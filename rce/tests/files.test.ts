@@ -1,7 +1,7 @@
+import { test, expect } from "vitest";
 import { Files } from "../src/job/files.js";
-import test from "ava";
 
-test("should be able to create a Files class with empty fileNames", (t) => {
+test("should be able to create a Files class with empty fileNames", () => {
   const files = new Files([
     {
       fileName: "",
@@ -20,13 +20,13 @@ test("should be able to create a Files class with empty fileNames", (t) => {
     }
   ], "sh");
 
-  t.assert(files.files.length === 3);
+  expect(files.files.length).toStrictEqual(3);
   for (let i = 0; i < files.files.length; i++) {
-    t.assert(files.files[i].fileName === `code${i}.sh`);
+    expect(files.files[i].fileName).toStrictEqual(`code${i}.sh`);
   }
 });
 
-test("should be able to create a Files class with normal parameters", (t) => {
+test("should be able to create a Files class with normal parameters", () => {
   const files = new Files([
     {
       fileName: "code1.bash",
@@ -45,8 +45,8 @@ test("should be able to create a Files class with normal parameters", (t) => {
     }
   ], "sh");
 
-  t.assert(files.files.length === 3);
+  expect(files.files.length).toStrictEqual(3);
   for (let i = 0; i < files.files.length; i++) {
-    t.assert(files.files[i].fileName === `code${i+1}.bash`);
+    expect(files.files[i].fileName).toStrictEqual(`code${i+1}.bash`);
   }
 });

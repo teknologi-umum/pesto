@@ -43,7 +43,7 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    container: node:18.18.0
+    container: node:20.11.0
     timeout-minutes: 30
     defaults:
       run:
