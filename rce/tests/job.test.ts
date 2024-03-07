@@ -1,4 +1,4 @@
-import test from "ava";
+import { test, expect } from "vitest";
 import os from "node:os";
 import path from "node:path";
 import fs from "node:fs/promises";
@@ -6,21 +6,17 @@ import { Job } from "../src/job/job.js";
 import { Runtime } from "../src/runtime/runtime.js";
 import { Files } from "../src/job/files.js";
 
-test("should throw error on invalid job parameters", (t) => {
+test("should throw error on invalid job parameters", () => {
   const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
 
-  t.throws(
+  expect(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore testing purposes
-    () => new Job({ uid: 1, gid: 1, free: false, username: "code_executor_1" }, runtime, undefined),
-    {
-      instanceOf: TypeError,
-      message: "Invalid job parameters"
-    }
-  );
+    () => new Job({ uid: 1, gid: 1, free: false, username: "code_executor_1" }, runtime, undefined)
+  ).toThrowError(new TypeError("Invalid job parameters"));
 });
 
-test("should give a default value for timeouts and memoryLimit", (t) => {
+test("should give a default value for timeouts and memoryLimit", () => {
   const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
   const job = new Job(
     { uid: 1, gid: 1, free: false, username: "code_executor_1" },
@@ -28,14 +24,14 @@ test("should give a default value for timeouts and memoryLimit", (t) => {
     new Files([{fileName: "index.js", code: "console.log(\"Hello world~\");", entrypoint: true }], "js")
   );
 
-  t.assert(job.compileTimeout === 10_000, `Default value for compileTimeout must be 5_000, instead got ${job.compileTimeout}`);
+  expect(job.compileTimeout, `Default value for compileTimeout must be 5_000, instead got ${job.compileTimeout}`).toStrictEqual(10_000);
 
-  t.assert(job.runTimeout === 10_000, `Default value for runTimeout must be 10_000, instead got ${job.runTimeout}`);
+  expect(job.runTimeout, `Default value for runTimeout must be 10_000, instead got ${job.runTimeout}`).toStrictEqual(10_000);
 
-  t.assert(job.memoryLimit === 512 * 1024 * 1024, `Default value for memoryLimit must be 512MB, instead got ${job.memoryLimit}`);
+  expect(job.memoryLimit, `Default value for memoryLimit must be 512MB, instead got ${job.memoryLimit}`).toStrictEqual(512 * 1024 * 1024);
 });
 
-test("should not use default value for timeouts and memoryLimit", (t) => {
+test("should not use default value for timeouts and memoryLimit", () => {
   const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
   const job = new Job(
     { uid: 1, gid: 1, free: false, username: "code_executor_1" },
@@ -46,16 +42,16 @@ test("should not use default value for timeouts and memoryLimit", (t) => {
     256 * 1024 * 1024
   );
 
-  t.assert(job.compileTimeout === 10_000, `Value for compileTimeout must be 10_000, instead got ${job.compileTimeout}`);
+  expect(job.compileTimeout, `Value for compileTimeout must be 10_000, instead got ${job.compileTimeout}`).toStrictEqual(10_000);
 
-  t.assert(job.runTimeout === 25_000, `Value for runTimeout must be 25_000, instead got ${job.runTimeout}`);
+  expect(job.runTimeout, `Value for runTimeout must be 25_000, instead got ${job.runTimeout}`).toStrictEqual(25_000);
 
-  t.assert(job.memoryLimit === 256 * 1024 * 1024, `Value for memoryLimit must be 256MB, instead got ${job.memoryLimit}`);
+  expect(job.memoryLimit === 256 * 1024 * 1024, `Value for memoryLimit must be 256MB, instead got ${job.memoryLimit}`);
 });
 
-test.serial("should be able to create a file", async (t) => {
+test.sequential("should be able to create a file", async (t) => {
   if (process.env?.LANGUAGE_JAVASCRIPT !== "true") {
-    t.pass("Skipping test because LANGUAGE_JAVASCRIPT was not set");
+    t.skip();
     return;
   }
 
@@ -72,22 +68,18 @@ test.serial("should be able to create a file", async (t) => {
   const filePath = path.join("/code", `/${job.user.username}`, `/code.${runtime.extension}`);
   const stat = await fs.stat(filePath);
 
-  if (stat.isFile()) {
-    t.pass("File assert created");
-    await fs.rm(filePath);
-  } else {
-    t.fail("File assert not created");
-  }
+  expect(stat.isFile()).toBeTruthy();
+  await fs.rm(filePath, { force: true });
 });
 
-test.serial("should be able to run a file - NodeJS", async (t) => {
+test.sequential("should be able to run a file - NodeJS", async (t) => {
   if (process.env?.LANGUAGE_JAVASCRIPT !== "true") {
-    t.pass("Skipping test because LANGUAGE_JAVASCRIPT was not set");
+    t.skip();
     return;
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, false, 512 * 1024 * 1024, 4096, 1);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
@@ -101,18 +93,18 @@ test.serial("should be able to run a file - NodeJS", async (t) => {
 
   const result = await job.run();
 
-  t.assert(result.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${result.exitCode} and message ${result.output}`);
+  expect(result.exitCode, `Run result didn't exit with 0, instead it exited with ${result.exitCode} and message ${result.output}`).toStrictEqual(0);
 
-  t.assert(result.output.trim() === "Hello world~", `File output must be "Hello world~", instead of "${result.output}"`);
+  expect(result.output.trim(), `File output must be "Hello world~", instead of "${result.output}"`).toStrictEqual("Hello world~");
 
-  t.assert(result.stderr.trim() === "", "File stderr assert must be empty");
+  expect(result.stderr.trim(), "File stderr assert must be empty").toStrictEqual("");
 
-  t.assert(result.stdout.trim() === "Hello world~", `File stdout must be "Hello world~", instead of "${result.stdout}"`);
+  expect(result.stdout.trim(), `File stdout must be "Hello world~", instead of "${result.stdout}"`).toStrictEqual("Hello world~");
 });
 
-test.serial("should be able to compile and run a file - C", async (t) => {
+test.sequential("should be able to compile and run a file - C", async (t) => {
   if (process.env?.LANGUAGE_C !== "true") {
-    t.pass("Skipping test because LANGUAGE_C is not set");
+    t.skip();
     return;
   }
 
@@ -156,23 +148,28 @@ test.serial("should be able to compile and run a file - C", async (t) => {
 
   const compileResult = await job.compile();
 
-  t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
+  expect(compileResult.exitCode, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`)
+      .toStrictEqual(0);
 
   const runResult = await job.run();
 
-  t.assert(runResult.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`);
+  expect(runResult.exitCode, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`)
+      .toStrictEqual(0);
 
-  t.assert(runResult.output.trim() === "Hello World~", `File output must be "Hello World~", instead of "${runResult.output}"`);
+  expect(runResult.output.trim(), `File output must be "Hello World~", instead of "${runResult.output}"`)
+      .toStrictEqual("Hello World~");
 
-  t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
+  expect(runResult.stderr.trim(), `File stderr assert must be empty, instead of ${runResult.stderr}`)
+      .toStrictEqual("");
 
-  t.assert(runResult.stdout.trim() === "Hello World~", `File stdout must be "Hello World~", instead of "${runResult.stdout}"`);
+  expect(runResult.stdout.trim(), `File stdout must be "Hello World~", instead of "${runResult.stdout}"`)
+      .toStrictEqual("Hello World~");
 });
 
 
-test.serial("should be able to compile and run a file - Python", async (t) => {
+test.sequential("should be able to compile and run a file - Python", async (t) => {
   if (process.env?.LANGUAGE_PYTHON !== "true") {
-    t.pass("Skipping test because LANGUAGE_PYTHON is not set");
+    t.skip();
     return;
   }
 
@@ -212,28 +209,33 @@ test.serial("should be able to compile and run a file - Python", async (t) => {
 
   const compileResult = await job.compile();
 
-  t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
+  expect(compileResult.exitCode, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`)
+      .toStrictEqual(0);
 
   const runResult = await job.run();
 
-  t.assert(runResult.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`);
+  expect(runResult.exitCode, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`)
+    .toStrictEqual(0);
 
-  t.assert(runResult.output.trim() === "Hello World~", `File output must be "Hello World~", instead of "${runResult.output}"`);
+  expect(runResult.output.trim(), `File output must be "Hello World~", instead of "${runResult.output}"`)
+      .toStrictEqual("Hello World~");
 
-  t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
+  expect(runResult.stderr.trim(), `File stderr assert must be empty, instead of ${runResult.stderr}`)
+      .toStrictEqual("");
 
-  t.assert(runResult.stdout.trim() === "Hello World~", `File stdout must be "Hello World~", instead of "${runResult.stdout}"`);
+  expect(runResult.stdout.trim(), `File stdout must be "Hello World~", instead of "${runResult.stdout}"`)
+      .toStrictEqual("Hello World~");
 });
 
 
-test.serial("should be able to run multiple files - NodeJS", async (t) => {
+test.sequential("should be able to run multiple files - NodeJS", async (t) => {
   if (process.env?.LANGUAGE_JAVASCRIPT !== "true") {
-    t.pass("Skipping test because LANGUAGE_JAVASCRIPT was not set");
+    t.skip();
     return;
   }
 
   const currentUser = os.userInfo();
-  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, true, 512 * 1024 * 1024, 256, 1);
+  const runtime = new Runtime("Javascript", "16.14.0", true, "js", false, [], ["node", "{file}"], ["node", "js"], {}, false, 512 * 1024 * 1024, 4096, 1);
   const job = new Job(
     { uid: currentUser.uid, gid: currentUser.gid, free: true, username: currentUser.username },
     runtime,
@@ -270,19 +272,23 @@ test.serial("should be able to run multiple files - NodeJS", async (t) => {
 
   const result = await job.run();
 
-  t.assert(result.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${result.exitCode} and message ${result.output}`);
+  expect(result.exitCode, `Run result didn't exit with 0, instead it exited with ${result.exitCode} and message ${result.output}`)
+      .toStrictEqual(0);
 
-  t.assert(result.output.trim() === "Hello world~", `File output must be "Hello world~", instead of "${result.output}"`);
+  expect(result.output.trim(), `File output must be "Hello world~", instead of "${result.output}"`)
+      .toStrictEqual("Hello world~");
 
-  t.assert(result.stderr.trim() === "", "File stderr assert must be empty");
+  expect(result.stderr.trim(), "File stderr assert must be empty")
+      .toStrictEqual("");
 
-  t.assert(result.stdout.trim() === "Hello world~", `File stdout must be "Hello world~", instead of "${result.stdout}"`);
+  expect(result.stdout.trim(), `File stdout must be "Hello world~", instead of "${result.stdout}"`)
+    .toStrictEqual("Hello world~");
 });
 
 
-test.serial("should be able to execute Happy Numbers - Lua", async (t) => {
+test.sequential("should be able to execute Happy Numbers - Lua", async (t) => {
   if (process.env?.LANGUAGE_LUA !== "true") {
-    t.pass("Skipping test because LANGUAGE_LUA is not set");
+    t.skip();
     return;
   }
 
@@ -341,24 +347,24 @@ until i == 8`,
 
   const compileResult = await job.compile();
 
-  t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
+  expect(compileResult.exitCode, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`).toStrictEqual(0);
 
   const runResult = await job.run();
 
-  t.assert(runResult.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`);
+  expect(runResult.exitCode, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`).toStrictEqual(0);
 
-  t.assert(runResult.output.trim().split("\n").join(" ") === "1 7 10 13 19 23 28 31", `File output must be "1 7 10 13 19 23 28 31", instead of "${runResult.output}"`);
+  expect(runResult.output.trim().split("\n").join(" "), `File output must be "1 7 10 13 19 23 28 31", instead of "${runResult.output}"`).toStrictEqual("1 7 10 13 19 23 28 31");
 
-  t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
+  expect(runResult.stderr.trim(), `File stderr assert must be empty, instead of ${runResult.stderr}`).toStrictEqual("");
 
-  t.assert(runResult.stdout.trim().split("\n").join(" ") === "1 7 10 13 19 23 28 31", `File stdout must be "1 7 10 13 19 23 28 31", instead of "${runResult.stdout}"`);
+  expect(runResult.stdout.trim().split("\n").join(" "), `File stdout must be "1 7 10 13 19 23 28 31", instead of "${runResult.stdout}"`).toStrictEqual("1 7 10 13 19 23 28 31");
 });
 
 
 
-test.serial("should be able to execute Happy Numbers - Python", async (t) => {
+test.sequential("should be able to execute Happy Numbers - Python", async (t) => {
   if (process.env?.LANGUAGE_PYTHON !== "true") {
-    t.pass("Skipping test because LANGUAGE_PYTHON is not set");
+    t.skip();
     return;
   }
 
@@ -478,15 +484,15 @@ if __name__ == '__main__':
 
   const compileResult = await job.compile();
 
-  t.assert(compileResult.exitCode === 0, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`);
+  expect(compileResult.exitCode, `Compile result didn't exit with 0, instead it exited with ${compileResult.exitCode} and message ${compileResult.output}`).toStrictEqual(0);
 
   const runResult = await job.run();
 
-  t.assert(runResult.exitCode === 0, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`);
+  expect(runResult.exitCode, `Run result didn't exit with 0, instead it exited with ${runResult.exitCode} and message ${runResult.output}`).toStrictEqual(0);
 
-  t.assert(runResult.output.trim() === "[1, 7, 10, 13, 19, 23, 28, 31]", `File output must be "[1, 7, 10, 13, 19, 23, 28, 31]", instead of "${runResult.output}"`);
+  expect(runResult.output.trim(), `File output must be "[1, 7, 10, 13, 19, 23, 28, 31]", instead of "${runResult.output}"`).toStrictEqual("[1, 7, 10, 13, 19, 23, 28, 31]");
 
-  t.assert(runResult.stderr.trim() === "", `File stderr assert must be empty, instead of ${runResult.stderr}`);
+  expect(runResult.stderr.trim(), `File stderr assert must be empty, instead of ${runResult.stderr}`).toStrictEqual("");
 
-  t.assert(runResult.stdout.trim() === "[1, 7, 10, 13, 19, 23, 28, 31]", `File stdout must be "[1, 7, 10, 13, 19, 23, 28, 31]", instead of "${runResult.stdout}"`);
+  expect(runResult.stdout.trim(), `File stdout must be "[1, 7, 10, 13, 19, 23, 28, 31]", instead of "${runResult.stdout}"`).toStrictEqual("[1, 7, 10, 13, 19, 23, 28, 31]");
 });
