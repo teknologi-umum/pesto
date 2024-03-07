@@ -1,0 +1,13 @@
+language = "Tengo"
+version = "2.16.1"
+compiled = false
+extension = "tengo"
+environment = [ "PATH=/opt/tengo/2.16.1" ]
+build_command = []
+run_command = [ "tengo", "{file}" ]
+aliases = [ "tengo", "tgo", "tg" ]
+test_file = "test.tengo"
+should_limit_memory = false
+memory_limit = 4096
+process_limit = 4096
+allowed_entrypoints = 1
