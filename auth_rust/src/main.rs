@@ -8,6 +8,7 @@ use axum::http::{header, HeaderMap, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::any;
 use redis::{AsyncCommands, Client, RedisError, RedisResult};
+use sentry::metrics::Metric;
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tracing_subscriber::layer::SubscriberExt;
@@ -87,6 +88,9 @@ async fn authenticate<Command: AsyncCommands>(
         }
     }
 
+    Metric::count("pesto.successful_auth")
+        .with_tag("user_email", token_value.user_email.clone())
+        .send();
     (StatusCode::OK, [(header::CONTENT_TYPE, "text/plain")], "")
 }
 
