@@ -191,7 +191,7 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
 fn init_tracer() {
     match opentelemetry_otlp::new_exporter()
         .http()
-        .with_endpoint(env::var("OLTP_HTTP_ENDPOINT").unwrap_or("".to_string()))
+        .with_endpoint(env::var("OTEL_HTTP_ENDPOINT").unwrap_or("".to_string()))
         .with_headers(HashMap::from_iter(vec![(String::from("x-api-key"), env::var("BASELIME_API_KEY").unwrap_or("".to_string()))].into_iter()))
         .build_span_exporter() {
         Ok(oltp_span_exporter) => {
