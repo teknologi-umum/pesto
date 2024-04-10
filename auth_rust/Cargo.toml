@@ -15,7 +15,6 @@ redis = { version = "0.25.3", features = ["tokio-comp", "aio"] }
 serde_json = "1.0.115"
 serde = { version = "1.0.197", features = ["derive"] }
 chrono = "0.4.37"
-opentelemetry = { version = "0.22.0", features = ["trace"]}
-opentelemetry-otlp = { version = "0.15.0", features = ["reqwest-client", "http-proto"] }
-opentelemetry_sdk = { version = "0.22.1" }
-opentelemetry-stdout = { version = "0.3.0", features = ["trace"] }
+sentry = { version = "0.32.2", features = ["tracing"] }
+tracing = { version = "0.1.40" }
+tracing-subscriber = { version = "0.3.18", features = ["std", "registry", "tracing"] }

@@ -1,32 +1,27 @@
-use std::collections::HashMap;
 use std::env;
 use std::error::Error;
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 
 use axum::{Router, routing::get};
 use axum::extract::State;
 use axum::http::{header, HeaderMap, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::any;
-use opentelemetry::{global, trace::Tracer};
-use opentelemetry::trace::{SpanKind, TracerProvider};
-use opentelemetry_otlp::WithExportConfig;
-use redis::{AsyncCommands, Client, RedisResult};
+use redis::{AsyncCommands, Client, RedisError, RedisResult};
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
 
 async fn healthcheck() -> impl IntoResponse {
     (StatusCode::OK, "OK")
 }
 
+#[tracing::instrument]
 async fn authenticate<Command: AsyncCommands>(
     headers: HeaderMap,
     State(mut auth_repo): State<AuthRepo<Command>>,
 ) -> impl IntoResponse {
-    let tracer = global::tracer("pesto-auth-rust-service");
-
-    let mut span = tracer.span_builder("GET /").with_kind(SpanKind::Server).start(&tracer);
-
     if headers.get("X-Pesto-Token").is_none() {
         return (
             StatusCode::UNAUTHORIZED,
@@ -45,7 +40,7 @@ async fn authenticate<Command: AsyncCommands>(
                 r#"{"message":"Token not registered"}"#,
             );
         }
-        Err(AuthError::FailedToAcquireToken(e)) => {
+        Err(AuthError::FailedToAcquireToken(_)) => {
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 [(header::CONTENT_TYPE, "application/json")],
@@ -64,7 +59,7 @@ async fn authenticate<Command: AsyncCommands>(
 
     let counter_limit = match auth_repo.acquire_counter_limit(&token_value).await {
         Ok(counter_limit) => counter_limit,
-        Err(e) => {
+        Err(_) => {
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 [(header::CONTENT_TYPE, "application/json")],
@@ -83,7 +78,7 @@ async fn authenticate<Command: AsyncCommands>(
 
     match auth_repo.increment_monthly_counter(&token_value, counter_limit).await {
         Ok(_) => (),
-        Err(e) => {
+        Err(_) => {
             return (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 [(header::CONTENT_TYPE, "application/json")],
@@ -97,7 +92,7 @@ async fn authenticate<Command: AsyncCommands>(
 
 enum AuthError {
     TokenNotRegistered,
-    FailedToAcquireToken(Box<dyn Error>),
+    FailedToAcquireToken(RedisError),
 }
 
 impl Display for AuthError {
@@ -109,7 +104,7 @@ impl Display for AuthError {
     }
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 struct TokenValue {
     user_email: String,
     monthly_limit: i64,
@@ -121,15 +116,19 @@ struct AuthRepo<Command: AsyncCommands> {
     pub redis_client: Command,
 }
 
+impl<Command: AsyncCommands> Debug for AuthRepo<Command> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "AuthRepo")
+    }
+}
+
 impl<Command: AsyncCommands> AuthRepo<Command> {
     fn new(redis_client: Command) -> Self {
         Self { redis_client }
     }
 
+    #[tracing::instrument]
     async fn acquire_token_value(&mut self, token: String) -> Result<TokenValue, AuthError> {
-        let tracer = global::tracer("pesto-auth-rust-service");
-        let mut span = tracer.start("acquire_token_value");
-
         // Acquire redis value from the key from the `token` parameter
         let token_value: RedisResult<Option<String>> = self.redis_client.get(token).await;
 
@@ -139,14 +138,15 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
                 Ok(token_value)
             }
             Ok(None) => Err(AuthError::TokenNotRegistered),
-            Err(redis_error) => Err(AuthError::FailedToAcquireToken(Box::new(redis_error))),
+            Err(redis_error) => {
+                sentry::capture_error(&redis_error);
+                Err(AuthError::FailedToAcquireToken(redis_error))
+            },
         }
     }
 
+    #[tracing::instrument]
     async fn acquire_counter_limit(&mut self, token_value: &TokenValue) -> Result<i64, AuthError> {
-        let tracer = global::tracer("pesto-auth-rust-service");
-        let mut span = tracer.start("acquire_counter_limit");
-
         let formatted_date = chrono::Utc::now().format("%Y-%m").to_string();
         let key = format!("counter/{}/{}", formatted_date, token_value.user_email);
         let value: RedisResult<Option<String>> = self.redis_client.get(key).await;
@@ -157,18 +157,19 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
                 Ok(counter_limit)
             }
             Ok(None) => Ok(0),
-            Err(redis_error) => Err(AuthError::FailedToAcquireToken(Box::new(redis_error))),
+            Err(redis_error) => {
+                sentry::capture_error(&redis_error);
+                Err(AuthError::FailedToAcquireToken(redis_error))
+            },
         }
     }
 
+    #[tracing::instrument]
     async fn increment_monthly_counter(
         &mut self,
         token_value: &TokenValue,
         counter_limit: i64,
     ) -> Result<(), AuthError> {
-        let tracer = global::tracer("pesto-auth-rust-service");
-        let mut span = tracer.start("acquire_token_value");
-
         if token_value.user_email.starts_with("trial")
             && token_value.user_email.ends_with("@pesto.teknologiumum.com")
         {
@@ -183,51 +184,43 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
         let cmd: RedisResult<()> = self.redis_client.set_ex(key, value, expiration).await;
         match cmd {
             Ok(_) => Ok(()),
-            Err(_) => Err(AuthError::TokenNotRegistered),
+            Err(redis_error) => {
+                sentry::capture_error(&redis_error);
+                Err(AuthError::FailedToAcquireToken(redis_error))
+            },
         }
     }
 }
 
-fn init_tracer() {
-    match opentelemetry_otlp::new_exporter()
-        .http()
-        .with_endpoint(env::var("OTEL_HTTP_ENDPOINT").unwrap_or("".to_string()))
-        .with_headers(HashMap::from_iter(vec![(String::from("x-api-key"), env::var("BASELIME_API_KEY").unwrap_or("".to_string()))].into_iter()))
-        .build_span_exporter() {
-        Ok(oltp_span_exporter) => {
-            let provider = opentelemetry_sdk::trace::TracerProvider::builder()
-                .with_simple_exporter(oltp_span_exporter)
-                .build();
+fn main() -> Result<(), Box<dyn Error>> {
+    tracing_subscriber::registry::Registry::default()
+        .with(sentry::integrations::tracing::layer())
+        .init();
 
-            global::set_tracer_provider(provider);
-        },
-        Err(error) => {
-            println!("{}", error);
-            let stdout_span_exporter = opentelemetry_stdout::SpanExporter::default();
+    let _guard = sentry::init((env::var("SENTRY_DSN").unwrap_or(String::from("")), sentry::ClientOptions {
+        release: sentry::release_name!(),
+        sample_rate: 1.0,
+        traces_sample_rate: 0.5,
+        ..Default::default()
+    }));
 
-            let provider = opentelemetry_sdk::trace::TracerProvider::builder()
-                .with_simple_exporter(stdout_span_exporter)
-                .build();
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async {
+            let redis_client = Client::open("redis://@localhost:6379").unwrap();
+            let redis_async_connection = redis_client.get_multiplexed_async_connection().await.unwrap();
+            let auth_repo = AuthRepo::new(redis_async_connection);
 
-            global::set_tracer_provider(provider);
-        }
-    }
-}
+            let app = Router::new()
+                .route("/healthz", get(healthcheck))
+                .route("/", any(authenticate))
+                .with_state(auth_repo);
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    init_tracer();
-    let redis_client = Client::open("redis://@localhost:6379")?;
-    let redis_async_connection = redis_client.get_multiplexed_async_connection().await?;
-    let auth_repo = AuthRepo::new(redis_async_connection);
-
-    let app = Router::new()
-        .route("/healthz", get(healthcheck))
-        .route("/", any(authenticate))
-        .with_state(auth_repo);
-
-    let listener = TcpListener::bind("0.0.0.0:3000").await?;
-    axum::serve(listener, app).await?;
+            let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+            axum::serve(listener, app).await.unwrap();
+        });
 
     Ok(())
 }
