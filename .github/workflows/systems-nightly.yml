@@ -244,7 +244,7 @@ jobs:
           environment: production
           ignore_empty: true
 
-  build-auth)rust:
+  build-auth_rust:
     name: Build Auth Rust
     runs-on: ubuntu-latest
     timeout-minutes: 30

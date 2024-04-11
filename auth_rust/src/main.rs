@@ -23,31 +23,42 @@ async fn authenticate<Command: AsyncCommands>(
     headers: HeaderMap,
     State(mut auth_repo): State<AuthRepo<Command>>,
 ) -> impl IntoResponse {
-    if headers.get("X-Pesto-Token").is_none() {
-        return (
-            StatusCode::UNAUTHORIZED,
-            [(header::CONTENT_TYPE, "application/json")],
-            r#"{"message":"Token must be supplied"}"#,
-        );
-    }
-
-    let token: String = headers.get("X-Pesto-Token").unwrap().to_str().unwrap().to_string();
-    let token_value = match auth_repo.acquire_token_value(token).await {
-        Ok(token_value) => token_value,
-        Err(AuthError::TokenNotRegistered) => {
+    let token_value = match headers
+        .get("X-Pesto-Token")
+        .and_then(|v| v.to_str().ok())
+        .map(String::from)
+    {
+        None => {
             return (
                 StatusCode::UNAUTHORIZED,
                 [(header::CONTENT_TYPE, "application/json")],
-                r#"{"message":"Token not registered"}"#,
+                r#"{"message":"Token must be supplied"}"#,
             );
         }
-        Err(AuthError::FailedToAcquireToken(_)) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                [(header::CONTENT_TYPE, "application/json")],
-                r#"{"message":"Internal server error"}"#,
-            );
-        }
+        Some(token) => match auth_repo.acquire_token_value(token).await {
+            Ok(token_value) => token_value,
+            Err(AuthError::TokenNotRegistered) => {
+                return (
+                    StatusCode::UNAUTHORIZED,
+                    [(header::CONTENT_TYPE, "application/json")],
+                    r#"{"message":"Token not registered"}"#,
+                );
+            }
+            Err(AuthError::FailedToAcquireToken(_)) => {
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    [(header::CONTENT_TYPE, "application/json")],
+                    r#"{"message":"Internal server error"}"#,
+                );
+            }
+            Err(AuthError::ParseError) => {
+                return (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    [(header::CONTENT_TYPE, "application/json")],
+                    r#"{"message":"Internal server error"}"#,
+                );
+            }
+        },
     };
 
     if token_value.revoked {
@@ -77,15 +88,16 @@ async fn authenticate<Command: AsyncCommands>(
         );
     }
 
-    match auth_repo.increment_monthly_counter(&token_value, counter_limit).await {
-        Ok(_) => (),
-        Err(_) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                [(header::CONTENT_TYPE, "application/json")],
-                r#"{"message":"Internal server error"}"#,
-            );
-        }
+    if auth_repo
+        .increment_monthly_counter(&token_value, counter_limit)
+        .await
+        .is_err()
+    {
+        return (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            [(header::CONTENT_TYPE, "application/json")],
+            r#"{"message":"Internal server error"}"#,
+        );
     }
 
     Metric::count("pesto.successful_auth")
@@ -97,6 +109,7 @@ async fn authenticate<Command: AsyncCommands>(
 enum AuthError {
     TokenNotRegistered,
     FailedToAcquireToken(RedisError),
+    ParseError,
 }
 
 impl Display for AuthError {
@@ -104,6 +117,7 @@ impl Display for AuthError {
         match self {
             AuthError::TokenNotRegistered => write!(f, "Token not registered"),
             AuthError::FailedToAcquireToken(e) => write!(f, "Failed to acquire token: {}", e),
+            AuthError::ParseError => write!(f, "Parse error"),
         }
     }
 }
@@ -138,7 +152,7 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
 
         match token_value {
             Ok(Some(value)) => {
-                let token_value: TokenValue = serde_json::from_str(&value).unwrap();
+                let token_value: TokenValue = serde_json::from_str(&value).map_err(|_| AuthError::ParseError)?;
                 Ok(token_value)
             }
             Ok(None) => Err(AuthError::TokenNotRegistered),
@@ -157,7 +171,7 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
 
         match value {
             Ok(Some(value)) => {
-                let counter_limit: i64 = value.parse().unwrap();
+                let counter_limit: i64 = value.parse().map_err(|_| AuthError::ParseError)?;
                 Ok(counter_limit)
             }
             Ok(None) => Ok(0),
@@ -201,7 +215,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .with(sentry::integrations::tracing::layer())
         .init();
 
-    let _guard = sentry::init((env::var("SENTRY_DSN").unwrap_or(String::from("")), sentry::ClientOptions {
+    let _guard = sentry::init((env::var("SENTRY_DSN").unwrap_or_default(), sentry::ClientOptions {
         release: sentry::release_name!(),
         sample_rate: 1.0,
         traces_sample_rate: 0.5,
