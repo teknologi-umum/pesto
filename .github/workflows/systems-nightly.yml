@@ -40,6 +40,23 @@ jobs:
         with:
           flags: auth
 
+  auth_rust:
+    name: Auth Rust
+    runs-on: ubuntu-latest
+    container: rust:1.77
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./auth_rust
+    services:
+      db:
+        image: redis:7-bookworm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --release
+
   rce:
     name: RCE
     runs-on: ubuntu-latest
@@ -226,6 +243,48 @@ jobs:
         with:
           environment: production
           ignore_empty: true
+
+  build-auth_rust:
+    name: Build Auth Rust
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - auth_rust
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-auth_rust
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: "{{defaultContext}}:auth_rust"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   build-landing:
     name: Build Landing
