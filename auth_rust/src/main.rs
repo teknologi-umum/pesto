@@ -2,11 +2,11 @@ use std::env;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 
-use axum::{Router, routing::get};
 use axum::extract::State;
 use axum::http::{header, HeaderMap, StatusCode};
 use axum::response::IntoResponse;
 use axum::routing::any;
+use axum::{routing::get, Router};
 use redis::{AsyncCommands, Client, RedisError, RedisResult};
 use sentry::metrics::Metric;
 use serde::{Deserialize, Serialize};
@@ -122,10 +122,13 @@ impl Display for AuthError {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 struct TokenValue {
+    #[serde(rename = "UserEmail")]
     user_email: String,
+    #[serde(rename = "MonthlyLimit")]
     monthly_limit: i64,
+    #[serde(rename = "Revoked")]
     revoked: bool,
 }
 
@@ -152,14 +155,15 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
 
         match token_value {
             Ok(Some(value)) => {
-                let token_value: TokenValue = serde_json::from_str(&value).map_err(|_| AuthError::ParseError)?;
+                let token_value: TokenValue =
+                    serde_json::from_str(&value).map_err(|_| AuthError::ParseError)?;
                 Ok(token_value)
             }
             Ok(None) => Err(AuthError::TokenNotRegistered),
             Err(redis_error) => {
                 sentry::capture_error(&redis_error);
                 Err(AuthError::FailedToAcquireToken(redis_error))
-            },
+            }
         }
     }
 
@@ -178,7 +182,7 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
             Err(redis_error) => {
                 sentry::capture_error(&redis_error);
                 Err(AuthError::FailedToAcquireToken(redis_error))
-            },
+            }
         }
     }
 
@@ -205,7 +209,7 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
             Err(redis_error) => {
                 sentry::capture_error(&redis_error);
                 Err(AuthError::FailedToAcquireToken(redis_error))
-            },
+            }
         }
     }
 }
@@ -215,20 +219,29 @@ fn main() -> Result<(), Box<dyn Error>> {
         .with(sentry::integrations::tracing::layer())
         .init();
 
-    let _guard = sentry::init((env::var("SENTRY_DSN").unwrap_or_default(), sentry::ClientOptions {
-        release: sentry::release_name!(),
-        sample_rate: 1.0,
-        traces_sample_rate: 0.5,
-        ..Default::default()
-    }));
+    let _guard = sentry::init((
+        env::var("SENTRY_DSN").unwrap_or_default(),
+        sentry::ClientOptions {
+            release: sentry::release_name!(),
+            sample_rate: 1.0,
+            traces_sample_rate: 0.5,
+            ..Default::default()
+        },
+    ));
 
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
         .unwrap()
         .block_on(async {
-            let redis_client = Client::open(env::var("REDIS_URL").unwrap_or("redis://@localhost:6379".to_string())).unwrap();
-            let redis_async_connection = redis_client.get_multiplexed_async_connection().await.unwrap();
+            let redis_client = Client::open(
+                env::var("REDIS_URL").unwrap_or("redis://@localhost:6379".to_string()),
+            )
+            .unwrap();
+            let redis_async_connection = redis_client
+                .get_multiplexed_async_connection()
+                .await
+                .unwrap();
             let auth_repo = AuthRepo::new(redis_async_connection);
 
             let app = Router::new()
@@ -241,4 +254,24 @@ fn main() -> Result<(), Box<dyn Error>> {
         });
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_token_value_serialization() {
+        let token_value = TokenValue {
+            user_email: "johndoe@example.com".to_string(),
+            monthly_limit: 100,
+            revoked: false,
+        };
+
+        let serialized = serde_json::to_string(&token_value).unwrap();
+        let deserialized: TokenValue = serde_json::from_str(&serialized).unwrap();
+        
+        assert_eq!(serialized, r#"{"UserEmail":"johndoe@example.com","MonthlyLimit":100,"Revoked":false}"#);
+        assert_eq!(token_value, deserialized);
+    }
 }
