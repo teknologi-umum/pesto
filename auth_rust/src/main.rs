@@ -188,7 +188,7 @@ impl<Command: AsyncCommands> AuthRepo<Command> {
         token_value: &TokenValue,
         counter_limit: i64,
     ) -> Result<(), AuthError> {
-        if token_value.user_email.starts_with("trial")
+        if token_value.user_email.to_lowercase().starts_with("trial")
             && token_value.user_email.ends_with("@pesto.teknologiumum.com")
         {
             return Ok(());
