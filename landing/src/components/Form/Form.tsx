@@ -100,7 +100,7 @@ export function Form() {
 				<p class={`message ${isError() ? "error" : "success"}`}>{message()}</p>
 			</div>
 			<div class="field">
-				<Button isDisabled={isLoading()} variant="pale-red">
+				<Button isDisabled={isLoading()} variant="pale-red" umamiEvent="request-key-button">
 					{isLoading() ? "Requesting..." : "Request A Key"}
 				</Button>
 			</div>
