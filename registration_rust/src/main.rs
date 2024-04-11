@@ -38,6 +38,7 @@ struct ApplicationState<Command: AsyncCommands + Clone> {
     waiting_list_service: WaitingListService<Command>,
     approval_service: ApprovalService<Command>,
     trial_service: TrialService<Command>,
+    mailersend_client: MailersendClient,
 }
 
 impl<Command: AsyncCommands + Clone> Debug for ApplicationState<Command> {
@@ -273,6 +274,12 @@ struct MailersendClient {
     pub client: reqwest::Client,
 }
 
+impl<Command: AsyncCommands + Clone> FromRef<ApplicationState<Command>> for MailersendClient {
+    fn from_ref(input: &ApplicationState<Command>) -> Self {
+        input.mailersend_client.clone()
+    }
+}
+
 impl Debug for MailersendClient {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "MailersendClient")
@@ -447,6 +454,7 @@ async fn pending_users<Command: AsyncCommands + Clone>(
 async fn approve_user<Command: AsyncCommands + Clone>(
     State(mut waiting_list_service): State<WaitingListService<Command>>,
     State(mut approval_service): State<ApprovalService<Command>>,
+    State(mailersend_client): State<MailersendClient>,
     Json(body): Json<TokenValue>,
 ) -> impl IntoResponse {
     let waiting_list: Vec<HumanUser> = match waiting_list_service.get_users().await {
@@ -468,6 +476,26 @@ async fn approve_user<Command: AsyncCommands + Clone>(
         Some(user) => {
             match approval_service.approve_user(body).await {
                 Ok(_) => {
+                    let _ = mailersend_client.send_email(
+                        user.email.clone(),
+                        "Your Pesto (the remote code execution engine) token!".to_string(),
+                        format!(r#"Hello, {}! 👋
+
+Sorry for the long wait. We've been occupied with some work outside the open source world. But, we got your registration submission for Pesto, the remote code execution engine.
+
+Pesto users are still relatively low, so we'd love to get feedback from you. You can reply to this email, or open an issue on the GitHub repository. Feel free to request new features, report bugs, or even contribute to us, that will be so much appreciated.
+
+Your token is:
+
+{}
+
+Thank you! Have a great day."#, user.name.clone(), user.email.clone()),
+                        format!(r#"<b>Hello, {}! 👋</b><br><br>Sorry for the long wait. We've been occupied with some work outside the open source world. But, we got your registration submission for Pesto, the remote code execution engine.<br><br>Pesto users are still relatively low, so we'd love to get feedback from you. You can reply to this email, or open an issue on the GitHub repository. Feel free to request new features, report bugs, or even contribute to us, that will be so much appreciated.<br><br>Your token is:<br><br>{}<br><br>Thank you! Have a great day."#, user.name.clone(), user.email.clone()),
+                    ).await.map_err(|error| {
+                        sentry::capture_error(&error);
+                        error
+                    });
+
                     match waiting_list_service.remove_user(user.clone()).await {
                         Ok(_) => (StatusCode::OK, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"OK"}"#),
                         Err(PestoError::RedisError(error)) => {
@@ -553,16 +581,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         .build()
         .unwrap()
         .block_on(async {
-            let redis_client = Client::open("redis://@localhost:6379").unwrap();
+            let redis_client = Client::open(env::var("REDIS_URL").unwrap_or("redis://@localhost:6379".to_string())).unwrap();
             let redis_async_connection = redis_client.get_multiplexed_async_connection().await.unwrap();
             let approval_service = ApprovalService::new(redis_async_connection.clone());
             let trial_service = TrialService::new(redis_async_connection.clone());
             let waiting_list_service = WaitingListService::new(redis_async_connection);
+            let mailersend_client = MailersendClient::new(env::var("MAILERSEND_API_KEY").unwrap_or_default());
 
             let application_state = ApplicationState {
                 waiting_list_service,
                 approval_service,
                 trial_service,
+                mailersend_client,
             };
 
             let app = Router::new()
@@ -574,7 +604,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .route("/api/trial", post(user_trial))
                 .with_state(application_state);
 
-            let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+            let listener = TcpListener::bind(format!("0.0.0.0:{}", env::var("PORT").unwrap_or("3000".to_string()))).await.unwrap();
             axum::serve(listener, app).await.unwrap();
         });
 
