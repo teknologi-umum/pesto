@@ -1102,6 +1102,7 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "chrono",
+ "rand",
  "redis",
  "reqwest 0.12.3",
  "sentry",

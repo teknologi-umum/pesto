@@ -1,12 +1,14 @@
 use std::{env, fmt};
 use std::error::Error;
-use std::fmt::{Display, Formatter};
-use axum::{Router, routing::get};
-use axum::extract::State;
-use axum::http::{header, HeaderMap, StatusCode};
+use std::fmt::{Debug, Display, Formatter};
+use axum::{Json, Router, routing::get};
+use axum::extract::{FromRef, State};
+use axum::http::{header, StatusCode};
 use axum::response::IntoResponse;
-use axum::routing::any;
-use redis::{Client, RedisError, AsyncCommands};
+use axum::routing::{post, put};
+use rand::distributions::Alphanumeric;
+use rand::Rng;
+use redis::{Client, RedisError, AsyncCommands, RedisResult};
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tracing_subscriber::layer::SubscriberExt;
@@ -15,6 +17,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 enum PestoError {
     UserNotFound,
     EmailAlreadyExists,
+    ParseError,
     RedisError(RedisError),
 }
 
@@ -24,7 +27,22 @@ impl Display for PestoError {
             PestoError::UserNotFound => write!(f, "User not found"),
             PestoError::EmailAlreadyExists => write!(f, "Email already exists"),
             PestoError::RedisError(e) => write!(f, "Redis error: {}", e),
+            PestoError::ParseError => write!(f, "Parse error"),
         }
+    }
+}
+
+
+#[derive(Clone)]
+struct ApplicationState<Command: AsyncCommands + Clone> {
+    waiting_list_service: WaitingListService<Command>,
+    approval_service: ApprovalService<Command>,
+    trial_service: TrialService<Command>,
+}
+
+impl<Command: AsyncCommands + Clone> Debug for ApplicationState<Command> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "ApplicationState")
     }
 }
 
@@ -38,77 +56,230 @@ struct HumanUser {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct TokenValue {
-    user_email: String,
-    monthly_limit: i64,
-    revoked: bool,
+    pub token: Option<String>,
+    pub user_email: String,
+    pub monthly_limit: i64,
+    pub revoked: bool,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+struct PestoToken {
+    pub token: String,
 }
 
 #[derive(Clone)]
-struct WaitingListService<Command: AsyncCommands> {
+struct WaitingListService<Command: AsyncCommands> where Command: Clone {
     pub redis_client: Command,
 }
+impl<Command: AsyncCommands + Clone> FromRef<ApplicationState<Command>> for WaitingListService<Command> {
+    fn from_ref(input: &ApplicationState<Command>) -> Self {
+        input.waiting_list_service.clone()
+    }
+}
 
-impl<Command: AsyncCommands> WaitingListService<Command> {
+impl<Command: AsyncCommands + Clone> Debug for WaitingListService<Command> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+       write!(f, "WaitingListService")
+    }
+}
+
+impl<Command: AsyncCommands + Clone> WaitingListService<Command> {
     fn new(redis_client: Command) -> Self {
         Self { redis_client }
     }
 
-    fn put_user_in_waiting_list(human_user: HumanUser) -> Result<(), PestoError> {
-        todo!()
+    #[tracing::instrument]
+    async fn put_user_in_waiting_list(&mut self, human_user: HumanUser) -> Result<(), PestoError> {
+        let users = match self.get_users().await {
+            Ok(users) => users,
+            Err(e) => return Err(e),
+        };
+
+        // Check if the user's email already exists on the waiting list
+        let email_exists = users.iter().any(|waiting_list_user| waiting_list_user.email == human_user.email);
+        if email_exists {
+            return Err(PestoError::EmailAlreadyExists);
+        }
+
+        // Email not exists, let's serialize human_user struct and insert it into Redis
+        let serialized_user = serde_json::to_string(&human_user).map_err(|_| PestoError::ParseError)?;
+        self.redis_client.rpush("waiting-list", serialized_user).await.map_err(|e| PestoError::RedisError(e))?;
+
+        Ok(())
     }
 
-    fn get_users() -> Result<Vec<HumanUser>, PestoError> {
-        todo!()
+    #[tracing::instrument]
+    async fn get_users(&mut self) -> Result<Vec<HumanUser>, PestoError> {
+        let waiting_list_result: RedisResult<Option<Vec<String>>> = self.redis_client.lrange("waiting-list", 0, -1).await;
+
+        let waiting_list = match waiting_list_result {
+            Ok(Some(users)) => users,
+            Ok(None) => Vec::new(),
+            Err(e) => return Err(PestoError::RedisError(e)),
+        };
+
+        let mut users = Vec::new();
+        for value in waiting_list {
+            let user = serde_json::from_str::<HumanUser>(&value).map_err(|_| PestoError::ParseError)?;
+            users.push(user);
+        }
+
+        Ok(users)
     }
 
-    fn remove_user(human_user: HumanUser) -> Result<(), PestoError> {
-        todo!()
+    #[tracing::instrument]
+    async fn remove_user(&mut self, human_user: HumanUser) -> Result<(), PestoError> {
+        let users: Vec<HumanUser> = self.get_users().await?;
+
+        // Filter out user
+        let filtered_waiting_list_users = users.iter()
+            .filter(|waiting_list_user| waiting_list_user.email != human_user.email);
+
+        // Delete the key
+        self.redis_client.del("waiting-list").await.map_err(|e| PestoError::RedisError(e))?;
+
+        // Insert the remaining users
+        for value in filtered_waiting_list_users {
+            let serialized_user = serde_json::to_string(value).map_err(|_| PestoError::ParseError)?;
+            self.redis_client.rpush("waiting-list", serialized_user).await.map_err(|e| PestoError::RedisError(e))?;
+        }
+
+        Ok(())
     }
 }
 
 #[derive(Clone)]
-struct ApprovalService<Command: AsyncCommands> {
+struct ApprovalService<Command: AsyncCommands> where Command: Clone {
     pub redis_client: Command,
 }
 
-impl<Command: AsyncCommands> ApprovalService<Command> {
+impl<Command: AsyncCommands + Clone> FromRef<ApplicationState<Command>> for ApprovalService<Command> {
+    fn from_ref(input: &ApplicationState<Command>) -> Self {
+        input.approval_service.clone()
+    }
+}
+
+impl<Command: AsyncCommands + Clone> Debug for ApprovalService<Command> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "ApprovalService")
+    }
+}
+
+impl<Command: AsyncCommands + Clone> ApprovalService<Command> {
     fn new(redis_client: Command) -> Self {
         Self { redis_client }
     }
 
-    fn approve_user(token_value: TokenValue) -> Result<(), PestoError> {
-        todo!()
+    #[tracing::instrument]
+    async fn approve_user(&mut self, token_value: TokenValue) -> Result<(), PestoError> {
+        let registered_user = TokenValue {
+            token: token_value.token,
+            user_email: token_value.user_email,
+            monthly_limit: token_value.monthly_limit,
+            revoked: false,
+        };
+
+        let serialized_user = serde_json::to_string(&registered_user).map_err(|_| PestoError::ParseError)?;
+
+        self.redis_client.set(registered_user.token, serialized_user).await.map_err(|e| PestoError::RedisError(e))?;
+
+        Ok(())
     }
 
-    fn revoke_user(token_value: TokenValue) -> Result<(), PestoError> {
-        todo!()
+    #[tracing::instrument]
+    async fn revoke_user(&mut self, token_value: TokenValue) -> Result<(), PestoError> {
+        let registered_user = TokenValue {
+            token: token_value.token,
+            user_email: token_value.user_email,
+            monthly_limit: token_value.monthly_limit,
+            revoked: true,
+        };
+
+        let serialized_user = serde_json::to_string(&registered_user).map_err(|_| PestoError::ParseError)?;
+
+        self.redis_client.set(registered_user.token, serialized_user).await.map_err(|e| PestoError::RedisError(e))?;
+
+        Ok(())
     }
 
-    fn get_user_by_token(token: String) -> Result<TokenValue, PestoError> {
-        todo!()
+    #[tracing::instrument]
+    async fn get_user_by_token(&mut self, token: String) -> Result<TokenValue, PestoError> {
+        let registered_user: RedisResult<Option<String>> = self.redis_client.get(token).await;
+
+        match registered_user {
+            Ok(Some(user)) => {
+                let token_value = serde_json::from_str::<TokenValue>(&user).map_err(|_| PestoError::ParseError)?;
+                Ok(token_value)
+            },
+            Ok(None) => Err(PestoError::UserNotFound),
+            Err(e) => Err(PestoError::RedisError(e)),
+        }
     }
 }
 
 #[derive(Clone)]
-struct TrialService<Command: AsyncCommands> {
+struct TrialService<Command: AsyncCommands> where Command: Clone {
     pub redis_client: Command,
 }
 
-impl<Command: AsyncCommands> TrialService<Command> {
+impl<Command: AsyncCommands + Clone> FromRef<ApplicationState<Command>> for TrialService<Command> {
+    fn from_ref(input: &ApplicationState<Command>) -> Self {
+        input.trial_service.clone()
+    }
+}
+
+impl<Command: AsyncCommands + Clone> Debug for TrialService<Command> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "TrialService")
+    }
+}
+
+impl<Command: AsyncCommands + Clone> TrialService<Command> {
     fn new(redis_client: Command) -> Self {
         Self { redis_client }
     }
 
-    fn create_token() -> Result<String, PestoError> {
-        todo!()
+    #[tracing::instrument]
+    async fn create_token(&mut self) -> Result<String, PestoError> {
+        let token = format!("TRIAL-{}", self.random_string(64 - 6));
+        let user_email = format!("trial-{}@pesto.teknologiumum.com",self.random_string(20));
+
+        let registered_user = TokenValue {
+            token: Some(token.clone()),
+            user_email,
+            monthly_limit: 10,
+            revoked: false,
+        };
+
+        let serialized_user = serde_json::to_string(&registered_user).map_err(|_| PestoError::ParseError)?;
+
+        self.redis_client.set_ex(token.clone(), serialized_user, 24 * 60 * 60).await.map_err(|e| PestoError::RedisError(e))?;
+
+        Ok(token)
+    }
+
+    fn random_string(&self, length: u32) -> String {
+        rand::thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(length as usize)
+            .map(char::from)
+            .collect()
     }
 }
 
 #[derive(Clone)]
 struct MailersendClient {
     pub api_key: String,
+    pub client: reqwest::Client,
 }
 
+impl Debug for MailersendClient {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "MailersendClient")
+    }
+}
+
+#[derive(Serialize)]
 struct MailersendEmailPayload {
     pub from: MailersendEmailFrom,
     pub to: Vec<MailersendEmailTo>,
@@ -117,35 +288,260 @@ struct MailersendEmailPayload {
     pub html: String,
 }
 
+#[derive(Serialize)]
 struct MailersendEmailFrom {
     pub email: String,
     pub name: String,
 }
 
+#[derive(Serialize)]
 struct MailersendEmailTo {
     pub email: String,
     pub name: String,
 }
 
-impl MailersendClient {
-    fn new(api_key: String) -> Self {
-        Self { api_key }
-    }
+#[derive(Debug, Clone)]
+enum MailersendError {
+    BadRequest(String),
+    Unauthorized,
+    Forbidden,
+    NotFound,
+    RequestTimeout,
+    UnderMaintenance(String),
+    UnprocessableEntity(String),
+    TooManyRequest(String),
+    InternalServerError(String),
+    NetworkError(String),
+}
 
-    fn send_email(&self, destination: String, subject: String, text: String, html: String) {
-        todo!()
+impl Display for MailersendError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            MailersendError::BadRequest(e) => write!(f, "There was an error when processing your request. Please adjust your request based on the endpoint requirements and try again: {}", e),
+            MailersendError::Unauthorized => write!(f, "The provided API token is invalid"),
+            MailersendError::Forbidden => write!(f, "The action is denied for that account or a particular API token. Please make sure your account is allowed API access and check your API token permissions."),
+            MailersendError::NotFound => write!(f, "The requested resource does not exist on the system."),
+            MailersendError::RequestTimeout => write!(f, "There is an error on our system. Please contact support."),
+            MailersendError::UnderMaintenance(e) => write!(f, "Service isn't available, try again later: {}", e),
+            MailersendError::UnprocessableEntity(e) => write!(f, "There was a validation error found when processing the request. Please adjust it based on the endpoint requirements and try again: {}", e),
+            MailersendError::TooManyRequest(e) => write!(f, "There were too many requests made to the API: {}", e),
+            MailersendError::InternalServerError(e) => write!(f, "Internal Server Error: {}", e),
+            MailersendError::NetworkError(e) => write!(f, "Network error: {}", e),
+        }
     }
 }
+
+impl Error for MailersendError {}
+
+impl MailersendClient {
+    fn new(api_key: String) -> Self {
+        Self { api_key, client: reqwest::Client::new() }
+    }
+
+    async fn send_email(&self, destination: String, subject: String, text: String, html: String) -> Result<(), MailersendError> {
+        let payload = MailersendEmailPayload {
+            from: MailersendEmailFrom {
+                email: String::from("pesto@teknologiumum.com"),
+                name: String::from("Pesto from Teknologi Umum"),
+            },
+            to: vec![MailersendEmailTo { email: destination, name: String::new() }],
+            subject,
+            text,
+            html,
+        };
+
+        let client = self.client.post("https://api.mailersend.com/v1/email")
+            .header("Content-Type", "application/json")
+            .header("Authorization", format!("Bearer {}", self.api_key))
+            .json(&payload);
+
+        match client.send().await {
+            Ok(response) => {
+                match response.status() {
+                    StatusCode::OK => Ok(()),
+                    StatusCode::BAD_REQUEST => {
+                        let error = response.text().await.unwrap_or_default();
+                        Err(MailersendError::BadRequest(error))
+                    },
+                    StatusCode::UNAUTHORIZED => Err(MailersendError::Unauthorized),
+                    StatusCode::FORBIDDEN => Err(MailersendError::Forbidden),
+                    StatusCode::NOT_FOUND => Err(MailersendError::NotFound),
+                    StatusCode::REQUEST_TIMEOUT => Err(MailersendError::RequestTimeout),
+                    StatusCode::SERVICE_UNAVAILABLE => {
+                        let error = response.text().await.unwrap_or_default();
+                        Err(MailersendError::UnderMaintenance(error))
+                    },
+                    StatusCode::UNPROCESSABLE_ENTITY => {
+                        let error = response.text().await.unwrap_or_default();
+                        Err(MailersendError::UnprocessableEntity(error))
+                    },
+                    StatusCode::TOO_MANY_REQUESTS => {
+                        let error = response.text().await.unwrap_or_default();
+                        Err(MailersendError::TooManyRequest(error))
+                    },
+                    StatusCode::INTERNAL_SERVER_ERROR => {
+                        let error = response.text().await.unwrap_or_default();
+                        Err(MailersendError::InternalServerError(error))
+                    },
+                    _ => {
+                        let error = response.text().await.unwrap_or_default();
+                        Err(MailersendError::NetworkError(error))
+                    }
+                }
+            },
+            Err(e) => {
+                sentry::capture_error(&e);
+                return Err(MailersendError::NetworkError(e.to_string()));
+            }
+        }
+    }
+}
+
 
 async fn healthcheck() -> impl IntoResponse {
     (StatusCode::OK, "OK")
 }
+
+#[tracing::instrument]
+async fn register<Command: AsyncCommands + Clone>(
+    State(mut waiting_list_service): State<WaitingListService<Command>>,
+    Json(body): Json<HumanUser>,
+) -> impl IntoResponse {
+    let result = waiting_list_service.put_user_in_waiting_list(body).await;
+
+    match result {
+        Ok(_) => (StatusCode::CREATED, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Created"}"#),
+        Err(PestoError::EmailAlreadyExists) => (StatusCode::ACCEPTED, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Accepted"}"#),
+        Err(PestoError::RedisError(error)) => {
+            sentry::capture_error(&error);
+            (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#)
+        }
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#)
+    }
+}
+
+#[tracing::instrument]
+async fn pending_users<Command: AsyncCommands + Clone>(
+    State(mut waiting_list_service): State<WaitingListService<Command>>
+) -> impl IntoResponse {
+    let result = waiting_list_service.get_users().await;
+
+    match result {
+        Ok(users) => {
+            let serialized_users = match serde_json::to_string(&users) {
+                Ok(serialized_users) => serialized_users,
+                Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#.to_string())
+            };
+
+            (StatusCode::OK, [(header::CONTENT_TYPE, "application/json")], serialized_users)
+        },
+        Err(PestoError::RedisError(error)) => {
+            sentry::capture_error(&error);
+            (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#.to_string())
+        }
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#.to_string())
+    }
+}
+
+#[tracing::instrument]
+async fn approve_user<Command: AsyncCommands + Clone>(
+    State(mut waiting_list_service): State<WaitingListService<Command>>,
+    State(mut approval_service): State<ApprovalService<Command>>,
+    Json(body): Json<TokenValue>,
+) -> impl IntoResponse {
+    let waiting_list: Vec<HumanUser> = match waiting_list_service.get_users().await {
+        Ok(waiting_list) => waiting_list,
+        Err(PestoError::RedisError(error)) => {
+            sentry::capture_error(&error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#);
+        },
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#),
+    };
+
+    // Check if email exists on the waiting list
+    let user: Option<&HumanUser> = waiting_list.iter().find(|waiting_list_user| waiting_list_user.email == body.user_email);
+    // XXX(reinaldy): we should refactor this hadouken pattern later
+    match user {
+        None => {
+            return (StatusCode::BAD_REQUEST, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Email does not exists"}"#);
+        },
+        Some(user) => {
+            match approval_service.approve_user(body).await {
+                Ok(_) => {
+                    match waiting_list_service.remove_user(user.clone()).await {
+                        Ok(_) => (StatusCode::OK, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"OK"}"#),
+                        Err(PestoError::RedisError(error)) => {
+                            sentry::capture_error(&error);
+                            return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#);
+                        },
+                        Err(_) => return (StatusCode::BAD_REQUEST, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"User seemed to be removed from waiting list already"}"#),
+                    }
+                },
+                Err(PestoError::RedisError(error)) => {
+                    sentry::capture_error(&error);
+                    return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#);
+                },
+                Err(_) => {
+                    return (StatusCode::BAD_REQUEST, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"User seemed to be approved already"}"#);
+                }
+            }
+        }
+    }
+}
+
+#[tracing::instrument]
+async fn revoke_user<Command: AsyncCommands + Clone>(
+    State(mut approval_service): State<ApprovalService<Command>>,
+    Json(pesto_token): Json<PestoToken>,
+) -> impl IntoResponse {
+    let registered_user: TokenValue = match approval_service.get_user_by_token(pesto_token.token).await {
+        Ok(registered_user) => registered_user,
+        Err(PestoError::UserNotFound) => return (StatusCode::BAD_REQUEST, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"User does not exists"}"#),
+        Err(PestoError::RedisError(error)) => {
+            sentry::capture_error(&error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#);
+        },
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#),
+    };
+
+    match approval_service.revoke_user(registered_user).await {
+        Ok(_) => (StatusCode::OK, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"OK"}"#),
+        Err(PestoError::RedisError(error)) => {
+            sentry::capture_error(&error);
+            (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#)
+        },
+        Err(_) => (StatusCode::BAD_REQUEST, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"User seemed to be revoked already"}"#),
+    }
+}
+
+#[tracing::instrument]
+async fn user_trial<Command: AsyncCommands + Clone>(
+    State(mut trial_service): State<TrialService<Command>>
+) -> impl IntoResponse {
+    match trial_service.create_token().await {
+        Ok(token) => {
+            let serialized_token = match serde_json::to_string(&PestoToken { token }) {
+                Ok(out) => out,
+                Err(_) => return
+                    (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#.to_string())
+            };
+
+            (StatusCode::OK, [(header::CONTENT_TYPE, "application/json")], serialized_token)
+        },
+        Err(PestoError::RedisError(error)) => {
+            sentry::capture_error(&error);
+            return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#.to_string());
+        },
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, [(header::CONTENT_TYPE, "application/json")], r#"{"message":"Internal Server Error"}"#.to_string()),
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     tracing_subscriber::registry::Registry::default()
         .with(sentry::integrations::tracing::layer())
         .init();
 
-    let _guard = sentry::init((env::var("SENTRY_DSN").unwrap_or(String::from("")), sentry::ClientOptions {
+    let _guard = sentry::init((env::var("SENTRY_DSN").unwrap_or_default(), sentry::ClientOptions {
         release: sentry::release_name!(),
         sample_rate: 1.0,
         traces_sample_rate: 0.5,
@@ -160,12 +556,23 @@ fn main() -> Result<(), Box<dyn Error>> {
             let redis_client = Client::open("redis://@localhost:6379").unwrap();
             let redis_async_connection = redis_client.get_multiplexed_async_connection().await.unwrap();
             let approval_service = ApprovalService::new(redis_async_connection.clone());
+            let trial_service = TrialService::new(redis_async_connection.clone());
             let waiting_list_service = WaitingListService::new(redis_async_connection);
+
+            let application_state = ApplicationState {
+                waiting_list_service,
+                approval_service,
+                trial_service,
+            };
 
             let app = Router::new()
                 .route("/healthz", get(healthcheck))
-                .with_state(approval_service)
-                .with_state(waiting_list_service);
+                .route("/api/register", post(register))
+                .route("/api/pending", get(pending_users))
+                .route("/api/approve", put(approve_user))
+                .route("/api/revoke", put(revoke_user))
+                .route("/api/trial", post(user_trial))
+                .with_state(application_state);
 
             let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
             axum::serve(listener, app).await.unwrap();

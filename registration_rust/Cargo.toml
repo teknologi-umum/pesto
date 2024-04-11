@@ -19,3 +19,4 @@ chrono = "0.4.37"
 sentry = { version = "0.32.2", features = ["tracing", "UNSTABLE_metrics"] }
 tracing = { version = "0.1.40" }
 tracing-subscriber = { version = "0.3.18", features = ["std", "registry", "tracing"] }
+rand = "0.8.5"
