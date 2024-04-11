@@ -12,7 +12,7 @@ import (
 	"github.com/francoispqt/onelog"
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 )
 
 type Deps struct {
@@ -101,18 +101,18 @@ func main() {
 	signal.Notify(sig, os.Interrupt)
 
 	go func() {
-		log.Printf("listening on %s", server.Addr)
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Println(err)
+		<-sig
+
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), time.Second*30)
+		defer shutdownCancel()
+
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			log.Fatal(err)
 		}
 	}()
 
-	<-sig
-
-	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), time.Second*30)
-	defer shutdownCancel()
-
-	if err := server.Shutdown(shutdownCtx); err != nil {
-		log.Fatal(err)
+	log.Printf("listening on %s", server.Addr)
+	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Println(err)
 	}
 }

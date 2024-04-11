@@ -19,7 +19,12 @@ export function Button(props: ButtonProps) {
 	}
 
 	return (
-		<button class={`button ${props.variant}`} type="submit" disabled={props.isDisabled} data-umami-event={props.umamiEvent}>
+		<button
+			class={`button ${props.variant}`}
+			type="submit"
+			disabled={props.isDisabled}
+			data-umami-event={props.umamiEvent}
+		>
 			{props.children}
 		</button>
 	);

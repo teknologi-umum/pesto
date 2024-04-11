@@ -68,7 +68,7 @@ services:
       - pesto
 
   db:
-    build: ./redis
+    image: ghcr.io/teknologi-umum/pesto-redis:edge
     platform: linux/amd64
     healthcheck:
       test: "redis-cli ping | grep PONG"
@@ -178,6 +178,7 @@ services:
       - "traefik.http.services.rce.loadbalancer.healthcheck.path=/healthz"
       - "traefik.http.middlewares.rce-auth.forwardauth.address=http://auth:3000/"
       - "traefik.http.middlewares.rce-auth.forwardauth.authRequestHeaders=Accept,X-Pesto-Token,Referer,Origin"
+      - "traefik.http.middlewares.rce-auth.forwardauth.authResponseHeaders=Sentry-Trace,Baggage"
       - "traefik.http.middlewares.rce-auth.forwardauth.tls.insecureSkipVerify=true"
       - "traefik.http.middlewares.rce-error.errors.status=500-599"
       - "traefik.http.middlewares.rce-error.errors.service=landing@docker"

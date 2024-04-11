@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs/promises";
 import console from "console";
 import childProcess from "child_process";
+import * as Sentry from "@sentry/node";
 import { Runtime } from "@/runtime/runtime";
 import { User } from "@/user/user";
 import { Files } from "./files";
@@ -25,7 +26,7 @@ export interface CommandOutput {
 export class Job implements JobPrerequisites {
   private _sourceFilePath: string[];
   private _builtFilePath: string;
-  private _entrypointsPath: string[];
+  private readonly _entrypointsPath: string[];
   private _baseFilePath: string;
   public readonly compileTimeout: number;
   public readonly runTimeout: number;
@@ -77,24 +78,32 @@ export class Job implements JobPrerequisites {
   }
 
   async createFile(): Promise<void> {
-    this._baseFilePath = path.join("/code", `/${this.user.username}`);
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+        op: "job.create_file"
+    });
 
-    for await (const file of this.files.files) {
-      const filePath = path.join("/code", `/${this.user.username}`, file.fileName);
-      await fs.writeFile(filePath, file.code, { encoding: "utf-8" });
-      await fs.chmod(filePath, 0o700);
-      await fs.chown(filePath, this.user.uid, this.user.gid);
+    try {
+        this._baseFilePath = path.join("/code", `/${this.user.username}`);
 
-      // Make sure the file is written properly.
-      const stat = await fs.stat(filePath);
-      console.log(`File path: ${filePath}`);
-      console.log(`File stat: UID: ${stat.uid}, GID: ${stat.gid}, Mode: ${stat.mode}, Size: ${stat.size}`);
+        for await (const file of this.files.files) {
+          const filePath = path.join("/code", `/${this.user.username}`, file.fileName);
+          await fs.writeFile(filePath, file.code, { encoding: "utf-8" });
+          await fs.chmod(filePath, 0o700);
+          await fs.chown(filePath, this.user.uid, this.user.gid);
 
-      if (file.entrypoint === true) {
-        this._entrypointsPath.push(file.fileName);
-      }
+          // Make sure the file is written properly.
+          const stat = await fs.stat(filePath);
+          console.log(`File path: ${filePath}`);
+          console.log(`File stat: UID: ${stat.uid}, GID: ${stat.gid}, Mode: ${stat.mode}, Size: ${stat.size}`);
 
-      this._sourceFilePath.push(filePath);
+          if (file.entrypoint === true) {
+            this._entrypointsPath.push(file.fileName);
+          }
+
+          this._sourceFilePath.push(filePath);
+        }
+    } finally {
+        span?.finish();
     }
   }
 
@@ -108,6 +117,10 @@ export class Job implements JobPrerequisites {
         signal: ""
       };
     }
+
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+        op: "job.compile"
+    });
 
     try {
       const buildCommand: string[] = [
@@ -134,10 +147,16 @@ export class Job implements JobPrerequisites {
     } catch (error) {
       await this.cleanup();
       throw error;
+    } finally {
+      span?.finish();
     }
   }
 
   async run(): Promise<CommandOutput> {
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+      op: "job.run"
+    });
+
     try {
       const finalFileName: string[] = [];
       for (const file of this._entrypointsPath) {
@@ -175,88 +194,109 @@ export class Job implements JobPrerequisites {
     } catch (error) {
       await this.cleanup();
       throw error;
+    } finally {
+      span?.finish();
     }
   }
 
   private async cleanup(): Promise<void> {
-    // Crawl the directory and delete all files.
-    const files = await fs.readdir(this._baseFilePath, { withFileTypes: false });
-
-    const promises = files.map((file) => {
-      return fs.rm(path.join(this._baseFilePath, file), { force: true, recursive: true, maxRetries: 3, retryDelay: 100 });
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+      op: "job.cleanup"
     });
 
-    await Promise.allSettled(promises);
-    console.log(`Cleaned files: ${files.join(", ")}`);
+    try {
+        // Crawl the directory and delete all files.
+        const files = await fs.readdir(this._baseFilePath, { withFileTypes: false });
+
+        const promises = files.map((file) => {
+            return fs.rm(path.join(this._baseFilePath, file), { force: true, recursive: true, maxRetries: 3, retryDelay: 100 });
+        });
+
+        await Promise.allSettled(promises);
+        console.log(`Cleaned files: ${files.join(", ")}`);
+    } finally {
+        span?.finish();
+    }
   }
 
   private executeCommand(command: string[]): Promise<CommandOutput> {
-    const { gid, uid, username } = this.user;
-    const timeout = this.compileTimeout;
+    const span = Sentry.getCurrentHub()?.getScope()?.getSpan()?.startChild({
+      op: "job.execute_command",
+      data: {
+        command
+      }
+    });
 
-    return new Promise((resolve, reject) => {
-      let stdout = "";
-      let stderr = "";
-      let output = "";
-      let exitCode = 0;
-      let exitSignal = "";
+    try {
+      const { gid, uid, username } = this.user;
+      const timeout = this.compileTimeout;
 
-      const cmd = childProcess.spawn(command[0], command.slice(1), {
-        env: {
-          PATH: process.env?.PATH ?? "",
-          LOGGER_TOKEN: "",
-          LOGGER_SERVER_ADDRESS: "",
-          ENVIRONMENT: "",
-          ...this.runtime.environment
-        },
-        cwd: "/code/" + username,
-        gid: gid,
-        uid: uid,
-        timeout: timeout ?? 5_000,
-        stdio: "pipe",
-        detached: true
-      });
+      return new Promise((resolve, reject) => {
+        let stdout = "";
+        let stderr = "";
+        let output = "";
+        let exitCode = 0;
+        let exitSignal = "";
 
-      cmd.stdout.on("data", (data) => {
-        stdout += data.toString();
-        output += data.toString();
+        const cmd = childProcess.spawn(command[0], command.slice(1), {
+          env: {
+            PATH: process.env?.PATH ?? "",
+            LOGGER_TOKEN: "",
+            LOGGER_SERVER_ADDRESS: "",
+            ENVIRONMENT: "",
+            ...this.runtime.environment
+          },
+          cwd: "/code/" + username,
+          gid: gid,
+          uid: uid,
+          timeout: timeout ?? 5_000,
+          stdio: "pipe",
+          detached: true
+        });
 
-        if (process.env.ENVIRONMENT === "development") {
-          console.log(data.toString());
-        }
-      });
+        cmd.stdout.on("data", (data) => {
+          stdout += data.toString();
+          output += data.toString();
 
-      cmd.stderr.on("data", (data) => {
-        stderr += data.toString();
-        output += data.toString();
+          if (process.env.ENVIRONMENT === "development") {
+            console.log(data.toString());
+          }
+        });
 
-        if (process.env.ENVIRONMENT === "development") {
-          console.log(data.toString());
-        }
-      });
+        cmd.stderr.on("data", (data) => {
+          stderr += data.toString();
+          output += data.toString();
 
-      cmd.on("error", (error) => {
-        cmd.stdout.destroy();
-        cmd.stderr.destroy();
+          if (process.env.ENVIRONMENT === "development") {
+            console.log(data.toString());
+          }
+        });
 
-        reject(error.message);
-      });
+        cmd.on("error", (error) => {
+          cmd.stdout.destroy();
+          cmd.stderr.destroy();
 
-      cmd.on("close", (code, signal) => {
-        cmd.stdout.destroy();
-        cmd.stderr.destroy();
+          reject(error.message);
+        });
 
-        exitCode = code ?? 0;
-        exitSignal = signal ?? "";
+        cmd.on("close", (code, signal) => {
+          cmd.stdout.destroy();
+          cmd.stderr.destroy();
 
-        resolve({
-          stdout: stdout.slice(0, 5000),
-          stderr: stderr.slice(0, 5000),
-          output: output.slice(0, 5000),
-          exitCode,
-          signal: exitSignal
+          exitCode = code ?? 0;
+          exitSignal = signal ?? "";
+
+          resolve({
+            stdout: stdout.slice(0, 5000),
+            stderr: stderr.slice(0, 5000),
+            output: output.slice(0, 5000),
+            exitCode,
+            signal: exitSignal
+          });
         });
       });
-    });
+    } finally {
+      span?.finish();
+    }
   }
 }

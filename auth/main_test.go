@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	main "auth"
 	"context"
 	"fmt"
 	"log"
@@ -9,9 +8,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/redis/go-redis/v9"
+
+	main "auth"
+
 	"github.com/francoispqt/onelog"
 	"github.com/getsentry/sentry-go"
-	"github.com/go-redis/redis/v9"
 )
 
 var deps *main.Deps

@@ -13,4 +13,4 @@ public class User
     public string Building { get; set; }
     [Required, JsonPropertyName("calls")]
     public int Calls { get; set; }
-};
+}

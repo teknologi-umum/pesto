@@ -1,6 +1,5 @@
 import console from "console";
 import * as Sentry from "@sentry/node";
-import "@sentry/tracing";
 import polka from "polka";
 import { z } from "zod";
 import { RceServiceImpl } from "@/RceService";
@@ -10,27 +9,30 @@ import { CodeRequest, CodeRequest_File } from "./stub/rce";
 import { ClientError, ServerError } from "./Error";
 
 const PORT = process.env?.PORT || "50051";
+
+Sentry.init({
+    dsn: process.env.SENTRY_DSN ?? "",
+    autoSessionTracking: true,
+    environment: process.env.NODE_ENV ?? "development",
+    sampleRate: 0.75,
+    enableTracing: true,
+    tracesSampler(samplingContext): number {
+        if (samplingContext.transactionContext.name === "GET /healthz") {
+            return 0;
+        }
+
+        return 0.4;
+    },
+    integrations: [
+        ...Sentry.defaultIntegrations,
+        new Sentry.Integrations.Http({ tracing: true }),
+        new Sentry.Integrations.Undici()
+    ]
+});
+
 (async () => {
   const registeredRuntimes = await acquireRuntime();
   const users = new SystemUsers(64101 + 0, 64101 + 49, 64101);
-
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN ?? "",
-    attachStacktrace: true,
-    autoSessionTracking: true,
-    environment: process.env.NODE_ENV ?? "development",
-    tracesSampler(samplingContext): number {
-      if (samplingContext.request?.method?.toUpperCase() === "GET" &&
-        samplingContext.request.url?.includes("/healthz")) {
-        return 0;
-      }
-
-      return 0.4;
-    },
-    integrations: [
-      new Sentry.Integrations.Http({ tracing: true })
-    ]
-  });
 
   const executeSchema = z.object({
     language: z.string().min(1),

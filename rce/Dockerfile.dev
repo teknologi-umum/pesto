@@ -1,4 +1,4 @@
-FROM node:18.17.0-bookworm
+FROM node:20.11-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 

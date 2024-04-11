@@ -11,30 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.19', '1.20' ]
+        go: [ '1.19', '1.20', '1.21' ]
     timeout-minutes: 30
     defaults:
       run:
         working-directory: ./sdk/go
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Setup go
         uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
 
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
-      
       - name: Test
         run: go test -v -coverprofile=coverage.out -covermode=atomic -race ./...
         env:
@@ -55,17 +45,7 @@ jobs:
         working-directory: ./sdk/javascript
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
+        uses: actions/checkout@v4
 
       - name: Update OS
         run: >
@@ -98,7 +78,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4 
       - uses: actions/setup-node@v3
         with:
@@ -128,21 +108,11 @@ jobs:
         working-directory: ./sdk/dotnet
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ matrix.dotnet }}
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
 
       - name: Test
         run: dotnet test Pesto.sln --collect "XPlat Code Coverage"
@@ -162,7 +132,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4 
       - uses: actions/setup-dotnet@v3
         with:
@@ -181,24 +151,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.8', '3.9', '3.10', '3.11']
+        python-version: [ '3.9', '3.10', '3.11', '3.12' ]
     timeout-minutes: 30
     defaults:
       run:
         working-directory: ./sdk/python
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
+        uses: actions/checkout@v4
       
       - name: Install dependencies
         run: |

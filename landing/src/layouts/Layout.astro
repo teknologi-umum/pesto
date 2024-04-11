@@ -11,100 +11,99 @@ import "@fontsource/ibm-plex-serif/700.css";
 import "@fontsource/ibm-plex-mono/400.css";
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-    <head>
-        <Seo
-                title="Pesto"
-                author="Teknologi Umum, opensource@teknologiumum.com"
-                url="https://pesto.teknologiumum.com"
-                copyright="Teknologi Umum"
-                owner="Teknologi Umum"
-                description="A simple Remote Code Execution engine written in Typescript."
-                keywords={["pesto", "teknologi umum", "remote code execution", "code", "programming", "developer"]}
-        />
-        <script
-                async
-				src="https://analytics.teknologiumum.com/script.js"
-                data-website-id="a5794a69-73a6-4444-8865-7428e2f64759"
-        ></script>
-    </head>
-    <body>
-        <div id="app">
-            <slot></slot>
-        </div>
-        <Footer />
+	<head>
+		<Seo
+			title="Pesto"
+			author="Teknologi Umum, opensource@teknologiumum.com"
+			url="https://pesto.teknologiumum.com"
+			copyright="Teknologi Umum"
+			owner="Teknologi Umum"
+			description="A simple Remote Code Execution engine written in Typescript."
+			keywords={["pesto", "teknologi umum", "remote code execution", "code", "programming", "developer"]}
+		/>
+		<script
+			async
+			src="https://analytics.teknologiumum.com/script.js"
+			data-website-id="a5794a69-73a6-4444-8865-7428e2f64759"></script>
+	</head>
+	<body>
+		<div id="app">
+			<slot />
+		</div>
+		<Footer />
 
-        <style lang="scss" is:global>
-          :root {
-            --color-white: #f9fffa;
-            --color-black: #1b2417;
-            --color-tinted-black: #22331a;
-            --color-soft-black: #384930;
-            --color-background: #eaffef;
-            --color-yellow-green: #c2e996;
-            --color-soft-green: #6cd48f;
-            --color-dark-green: #1c722c;
-            --color-blue: #5aebe3;
-            --color-red: #f57868;
-            --color-pale-red: #e9b596;
-          }
+		<style lang="scss" is:global>
+			:root {
+				--color-white: #f9fffa;
+				--color-black: #1b2417;
+				--color-tinted-black: #22331a;
+				--color-soft-black: #384930;
+				--color-background: #eaffef;
+				--color-yellow-green: #c2e996;
+				--color-soft-green: #6cd48f;
+				--color-dark-green: #1c722c;
+				--color-blue: #5aebe3;
+				--color-red: #f57868;
+				--color-pale-red: #e9b596;
+			}
 
-          * {
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-          }
+			* {
+				padding: 0;
+				margin: 0;
+				box-sizing: border-box;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
 
-          html,
-          body {
-            width: 100%;
-            height: 100%;
-          }
+			html,
+			body {
+				width: 100%;
+				height: 100%;
+			}
 
-          html {
-            scroll-behavior: smooth;
-          }
+			html {
+				scroll-behavior: smooth;
+			}
 
-          body {
-            display: flex;
-            flex-direction: column;
-            background-color: var(--color-background);
-            background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 0h2v20H9V0zm25.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm-20 20l1.732 1-10 17.32-1.732-1 10-17.32zM58.16 4.134l1 1.732-17.32 10-1-1.732 17.32-10zm-40 40l1 1.732-17.32 10-1-1.732 17.32-10zM80 9v2H60V9h20zM20 69v2H0v-2h20zm79.32-55l-1 1.732-17.32-10L82 4l17.32 10zm-80 80l-1 1.732-17.32-10L2 84l17.32 10zm96.546-75.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32zM38.16 24.134l1 1.732-17.32 10-1-1.732 17.32-10zM60 29v2H40v-2h20zm19.32 5l-1 1.732-17.32-10L62 24l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM111 40h-2V20h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zM40 49v2H20v-2h20zm19.32 5l-1 1.732-17.32-10L42 44l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM91 60h-2V40h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM39.32 74l-1 1.732-17.32-10L22 64l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM71 80h-2V60h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM120 89v2h-20v-2h20zm-84.134 9.16l-1.732 1-10-17.32 1.732-1 10 17.32zM51 100h-2V80h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM100 109v2H80v-2h20zm19.32 5l-1 1.732-17.32-10 1-1.732 17.32 10zM31 120h-2v-20h2v20z' fill='%23c2e996' fill-opacity='0.16' fill-rule='evenodd'/%3E%3C/svg%3E");
-          }
+			body {
+				display: flex;
+				flex-direction: column;
+				background-color: var(--color-background);
+				background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9 0h2v20H9V0zm25.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm-20 20l1.732 1-10 17.32-1.732-1 10-17.32zM58.16 4.134l1 1.732-17.32 10-1-1.732 17.32-10zm-40 40l1 1.732-17.32 10-1-1.732 17.32-10zM80 9v2H60V9h20zM20 69v2H0v-2h20zm79.32-55l-1 1.732-17.32-10L82 4l17.32 10zm-80 80l-1 1.732-17.32-10L2 84l17.32 10zm96.546-75.84l-1.732 1-10-17.32 1.732-1 10 17.32zm-100 100l-1.732 1-10-17.32 1.732-1 10 17.32zM38.16 24.134l1 1.732-17.32 10-1-1.732 17.32-10zM60 29v2H40v-2h20zm19.32 5l-1 1.732-17.32-10L62 24l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM111 40h-2V20h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zM40 49v2H20v-2h20zm19.32 5l-1 1.732-17.32-10L42 44l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM91 60h-2V40h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM39.32 74l-1 1.732-17.32-10L22 64l17.32 10zm16.546 4.16l-1.732 1-10-17.32 1.732-1 10 17.32zM71 80h-2V60h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM120 89v2h-20v-2h20zm-84.134 9.16l-1.732 1-10-17.32 1.732-1 10 17.32zM51 100h-2V80h2v20zm3.134.84l1.732 1-10 17.32-1.732-1 10-17.32zm24.026 3.294l1 1.732-17.32 10-1-1.732 17.32-10zM100 109v2H80v-2h20zm19.32 5l-1 1.732-17.32-10 1-1.732 17.32 10zM31 120h-2v-20h2v20z' fill='%23c2e996' fill-opacity='0.16' fill-rule='evenodd'/%3E%3C/svg%3E");
+			}
 
-          #app {
-            flex: 1;
-            max-width: 960px;
-            padding: 0 1rem;
-            box-sizing: content-box;
-          }
+			#app {
+				flex: 1;
+				max-width: 960px;
+				padding: 0 1rem;
+				box-sizing: content-box;
+			}
 
-          @media only screen and (min-width: 960px) {
-            #app {
-              margin: 0 auto;
-            }
-          }
+			@media only screen and (min-width: 960px) {
+				#app {
+					margin: 0 auto;
+				}
+			}
 
-          .url {
-            font-family: "IBM Plex Sans", sans-serif;
-            text-decoration-style: dashed;
-            color: var(--color-dark-green);
-          }
+			.url {
+				font-family: "IBM Plex Sans", sans-serif;
+				text-decoration-style: dashed;
+				color: var(--color-dark-green);
+			}
 
-          .url:hover {
-            text-decoration: underline;
-          }
+			.url:hover {
+				text-decoration: underline;
+			}
 
-          .inline-code {
-            font-family: "IBM Plex Mono", monospace;
-            font-size: 1rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            background-color: #b4d3bb;
-          }
-        </style>
-    </body>
+			.inline-code {
+				font-family: "IBM Plex Mono", monospace;
+				font-size: 1rem;
+				padding: 0.25rem 0.5rem;
+				border-radius: 0.25rem;
+				background-color: #b4d3bb;
+			}
+		</style>
+	</body>
 </html>

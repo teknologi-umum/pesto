@@ -23,17 +23,7 @@ jobs:
         image: redis:7-bookworm
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
+        uses: actions/checkout@v4
 
       - name: Build test
         run: go build -buildvcs=false .
@@ -53,24 +43,14 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    container: node:18.17.0
+    container: node:20.11.0
     timeout-minutes: 30
     defaults:
       run:
         working-directory: ./rce
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
+        uses: actions/checkout@v4
 
       - name: Setup packages && nosocket
         run: >
@@ -111,30 +91,19 @@ jobs:
   landing:
     name: Landing
     runs-on: ubuntu-latest
-    container: node:18.17.0
+    container: node:20.9.0
     timeout-minutes: 30
     defaults:
       run:
         working-directory: ./landing
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
+        uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.2
+        uses: pnpm/action-setup@v2
         with:
-          version: 7
-          run_install: false
+          version: latest
 
       - name: Install dependencies
         run: pnpm install
@@ -158,23 +127,53 @@ jobs:
         image: redis:7-bookworm
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: TruffleHog OSS
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --only-verified
+        uses: actions/checkout@v4
 
       - name: Restore
         run: dotnet restore "Registration.csproj"
 
       - name: Build
         run: dotnet build "Registration.csproj" --no-restore -c Release
+
+  build-database:
+    name: Build Database
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-redis
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: "{{defaultContext}}:redis"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   build-auth:
     name: Build Auth
@@ -187,13 +186,13 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -201,7 +200,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-auth
           flavor: |
@@ -211,7 +210,7 @@ jobs:
             type=sha
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:auth"
           push: true
@@ -239,13 +238,13 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -253,7 +252,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-landing
           flavor: |
@@ -263,7 +262,7 @@ jobs:
             type=sha
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:landing"
           push: true
@@ -281,13 +280,13 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -295,7 +294,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rce
           flavor: |
@@ -305,7 +304,7 @@ jobs:
             type=sha
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:rce"
           push: true
@@ -333,13 +332,13 @@ jobs:
       packages: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -347,7 +346,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-registration
           flavor: |
@@ -357,7 +356,7 @@ jobs:
             type=sha
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:registration"
           push: true
@@ -397,7 +396,7 @@ jobs:
           --health-start-period 90s
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: actions/setup-node@v3
         with:
@@ -412,55 +411,3 @@ jobs:
         env:
           PESTO_URL: http://localhost:50051/
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    container: debian:bookworm
-    timeout-minutes: 120
-    needs:
-      - build-auth
-      - build-rce
-      - build-landing
-      - build-registration
-    steps:
-      - name: Install required packages
-        run: apt-get update && apt-get upgrade -y && apt-get install -y tar gzip curl ssh
-
-      - name: Register SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_KEY }}
-          name: id_ed25519
-          known_hosts: ${{ secrets.SSH_IP }}
-          if_key_exists: replace
-
-      - name: SSH Keyscan
-        run: ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.SSH_IP }} >> /root/.ssh/known_hosts
-
-      - name: Pull latest code
-        run: >
-          ssh
-          -i /root/.ssh/id_ed25519 
-          -p ${{ secrets.SSH_PORT }}
-          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} 
-          'ssh pesto "cd ${{ secrets.SSH_WORKDIR }}/pesto && git pull" '
-
-      - name: Build Docker images
-        run: >
-          ssh 
-          -i /root/.ssh/id_ed25519
-          -p ${{ secrets.SSH_PORT }}
-          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
-          "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S bash -c '\"'cd ${{ secrets.SSH_WORKDIR }}/pesto &&
-          docker compose pull &&
-          docker compose up -d --pull always registration rce landing auth '\"' ' "
-
-      - name: Clean up docker artifacts
-        run: >
-          ssh 
-          -i /root/.ssh/id_ed25519
-          -p ${{ secrets.SSH_PORT }}
-          -t ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }}
-          "ssh pesto 'echo ${{ secrets.SSH_PASSWORD }} | sudo -S bash -c '\"'docker container prune -f &&
-          docker image prune -f &&
-          docker builder prune -f '\"' ' "

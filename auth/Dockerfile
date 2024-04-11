@@ -1,4 +1,4 @@
-FROM golang:1.20.6-bookworm AS builder
+FROM golang:1.21.4-bookworm AS builder
 
 WORKDIR /app
 
@@ -15,6 +15,8 @@ RUN apt-get update && \
     apt-get install -y curl ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+COPY . .
 
 COPY --from=builder /app/pesto_auth .
 

@@ -1,10 +1,10 @@
 language = "Python"
-version = "3.10.10"
+version = "3.12.0"
 compiled = false
 extension = "py"
-environment = [ "PATH=/opt/python/3.10.10/bin" ]
+environment = [ "PATH=/opt/python/3.12.0/bin" ]
 build_command = []
-run_command = [ "/opt/python/3.10.10/bin/python3", "{file}" ]
+run_command = [ "/opt/python/3.12.0/bin/python3", "{file}" ]
 test_file = "test.py"
 aliases = ["python", "py"]
 should_limit_memory = true

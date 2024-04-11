@@ -17,13 +17,13 @@ HTTP POST /api/execute HTTP/<span class="code-int">1.1</span>
 
 <span class="code-brace">{</span>
   <span class="code-key">"language"</span>: <span class="code-string">"Python"</span>,
-  <span class="code-key">"version"</span>: <span class="code-string">"3.10.2"</span>,
+  <span class="code-key">"version"</span>: <span class="code-string">"3.10.10"</span>,
   <span class="code-key">"code"</span>: <span class="code-string">"print('Hello World')"</span>
 <span class="code-brace">}</span>`;
 const responseExample = `
 <span class="code-brace">{</span>
   <span class="code-key">"language"</span>: <span class="code-string">"Python"</span>,
-  <span class="code-key">"version"</span>: <span class="code-string">"3.10.2"</span>,
+  <span class="code-key">"version"</span>: <span class="code-string">"3.10.10"</span>,
   <span class="code-key">"compile"</span>: {
     <span class="code-key">"stdout"</span>: <span class="code-string">""</span>,
     <span class="code-key">"stderr"</span>: <span class="code-string">""</span>
@@ -110,7 +110,7 @@ const responseExample = `
 					<FieldList
 						items={[
 							{ key: "language", value: "The language of the code that you want to execute." },
-							{ key: "version", value: "The version of the language." },
+							{ key: "version", value: 'The version of the language (or just fill in with "latest").' },
 							{ key: "code", value: "The code that you want to execute." },
 						]}
 					/>
@@ -163,13 +163,13 @@ const responseExample = `
 				<div class="example-item">
 					<div class="example-label">Request</div>
 					<div class="code">
-						<pre set:html={requestExample}></pre>
+						<pre set:html={requestExample} />
 					</div>
 				</div>
 				<div class="example-item">
 					<div class="example-label">Response</div>
 					<div class="code">
-						<pre set:html={responseExample}></pre>
+						<pre set:html={responseExample} />
 					</div>
 				</div>
 			</div>
@@ -179,19 +179,24 @@ const responseExample = `
 		<p>The Pesto REST API currently supports the following runtimes:</p>
 		<FieldList
 			items={[
-				{ key: "Python", value: "v3.10.2" },
+				{ key: "Python", value: "v3.12.0" },
 				{ key: "Java", value: "OpenJDK 17" },
-				{ key: "C/C++", value: "GCC v10.2.1" },
-				{ key: "Javascript", value: "Node v16.15.0" },
+				{ key: "C/C++", value: "GCC v12.2.0" },
+				{ key: "Common Lisp", value: "SBCL v2.2.7" },
+				{ key: "Elixir", value: "v1.14.1" },
+				{ key: "Erlang", value: "v25.1.2" },
+				{ key: "Go", value: "v1.21.4" },
+				{ key: "Javascript", value: "Node v20.9.0" },
+				{ key: "Typescript", value: "Bun v1.0.13" },
 				{ key: "PHP", value: "v8.1" },
 				{
 					key: "Brainfuck",
 					value: "v2.7.3",
 				},
-				{ key: "Ruby", value: "v3.1.2" },
-				{ key: "Go", value: "v1.18.3" },
-				{ key: "Julia", value: "v1.7.3" },
+				{ key: "Ruby", value: "v3.2.1" },
+				{ key: "Julia", value: "v1.9.4" },
 				{ key: "Lua", value: "v5.4.4" },
+				{ key: "Janet", value: "v1.27.0" },
 				{ key: "SQLite3", value: "3.34.1" },
 			]}
 		/>
