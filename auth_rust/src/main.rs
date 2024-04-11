@@ -227,7 +227,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .build()
         .unwrap()
         .block_on(async {
-            let redis_client = Client::open("redis://@localhost:6379").unwrap();
+            let redis_client = Client::open(env::var("REDIS_URL").unwrap_or("redis://@localhost:6379".to_string())).unwrap();
             let redis_async_connection = redis_client.get_multiplexed_async_connection().await.unwrap();
             let auth_repo = AuthRepo::new(redis_async_connection);
 
