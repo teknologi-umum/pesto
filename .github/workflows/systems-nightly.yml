@@ -152,6 +152,24 @@ jobs:
       - name: Build
         run: dotnet build "Registration.csproj" --no-restore -c Release
 
+  registration_rust:
+    name: Registration Rust
+    runs-on: ubuntu-latest
+    container: rust:1.77
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./registration_rust
+    services:
+      db:
+        image: redis:7-bookworm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: cargo build --release
+
   build-database:
     name: Build Database
     runs-on: ubuntu-latest
@@ -431,6 +449,48 @@ jobs:
         with:
           environment: production
           ignore_empty: true
+
+  build-registration_rust:
+    name: Build Registration Rust
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - registration_rust
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-registration_rust
+          flavor: |
+            latest=false
+          tags: |
+            type=edge
+            type=sha
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: "{{defaultContext}}:registration_rust"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   dogfood:
     name: Dogfood Integration Tests
