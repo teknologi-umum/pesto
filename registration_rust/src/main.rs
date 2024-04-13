@@ -17,6 +17,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 enum PestoError {
     UserNotFound,
     EmailAlreadyExists,
+    EmptyToken,
     ParseError,
     RedisError(RedisError),
 }
@@ -28,6 +29,7 @@ impl Display for PestoError {
             PestoError::EmailAlreadyExists => write!(f, "Email already exists"),
             PestoError::RedisError(e) => write!(f, "Redis error: {}", e),
             PestoError::ParseError => write!(f, "Parse error"),
+            PestoError::EmptyToken => write!(f, "Empty token"),
         }
     }
 }
@@ -56,13 +58,13 @@ struct HumanUser {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 struct TokenValue {
-    #[serde(skip)]
+    #[serde(skip_serializing, rename = "Token", alias = "token")]
     pub token: Option<String>,
-    #[serde(rename = "UserEmail")]
+    #[serde(rename = "UserEmail", alias = "email")]
     pub user_email: String,
-    #[serde(rename = "MonthlyLimit")]
+    #[serde(rename = "MonthlyLimit", alias = "limit")]
     pub monthly_limit: i64,
-    #[serde(rename = "Revoked")]
+    #[serde(default, rename = "Revoked")]
     pub revoked: bool,
 }
 
@@ -203,22 +205,26 @@ impl<Command: AsyncCommands + Clone> ApprovalService<Command> {
 
     #[tracing::instrument]
     async fn approve_user(&mut self, token_value: TokenValue) -> Result<(), PestoError> {
-        let registered_user = TokenValue {
-            token: token_value.token,
-            user_email: token_value.user_email,
-            monthly_limit: token_value.monthly_limit,
-            revoked: false,
-        };
+        if let Some(token) = token_value.token {
+            let registered_user = TokenValue {
+                token: Some(token.clone()),
+                user_email: token_value.user_email,
+                monthly_limit: token_value.monthly_limit,
+                revoked: false,
+            };
 
-        let serialized_user =
-            serde_json::to_string(&registered_user).map_err(|_| PestoError::ParseError)?;
+            let serialized_user =
+                serde_json::to_string(&registered_user).map_err(|_| PestoError::ParseError)?;
 
-        self.redis_client
-            .set(registered_user.token, serialized_user)
-            .await
-            .map_err(|e| PestoError::RedisError(e))?;
+            self.redis_client
+                .set(token, serialized_user)
+                .await
+                .map_err(|e| PestoError::RedisError(e))?;
 
-        Ok(())
+            Ok(())
+        } else {
+            Err(PestoError::EmptyToken)
+        }
     }
 
     #[tracing::instrument]
@@ -549,6 +555,7 @@ async fn approve_user<Command: AsyncCommands + Clone>(
     State(mailersend_client): State<MailersendClient>,
     Json(body): Json<TokenValue>,
 ) -> impl IntoResponse {
+    // Check if user exists on the waiting list
     let waiting_list: Vec<HumanUser> = match waiting_list_service.get_users().await {
         Ok(waiting_list) => waiting_list,
         Err(PestoError::RedisError(error)) => {
@@ -572,6 +579,7 @@ async fn approve_user<Command: AsyncCommands + Clone>(
     let user: Option<&HumanUser> = waiting_list
         .iter()
         .find(|waiting_list_user| waiting_list_user.email == body.user_email);
+
     // XXX(reinaldy): we should refactor this hadouken pattern later
     match user {
         None => {
@@ -581,8 +589,20 @@ async fn approve_user<Command: AsyncCommands + Clone>(
                 r#"{"message":"Email does not exists"}"#,
             );
         }
-        Some(user) => match approval_service.approve_user(body).await {
+        Some(user) => match approval_service.approve_user(body.clone()).await {
             Ok(_) => {
+                // Email does exist, but let us check if token already exists
+                if let Some(token) = body.token.clone() {
+                    if approval_service.get_user_by_token(token).await.is_ok() {
+                        return (
+                            StatusCode::BAD_REQUEST,
+                            [(header::CONTENT_TYPE, "application/json")],
+                            r#"{"message":"Token already exists"}"#,
+                        );
+                    }
+                }
+
+                // Email the user
                 let _ = mailersend_client.send_email(
                         user.email.clone(),
                         "Your Pesto (the remote code execution engine) token!".to_string(),
