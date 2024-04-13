@@ -589,7 +589,7 @@ async fn approve_user<Command: AsyncCommands + Clone>(
                 r#"{"message":"Email does not exists"}"#,
             );
         }
-        Some(user) => match approval_service.approve_user(body).await {
+        Some(user) => match approval_service.approve_user(body.clone()).await {
             Ok(_) => {
                 // Email does exist, but let us check if token already exists
                 if let Some(token) = body.token.clone() {
