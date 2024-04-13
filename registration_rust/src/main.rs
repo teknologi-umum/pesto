@@ -14,6 +14,7 @@ use tokio::net::TcpListener;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 
+#[derive(Debug)]
 enum PestoError {
     UserNotFound,
     EmailAlreadyExists,
@@ -580,6 +581,17 @@ async fn approve_user<Command: AsyncCommands + Clone>(
         .iter()
         .find(|waiting_list_user| waiting_list_user.email == body.user_email);
 
+    // Email does exist, but let us check if token already exists
+    if let Some(token) = body.token.clone() {
+        if approval_service.get_user_by_token(token).await.is_ok() {
+            return (
+                StatusCode::BAD_REQUEST,
+                [(header::CONTENT_TYPE, "application/json")],
+                r#"{"message":"Token already exists"}"#,
+            );
+        }
+    }
+
     // XXX(reinaldy): we should refactor this hadouken pattern later
     match user {
         None => {
@@ -591,17 +603,6 @@ async fn approve_user<Command: AsyncCommands + Clone>(
         }
         Some(user) => match approval_service.approve_user(body.clone()).await {
             Ok(_) => {
-                // Email does exist, but let us check if token already exists
-                if let Some(token) = body.token.clone() {
-                    if approval_service.get_user_by_token(token).await.is_ok() {
-                        return (
-                            StatusCode::BAD_REQUEST,
-                            [(header::CONTENT_TYPE, "application/json")],
-                            r#"{"message":"Token already exists"}"#,
-                        );
-                    }
-                }
-
                 // Email the user
                 let _ = mailersend_client.send_email(
                         user.email.clone(),
@@ -616,8 +617,8 @@ Your token is:
 
 {}
 
-Thank you! Have a great day."#, user.name.clone(), user.email.clone()),
-                        format!(r#"<b>Hello, {}! 👋</b><br><br>Sorry for the long wait. We've been occupied with some work outside the open source world. But, we got your registration submission for Pesto, the remote code execution engine.<br><br>Pesto users are still relatively low, so we'd love to get feedback from you. You can reply to this email, or open an issue on the GitHub repository. Feel free to request new features, report bugs, or even contribute to us, that will be so much appreciated.<br><br>Your token is:<br><br>{}<br><br>Thank you! Have a great day."#, user.name.clone(), user.email.clone()),
+Thank you! Have a great day."#, user.name.clone(), body.token.clone().unwrap()),
+                        format!(r#"<b>Hello, {}! 👋</b><br><br>Sorry for the long wait. We've been occupied with some work outside the open source world. But, we got your registration submission for <a href="https://github.com/teknologi-umum/pesto">Pesto</a>, the remote code execution engine.<br><br>Pesto users are still relatively low, so we'd love to get feedback from you. You can reply to this email, or open an issue on the GitHub repository. Feel free to request new features, report bugs, or even contribute to us, that will be so much appreciated.<br><br>Your token is:<br><br>{}<br><br>Thank you! Have a great day."#, user.name.clone(), body.token.clone().unwrap()),
                     ).await.map_err(|error| {
                         sentry::capture_error(&error);
                         error
