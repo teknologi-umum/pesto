@@ -16,9 +16,9 @@ jobs:
         working-directory: ./sdk/javascript
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - run: npm install
       - run: npm run build
       - run: npm publish --access public --tag latest
@@ -36,9 +36,9 @@ jobs:
           working-directory: ./sdk/dotnet
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "6.x"
+          dotnet-version: "8.x"
       - name: Pack nugets
         run: dotnet pack Pesto -c Release --output .
       - name: Push to NuGet

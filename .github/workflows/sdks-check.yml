@@ -1,15 +1,18 @@
 name: SDK
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
 
 jobs:
   go-sdk:
-    name: Go SDK
+    name: Go Check
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: [ '1.19', '1.20', '1.21' ]
+        go-version: [ '1.21', '1.22' ]
     timeout-minutes: 30
     defaults:
       run:
@@ -19,9 +22,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go }}
+          go-version: ${{ matrix.go-version }}
 
       - name: Test
         run: go test -v -coverprofile=coverage.out -covermode=atomic -race ./...
@@ -34,7 +37,7 @@ jobs:
           flags: sdk-go
 
   js-sdk:
-    name: JavaScript SDK
+    name: JavaScript Check
     runs-on: ubuntu-latest
     container: node:lts
     timeout-minutes: 30
@@ -69,11 +72,11 @@ jobs:
           flags: sdk-javascript
 
   dotnet-sdk:
-    name: .NET SDK
+    name: .NET Check
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dotnet: [ '3.x', '6.x', '7.x' ]
+        dotnet-version: [ '3.x', '6.x', '8.x' ]
     timeout-minutes: 30
     defaults:
       run:
@@ -82,9 +85,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet }}
+          dotnet-version: ${{ matrix.dotnet-version }}
 
       - name: Test
         run: dotnet test Pesto.sln --collect "XPlat Code Coverage"
@@ -101,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.9', '3.10', '3.11', '3.12' ]
+        python-version: [ '3.9', '3.11', '3.12' ]
     timeout-minutes: 30
     defaults:
       run:
@@ -109,6 +112,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
