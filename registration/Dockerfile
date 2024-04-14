@@ -13,6 +13,6 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y openssl ca-certificates wget
 
-COPY --from=builder /app/target/release/registration_rust /usr/local/bin/registration_rust
+COPY --from=builder /app/target/release/registration /usr/local/bin/registration
 
-CMD ["/usr/local/bin/registration_rust"]
+CMD ["/usr/local/bin/registration"]
