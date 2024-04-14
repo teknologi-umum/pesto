@@ -13,6 +13,6 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y openssl ca-certificates wget
 
-COPY --from=builder /app/target/release/auth_rust /usr/local/bin/auth_rust
+COPY --from=builder /app/target/release/auth /usr/local/bin/auth
 
-CMD ["/usr/local/bin/auth_rust"]
+CMD ["/usr/local/bin/auth"]

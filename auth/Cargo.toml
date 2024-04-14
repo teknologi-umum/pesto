@@ -1,5 +1,5 @@
 [package]
-name = "auth_rust"
+name = "auth"
 version = "0.1.0"
 authors = ["Reinaldy Rafli <aldy505@proton.me>"]
 repository = "https://github.com/teknologi-umum/pesto"

@@ -106,7 +106,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: ./registration_rust
+        working-directory: ./registration
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
