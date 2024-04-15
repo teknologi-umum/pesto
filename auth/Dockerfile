@@ -1,27 +1,18 @@
-FROM golang:1.21.4-bookworm AS builder
+FROM rust:1.77-bookworm AS builder
 
 WORKDIR /app
 
 COPY . .
 
-RUN go build -o pesto_auth .
+RUN cargo build --release
 
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS runtime
 
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y curl ca-certificates && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y openssl ca-certificates wget
 
-COPY . .
+COPY --from=builder /app/target/release/auth /usr/local/bin/auth
 
-COPY --from=builder /app/pesto_auth .
-
-ENV PORT=3000
-
-EXPOSE ${PORT}
-
-CMD [ "./pesto_auth" ]
+CMD ["/usr/local/bin/auth"]

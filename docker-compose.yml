@@ -92,7 +92,8 @@ services:
     networks:
       - internal
     volumes:
-      - ../redis:/data
+      - redis-data
+
   auth:
     image: ghcr.io/teknologi-umum/pesto-auth:edge
     environment:
@@ -133,13 +134,13 @@ services:
         max-size: 10m
         max-file: 3
     healthcheck:
-      test: "curl -f http://localhost:3000/healthz || exit 1"
+      test: "wget -q --spider http://localhost:3000/healthz || exit 1"
       interval: 15s
       timeout: 10s
       retries: 5
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: unless-stopped
         delay: 30s
@@ -183,8 +184,8 @@ services:
       - "traefik.http.middlewares.rce-error.errors.status=500-599"
       - "traefik.http.middlewares.rce-error.errors.service=landing@docker"
       - "traefik.http.middlewares.rce-error.errors.query=/500"
-      - "traefik.http.middlewares.rce-rate.ratelimit.average=60"
-      - "traefik.http.middlewares.rce-rate.ratelimit.burst=5"
+      - "traefik.http.middlewares.rce-rate.ratelimit.average=500"
+      - "traefik.http.middlewares.rce-rate.ratelimit.burst=100"
       - "traefik.http.middlewares.rce-rate.ratelimit.period=1m"
       - "traefik.http.middlewares.rce-header.headers.accesscontrolallowmethods=GET,OPTIONS,POST"
       - "traefik.http.middlewares.rce-header.headers.accesscontrolalloworiginlist=*"
@@ -215,7 +216,7 @@ services:
       retries: 5
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 2
       restart_policy:
         condition: unless-stopped
         delay: 30s
@@ -235,12 +236,9 @@ services:
     image: ghcr.io/teknologi-umum/pesto-registration:edge
     environment:
       <<: [ *defaults ]
-      PORT: "80"
+      PORT: "3000"
       SENTRY_DSN: ${REGISTRATION_SENTRY_DSN}
-      Sentry__Dsn: ${REGISTRATION_SENTRY_DSN}
-      Sentry__Debug: false
-      Sentry__Environment: production
-      RedisUrl: "db:6379"
+      REDIS_URL: redis://@db:6379/
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=pesto"
@@ -249,7 +247,7 @@ services:
       - "traefik.http.routers.registration.priority=5"
       - "traefik.http.routers.registration.tls.certresolver=tlsresolver"
       - "traefik.http.routers.registration.middlewares=registration-error,registration-header,registration-rate,registration-redirectscheme,registration-inflightreq"
-      - "traefik.http.services.registration.loadbalancer.server.port=80"
+      - "traefik.http.services.registration.loadbalancer.server.port=3000"
       - "traefik.http.services.registration.loadbalancer.server.scheme=http"
       - "traefik.http.services.registration.loadbalancer.healthcheck.interval=30s"
       - "traefik.http.services.registration.loadbalancer.healthcheck.path=/healthz"
@@ -283,7 +281,7 @@ services:
         max-size: 10m
         max-file: 3
     healthcheck:
-      test: "curl -f http://localhost:80/healthz || exit 1"
+      test: "wget -q --spider http://localhost:3000/healthz || exit 1"
       interval: 15s
       timeout: 10s
       retries: 5
@@ -321,3 +319,6 @@ networks:
     ipam:
       config:
         - subnet: 10.32.51.0/27
+
+volumes:
+  redis-data:
