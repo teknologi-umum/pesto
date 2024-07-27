@@ -150,7 +150,7 @@ services:
           memory: 500MB
           cpus: '0.75'
         reservations:
-          memory: 25MB
+          memory: 10MB
           cpus: '0.10'
     depends_on:
       db:
@@ -297,10 +297,10 @@ services:
         window: 120s
       resources:
         limits:
-          memory: 2GB
+          memory: 500MB
           cpus: '1'
         reservations:
-          memory: 25MB
+          memory: 10MB
           cpus: '0.10'
     networks:
       - pesto

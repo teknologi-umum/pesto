@@ -6,15 +6,10 @@ rewrite from scratch and therefore it's not compatible with Piston but should be
 Piston.
 
 Pesto was written with a fresh start, minimizing the dependencies needed, and system controlled for limited resources
-usage. Hence, users will need to register in order to gain access to Pesto's API.
+usage.
 
-Pesto API itself is hosted on our cloud VPS in Singapore, backed by the contributions on our donators
-from [Saweria](https://saweria.co/teknologiumum) (Indonesian only)
-and [Github Sponsors](https://github.com/sponsors/teknologi-umum) (Worldwide). The API is 100% free to use. However, if
-you are using Pesto API on a commercial project or on a project that makes money to you, please consider donating to
-keep the API running.
-
-See [our website](https://pesto.teknologiumum.com) for details.
+Pesto is not hosted anywhere at the moment, you will have to self-host it yourself. Though it's easy, all you need
+is to clone the repository and run `docker compose up -d`.
 
 ## Who uses Pesto
 
@@ -44,13 +39,12 @@ contribution.
 Please use [issues](https://github.com/teknologi-umum/pesto/issues) to file a bug or discuss any matter before
 contributing to the source code.
 
-If you need additional help, you can always talk to us via [Telegram](https://t.me/teknologi_umum_v2)
-or [Discord](https://discord.gg/b3JRrGuxR6).
+If you need additional help, you can always talk to us via [Telegram](https://t.me/teknologi_umum_v2).
 
 ## License
 
 ```
-Copyright 2022 Teknologi Umum and contributors
+Copyright 2024 Teknologi Umum <opensource@teknologiumum.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
