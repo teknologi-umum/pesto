@@ -1,0 +1,15 @@
+language = "DuckDB"
+version = "1.0.0"
+compiled = false
+extension = "sql"
+environment = [
+  "PATH=/opt/duckdb/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+]
+build_command = []
+run_command = [ "/bin/cat", "{file}", "|", "duckdb", "-noheader", "-ascii" ]
+test_file = "test.sql"
+aliases = [ "duckdb" ]
+should_limit_memory = true
+memory_limit = 256
+process_limit = 256
+allowed_entrypoints = 1
