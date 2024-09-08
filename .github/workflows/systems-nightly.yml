@@ -13,7 +13,7 @@ jobs:
   auth:
     name: Auth
     runs-on: ubuntu-latest
-    container: rust:1.77
+    container: rust:1.81
     timeout-minutes: 30
     defaults:
       run:
@@ -31,7 +31,7 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    container: node:20.12
+    container: node:20.17
     timeout-minutes: 30
     defaults:
       run:
@@ -57,7 +57,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npx eslint --ext .ts,.js,.cjs .
+        run: npx biome ci
 
       - name: Build
         run: npm run build
@@ -79,7 +79,7 @@ jobs:
   landing:
     name: Landing
     runs-on: ubuntu-latest
-    container: node:20.12
+    container: node:20.17
     timeout-minutes: 30
     defaults:
       run:
@@ -105,7 +105,7 @@ jobs:
   registration:
     name: Registration
     runs-on: ubuntu-latest
-    container: rust:1.77
+    container: rust:1.81
     timeout-minutes: 30
     defaults:
       run:
@@ -124,6 +124,11 @@ jobs:
     name: Build Database
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    needs:
+      - auth
+      - rce
+      - landing
+      - registration
     permissions:
       contents: read
       packages: write
@@ -166,6 +171,9 @@ jobs:
     timeout-minutes: 30
     needs:
       - auth
+      - rce
+      - landing
+      - registration
     permissions:
       contents: read
       packages: write
@@ -217,7 +225,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
+      - auth
+      - rce
       - landing
+      - registration
     permissions:
       contents: read
       packages: write
@@ -259,7 +270,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 720
     needs:
+      - auth
       - rce
+      - landing
+      - registration
     permissions:
       contents: read
       packages: write
@@ -311,6 +325,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
+      - auth
+      - rce
+      - landing
       - registration
     permissions:
       contents: read
