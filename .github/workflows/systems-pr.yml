@@ -120,6 +120,9 @@ jobs:
     timeout-minutes: 30
     needs:
       - auth
+      - rce
+      - landing
+      - registration
     permissions:
       contents: read
       packages: write
@@ -160,7 +163,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
+      - auth
+      - rce
       - landing
+      - registration
     permissions:
       contents: read
       packages: write
@@ -201,7 +207,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 720
     needs:
+      - auth
       - rce
+      - landing
+      - registration
     permissions:
       contents: read
       packages: write
@@ -242,6 +251,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs:
+      - auth
+      - rce
+      - landing
       - registration
     permissions:
       contents: read
