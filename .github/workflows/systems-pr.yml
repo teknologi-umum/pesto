@@ -54,7 +54,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npx eslint --ext .ts,.js,.cjs .
+        run: npx biome ci
 
       - name: Build
         run: npm run build
