@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [ '1.21', '1.22' ]
+        go-version: [ "1.22", "1.23" ]
     timeout-minutes: 30
     defaults:
       run:
@@ -28,8 +28,6 @@ jobs:
 
       - name: Test
         run: go test -v -coverprofile=coverage.out -covermode=atomic -race ./...
-        env:
-          PESTO_TOKEN: ${{ secrets.PESTO_TOKEN }}
 
       - name: Codecov
         uses: codecov/codecov-action@v3
@@ -63,8 +61,6 @@ jobs:
 
       - name: Test
         run: npx vitest run --coverage --threads=false
-        env:
-          PESTO_TOKEN: ${{ secrets.PESTO_TOKEN }}
 
       - name: Codecov
         uses: codecov/codecov-action@v3
@@ -91,8 +87,6 @@ jobs:
 
       - name: Test
         run: dotnet test Pesto.sln --collect "XPlat Code Coverage"
-        env:
-          PESTO_TOKEN: ${{ secrets.PESTO_TOKEN }}
 
       - name: Codecov
         uses: codecov/codecov-action@v3
@@ -131,8 +125,6 @@ jobs:
 
       - name: Run Pytest
         run: pytest . --cov-report term-missing --cov-report xml --cov pesto
-        env:
-          PESTO_TOKEN: ${{ secrets.PESTO_TOKEN }}
 
       - name: Code Coverage Report
         uses: codecov/codecov-action@v3

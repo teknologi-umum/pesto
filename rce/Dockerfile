@@ -1,10 +1,12 @@
-FROM node:20.12-bookworm
+FROM node:20.17-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
 COPY . .
+
+RUN touch .env
 
 RUN apt-get update && \
   # Update OS dependencies \
