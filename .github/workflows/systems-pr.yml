@@ -11,7 +11,7 @@ jobs:
   auth:
     name: Auth
     runs-on: ubuntu-latest
-    container: rust:1.77
+    container: rust:1.81
     timeout-minutes: 30
     defaults:
       run:
@@ -28,7 +28,7 @@ jobs:
   rce:
     name: RCE
     runs-on: ubuntu-latest
-    container: node:20.12
+    container: node:20.17
     timeout-minutes: 30
     defaults:
       run:
@@ -76,7 +76,7 @@ jobs:
   landing:
     name: Landing
     runs-on: ubuntu-latest
-    container: node:20.12
+    container: node:20.17
     timeout-minutes: 30
     defaults:
       run:
@@ -102,7 +102,7 @@ jobs:
   registration:
     name: Registration
     runs-on: ubuntu-latest
-    container: rust:1.77
+    container: rust:1.81
     timeout-minutes: 30
     defaults:
       run:
