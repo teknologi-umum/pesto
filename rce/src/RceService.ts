@@ -57,7 +57,7 @@ export class RceServiceImpl implements ICodeExecutionEngineService {
 				attributes: {
 					language: req.language,
 					version: req.version,
-				}
+				},
 			},
 			async () => {
 				const runtimeIndex = this._registeredRuntimes.findIndex(
