@@ -1,0 +1,20 @@
+language = "OCaml"
+version = "2.1.5"
+compiled = true
+extension = "ml"
+# opam env --switch=default
+environment = [
+  "PATH=/opt/ocaml/2.1.5/default/bin",
+  "MANPATH=/opt/ocaml/2.1.5/default/man",
+  "OCAML_TOPLEVEL_PATH=/opt/ocaml/2.1.5/default/lib/toplevel",
+  "CAML_LD_LIBRARY_PATH=/opt/ocaml/2.1.5/default/lib/stublibs:/opt/ocaml/2.1.5/default/lib/ocaml/stublibs:/opt/ocaml/2.1.5/default/lib/ocaml",
+  "OPAM_SWITCH_PREFIX=/opt/ocaml/2.1.5/default",
+]
+build_command = [ "ocamlc", "-o", "code", "{file}" ]
+run_command = [ "./code" ]
+test_file = "test.ml"
+aliases = [ "ocaml", "oc", "ml" ]
+should_limit_memory = false
+memory_limit = 0
+process_limit = 4096
+allowed_entrypoints = -1
