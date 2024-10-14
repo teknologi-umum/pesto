@@ -15,7 +15,7 @@
 		"@astrojs/node": "^8.2.0",
 		"@astrojs/solid-js": "^4.0.1",
 		"@babel/core": "^7.23.9",
-		"astro": "^4.3.5",
+		"astro": "^4.16.1",
 		"polka": "^0.5.2",
 		"prettier": "^3.2.5",
 		"prettier-plugin-astro": "^0.13.0",
