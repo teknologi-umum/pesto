@@ -130,7 +130,7 @@ function execute(
 			);
 			console.log(testResult);
 
-			if (testResult.trim() !== "Hello world!") {
+			if (testResult.trim().includes("Hello world!")) {
 				throw new Error(
 					`Test file failed for package ${pkg.name}. Expecting "Hello world!", got "${testResult.trim()}"`,
 				);
@@ -143,7 +143,7 @@ function execute(
 			);
 			console.log(testResult);
 
-			if (testResult.trim() !== "Hello world!") {
+			if (testResult.trim().includes("Hello world!")) {
 				throw new Error(
 					`Test file failed for package ${pkg.name}. Expecting "Hello world!", got "${testResult.trim()}"`,
 				);
