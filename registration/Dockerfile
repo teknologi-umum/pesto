@@ -15,4 +15,6 @@ RUN apt-get update && \
 
 COPY --from=builder /app/target/release/registration /usr/local/bin/registration
 
+USER nobody
+
 CMD ["/usr/local/bin/registration"]

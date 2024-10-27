@@ -223,8 +223,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         env::var("SENTRY_DSN").unwrap_or_default(),
         sentry::ClientOptions {
             release: sentry::release_name!(),
-            sample_rate: 1.0,
-            traces_sample_rate: 0.5,
+            sample_rate: env::var("SENTRY_SAMPLE_RATE").unwrap_or(String::from("1.0")).parse()?,
+            traces_sample_rate: env::var("SENTRY_TRACES_SAMPLE_RATE").unwrap_or(String::from("0.5")).parse()?, 
             ..Default::default()
         },
     ));

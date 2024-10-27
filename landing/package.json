@@ -1,8 +1,8 @@
 {
-	"name": "pesto-landing",
+	"name": "@teknologi-umum/pesto-landing",
 	"version": "1.0.0",
-	"private": true,
 	"type": "module",
+	"license": "Apache-2.0",
 	"scripts": {
 		"dev": "astro dev",
 		"start": "astro dev",
@@ -12,21 +12,21 @@
 		"fmt:check": "prettier --ignore-path .gitignore --check ./**/*.{astro,ts,tsx,mjs}"
 	},
 	"devDependencies": {
-		"@astrojs/node": "^8.2.0",
-		"@astrojs/solid-js": "^4.0.1",
-		"@babel/core": "^7.23.9",
-		"astro": "^4.3.5",
+		"@astrojs/node": "^8.3.4",
+		"@astrojs/solid-js": "^4.4.2",
+		"@babel/core": "^7.26.0",
+		"astro": "^4.16.7",
 		"polka": "^0.5.2",
-		"prettier": "^3.2.5",
-		"prettier-plugin-astro": "^0.13.0",
-		"sass": "^1.70.0",
-		"sirv": "^2.0.4",
-		"solid-js": "^1.8.14"
+		"prettier": "^3.3.3",
+		"prettier-plugin-astro": "^0.14.1",
+		"sass": "^1.80.4",
+		"sirv": "^3.0.0",
+		"solid-js": "^1.9.3"
 	},
 	"dependencies": {
-		"@fontsource/ibm-plex-mono": "^5.0.8",
-		"@fontsource/ibm-plex-sans": "^5.0.18",
-		"@fontsource/ibm-plex-serif": "^5.0.8",
-		"@sentry/astro": "^7.87.0"
+		"@fontsource/ibm-plex-mono": "^5.1.0",
+		"@fontsource/ibm-plex-sans": "^5.1.0",
+		"@fontsource/ibm-plex-serif": "^5.1.0",
+		"@sentry/astro": "^8.35.0"
 	}
 }
