@@ -15,4 +15,6 @@ RUN apt-get update && \
 
 COPY --from=builder /app/target/release/auth /usr/local/bin/auth
 
+USER nobody
+
 CMD ["/usr/local/bin/auth"]
