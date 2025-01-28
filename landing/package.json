@@ -27,6 +27,6 @@
 		"@fontsource/ibm-plex-mono": "^5.1.0",
 		"@fontsource/ibm-plex-sans": "^5.1.0",
 		"@fontsource/ibm-plex-serif": "^5.1.0",
-		"@sentry/astro": "^8.35.0"
+		"@sentry/astro": "^8.49.0"
 	}
 }
