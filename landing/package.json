@@ -21,7 +21,7 @@
 		"prettier-plugin-astro": "^0.14.1",
 		"sass": "^1.80.4",
 		"sirv": "^3.0.0",
-		"solid-js": "^1.9.3"
+		"solid-js": "^1.9.4"
 	},
 	"dependencies": {
 		"@fontsource/ibm-plex-mono": "^5.1.0",
