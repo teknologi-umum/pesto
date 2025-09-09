@@ -56,7 +56,7 @@
     "msw": "^1.2.2",
     "tslib": "^2.6.0",
     "typescript": "^5.1.6",
-    "vitest": "^0.32.2"
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "node-fetch": "^3.3.1"
