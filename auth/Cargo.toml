@@ -17,4 +17,4 @@ serde = { version = "1.0.197", features = ["derive"] }
 chrono = "0.4.37"
 sentry = { version = "0.32.2", features = ["tracing", "UNSTABLE_metrics"] }
 tracing = { version = "0.1.40" }
-tracing-subscriber = { version = "0.3.18", features = ["std", "registry", "tracing"] }
+tracing-subscriber = { version = "0.3.20", features = ["std", "registry", "tracing"] }
